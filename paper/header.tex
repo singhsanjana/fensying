@@ -9,8 +9,7 @@
 \usepackage{array,multirow}
 \usepackage{caption}
 \usepackage{longtable}
-\usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
+\usepackage[ruled,vlined,linesnumbered,noend]{algorithm2e}
 \usepackage{framed,enumitem}
 \usepackage{wrapfig}
 
@@ -61,20 +60,24 @@
 \newcommand{\nin}{\not\in\xspace}
 
 % highlighted hyperlinks
-\newcommand{\hl}[1]{{\textcolor{darkgray}{\texttt{(#1)}}}\xspace} % hyperlink target
+\newcommand{\hl}[1]{\hypertarget{#1}{\textcolor{darkgray}{\texttt{#1}}}\xspace} % hyperlink target
+%\newcommand{\hl}[1]{{\textcolor{darkgray}{\texttt{(#1)}}}\xspace} % hyperlink target
 \newcommand{\hlref}[1]{\hyperlink{#1}{\textcolor{Sepia}{\small \texttt{(#1)}}}}
 \newcommand{\tab}{\quad\quad}
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Document Specific %%%%%%%%%%%%%%%%%%%%%%
 
 % tools and techniques
-\newcommand{\ourtechnique}{\textcolor{RubineRed}{\texttt{FenSying}}\xspace}
+\newcommand{\ourtechniquename}{FenSying}
+\newcommand{\ourtechnique}{\textcolor{RubineRed}{\texttt{\ourtechniquename}}\xspace}
 \newcommand{\ourtool}{\ourtechnique{-}tool\xspace}
 \newcommand{\cc}{\textit{C11}\xspace}
 \newcommand{\cds}{CDSChecker\xspace}
 \newcommand{\genmc}{GenMC\xspace}
 \newcommand{\tracer}{Tracer\xspace}
 \newcommand{\z}{\texttt{Z3}\xspace}
+\newcommand{\stfence}{\textcolor{black}{Strong-\ourtechniquename}\xspace}
+\newcommand{\wkfence}{\textcolor{black}{Weak-\ourtechniquename}\xspace}
 
 % sets and entitites
 \newcommand{\program}{$P$\xspace} %input program
@@ -98,10 +101,12 @@
 \newcommand{\writes}{\events^\wt{}\xspace}
 \newcommand{\reads}{\events^\rd{}\xspace}
 \newcommand{\fences}{\events^\fn{}\xspace}
+\newcommand{\sfences}{\overline{\fences}\xspace}
 \newcommand{\ordevents}[1]{\events^{(#1)}\xspace}
 \newcommand{\ordwrites}[1]{\events^\wt{(#1)}\xspace}
 \newcommand{\ordreads}[1]{\events^\rd{(#1)}\xspace}
 \newcommand{\ordfences}[1]{\events^\fn{(#1)}\xspace}
+\newcommand{\ordsfences}[1]{\overline{\ordfences{#1}}\xspace}
 % cycles
 \newcommand{\scycles}[1]{\texttt{Scycles}(#1)\xspace}
 \newcommand{\rcycles}[1]{\texttt{Rcycles}(#1)\xspace}
@@ -128,18 +133,26 @@
 % relation with events
 \newcommand{\seqb}[3]{\reln{\textbf{\textcolor{CarnationPink}{sb}}}{#1}{#2}{#3}\xspace}
 \newcommand{\rf}[3]{\reln{\textbf{\textcolor{PineGreen}{rf}}}{#1}{#2}{#3}\xspace} 
+\newcommand{\nrf}[3]{\nreln{\textbf{\textcolor{PineGreen}{rf}}}{#1}{#2}{#3}\xspace} 
 \newcommand{\dob}[3]{\reln{\textbf{\textcolor{Mulberry}{dob}}}{#1}{#2}{#3}\xspace}
+\newcommand{\ndob}[3]{\nreln{\textbf{\textcolor{Mulberry}{dob}}}{#1}{#2}{#3}\xspace}
 \newcommand{\sw}[3]{\reln{\textbf{\textcolor{Magenta}{sw}}}{#1}{#2}{#3}\xspace}
+\newcommand{\nsw}[3]{\nreln{\textbf{\textcolor{Magenta}{sw}}}{#1}{#2}{#3}\xspace}
 \newcommand{\ithb}[3]{\reln{\textbf{\textcolor{NavyBlue}{ithb}}}{#1}{#2}{#3}\xspace}
+\newcommand{\nithb}[3]{\nreln{\textbf{\textcolor{NavyBlue}{ithb}}}{#1}{#2}{#3}\xspace}
 \newcommand{\hb}[3]{\reln{\textbf{\textcolor{Cerulean}{hb}}}{#1}{#2}{#3}\xspace}
 \newcommand{\nhb}[3]{\nreln{\textbf{\textcolor{Cerulean}{hb}}}{#1}{#2}{#3}\xspace}
 \newcommand{\mo}[3]{\reln{\textbf{\textcolor{RedOrange}{mo}}}{#1}{#2}{#3}\xspace}
 \newcommand{\nmo}[3]{\nreln{\textbf{\textcolor{RedOrange}{mo}}}{#1}{#2}{#3}\xspace}
 \renewcommand{\to}[3]{\reln{\textbf{\textcolor{Brown}{to}}}{#1}{#2}{#3}\xspace}
 \newcommand{\so}[3]{\reln{\textbf{\textcolor{Mahogany}{so}}}{#1}{#2}{#3}\xspace} %sc
-\newcommand{\fr}[3]{\reln{\textbf{\textcolor{RoyalPurple}{fr}}}{#1}{#2}{#3}} %rb
+\newcommand{\fr}[3]{\reln{\textbf{\textcolor{RoyalPurple}{fr}}}{#1}{#2}{#3}} %rb/fr
+\newcommand{\nfr}[3]{\nreln{\textbf{\textcolor{RoyalPurple}{fr}}}{#1}{#2}{#3}} %~rb/fr
 \newcommand{\ws}[3]{\reln{\textbf{\textcolor{Mahogany}{ws}}}{#1}{#2}{#3}} %sc-sw
-\newcommand{\nithb}[3]{\nreln{\textbf{\textcolor{NavyBlue}{ithb}}}{#1}{#2}{#3}\xspace}
+\newcommand{\frsc}[3]{\reln{\textbf{\textcolor{RoyalPurple}{\onsc{fr}}}}{#1}{#2}{#3}\xspace} %rb/fr
+\newcommand{\nfrsc}[3]{#2\onsc{\nrightarrow^{{\bf\textcolor{RoyalPurple}{fr}}}_{#1}}#3\xspace}
+\newcommand{\rfinv}[3]{#2 \rightarrow^{ \textcolor{PineGreen}{ \textbf{rf}^{-\textbf{1}} } }_{#1} #3\xspace} 
+\newcommand{\nrfinv}[3]{#2 \nrightarrow^{ \textcolor{PineGreen}{ \textbf{rf}^{-\textbf{1}} } }_{#1} #3\xspace}
 
 % relation name without events
 \newcommand{\setSB}{\seqb{\tau}{}{}\xspace}
@@ -151,10 +164,11 @@
 \newcommand{\setMO}{\mo{\tau}{}{}\xspace}
 \newcommand{\setTO}{\to{\tau}{}{}\xspace}
 \newcommand{\setSO}{\so{\tau}{}{}\xspace}
-\newcommand{\setWS}{\ws{\tau}{}{}\xspace}
+\newcommand{\setWS}{\ws{\inv{\tau}}{}{}\xspace}
 \newcommand{\nsetHB}{\nhb{\tau}{}{}\xspace}
 \newcommand{\nsetMO}{\nmo{\tau}{}{}\xspace}
 \newcommand{\setFR}{\fr{\tau}{}{}\xspace}
+\newcommand{\nsetFR}{\nfr{\tau}{}{}\xspace}
 
 % relation label 
 \newcommand{\lsb}{\textbf{\textcolor{CarnationPink}{sb}}\xspace}
@@ -180,6 +194,7 @@
 \newcommand{\acq}{\texttt{acq}\xspace}
 \newcommand{\acqrel}{\texttt{acq-rel}\xspace}
 \renewcommand{\sc}{\texttt{sc}\xspace}
+\newcommand{\onsc}[1]{{#1{|}_\sc} \xspace}
 
 % load/store events and instructions
 \newcommand{\load}[3]{#1 := #2_{#3}}
@@ -203,6 +218,7 @@
 \newcommand{\divComment}[1]{\textcolor{ForestGreen}{[div: #1]}}
 \newcommand{\snj}[1]{\textcolor{RubineRed}{[snj]: #1}}
 \newcommand{\svs}[1]{\textcolor{Maroon}{[svs]:#1}}
+
 
 %svs -- added to track changes -- for the benefit of snj,div,ish!  use
 % the [final] option to clear the changes and show the last changes
