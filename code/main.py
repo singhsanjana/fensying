@@ -17,7 +17,6 @@ import sys
 from constants import output_colours as oc
 from processing import Processing
 from z3run import z3run
-from get_fence_types import get_fence_types
 from insert import insert
 from translators.cds_checker.cds_checker import translate_cds
 from translators.cds_checker.delete_file import delete_generated_file
@@ -86,7 +85,6 @@ def fn_main(filename):
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions, fences_present)									# get output from z3 & get required locations
 			req_locs = [int(rf[1:]) for rf in req_fences]
-			get_fence_types(req_fences, hb_cycles, so_cycles, hb_edges)
 			new_filename = insert(req_locs, filename, fences_present_locs)		# insert fences into the source file at the required locations
 
 			fences_added += len(req_locs)-len(fences_present)
