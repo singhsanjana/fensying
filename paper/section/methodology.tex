@@ -144,7 +144,9 @@ The elimination is a two-phase process where in the first
 phase the algorithm discards candidate fences that do not 
 contribute to the violation of either a coherence condition 
 or the \sc total order. 
-Further, in the second phase the algorithm reduces the 
+It may be the case that we detect more than one violations
+ in a buggy trace.
+Thus, further, in the second phase the algorithm reduces the 
 remaining candidate fences to the optimal number with
 the optimal memory order.
 
