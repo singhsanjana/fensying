@@ -1,4 +1,4 @@
-{\theorem {\wkfence is sound}}
+{\theorem {\wkfence is sound} \label{thm:weak-sound}}
 \begin{proof}
 	\wkfence strategy checks validity of coherence conditions
 	on event relations between program events and synthesized
@@ -114,6 +114,138 @@
 	coherence rule and	\wkfence is sound.
 \end{proof}
 
-{\theorem {\stfence is sound}}
+\noindent
+\cc defines a total-order on \sc ordered events in agreement with
+the $\setHB, \setMO, \setRF$ relations \cite{C11} \ie:\newline
+Given $e^\sc_1, e^\sc_2 \in \ordevents{\sc}_\tau$ if 
+
+$e^\sc_1$ $(\setHB \union \setMO \union \setRF \union \setFR)^+$ 
+$e^\sc_2$; {\it or} \hfill[to1]
+
+$e^\sc_1$ $R_1;R_2;...;R_n$ $e^\sc_2$, where 
+$R_i \in \{\setHB, \setMO, \setRF, \setFR\}$.\hfill[to2]
+\newline
+
+
+\noindent
+The relation $\setSO$ has been defined in 
+Section~\ref{sec:invalidating ce} as follows:\newline
+	$\forall e_1, e_2 \in \events_\tau$ \st 
+	$(e_1,e_2) \in$ $\setHB$ $\union$ $\setMO$ $\union$ $\setRF$ 
+	$\union$ $\setFR$ 
+	
+	if
+	$e_1, e_2 \in \ordevents{\sc}_\tau$ then 
+	$\so{\tau'}{e_1}{e_2}$; \hfill[so1]
+	
+	if
+	$e_1 \in \ordevents{\sc}_\tau$, 
+	$\exists \mathbb{F}^\sc \in \ordsfences{\sc}_{\tau'}$ where
+	$\seqb{\tau'}{e_2}{\mathbb{F}^\sc}$ then
+	$\so{\tau'}{e_1}{\mathbb{F}^\sc}$;
+	\hfill[so2]
+	
+	if
+	$e_2 \in \ordevents{\sc}_\tau$, 
+	$\exists \mathbb{F}^\sc \in \ordsfences{\sc}_{\tau'}$ where
+	$\seqb{\tau'}{\mathbb{F}^\sc}{e_1}$ then
+	$\so{\tau'}{\mathbb{F}^\sc}{e_2}$;
+	\hfill[so3]
+	
+	if
+	$\exists \mathbb{F}^\sc_1$, $\mathbb{F}^\sc_2$ 
+	$\in \ordsfences{\sc}_{\tau'}$ where
+	$\seqb{\tau'}{\mathbb{F}^\sc_1}{e_1}$ and 
+	$\seqb{\tau'}{e_2}{\mathbb{F}^\sc_2}$ then
+	$\so{\tau'}{\mathbb{F}^\sc_1}{\mathbb{F}^\sc_1}$.
+	\hfill[so4]
+
+
+{\lemma {$\setSO \subseteq \setTO$ ($\setSO$ does not relate 
+		two events that are not related by rules for $\setTO$)}}
 \begin{proof}
+		By definition of $\setSO$, $\so{\tau}{e^\sc_1}{e^\sc_2}$ if
+		\begin{itemize}[label=so4,align=left,leftmargin=*]
+			\item [so1:] $e^\sc_1, e^\sc_2 \in \ordevents{\sc}_\tau$
+				and $(e^\sc_1, e^\sc_2) \in$ $\setHB$ $\union$ 
+				$\setMO$ $\union$ $\setRF$ $\union$ $\setFR$
+				
+				$\implies$ $\to{\tau}{e^\sc_1}{e^\sc_2}$
+				(using [to1]).
+				
+			\item [so2:] $e^\sc_1 \in \ordevents{\sc}_\tau$,
+				$e^\sc_2 \in \ordfences{\sc}_\tau$
+				and $(e^\sc_1, e^\sc_2) \in$ ($\setHB$ $\union$ 
+				$\setMO$ $\union$ $\setRF$ $\union$ $\setFR$);$\setSB$
+			
+				$\implies$ $\to{\tau}{e^\sc_1}{e^\sc_2}$
+				(using [to2] since $\setSB$ $\subseteq$ $\setHB$).
+				
+			\item [so3:] $e^\sc_2 \in \ordevents{\sc}_\tau$,
+				$e^\sc_1 \in \ordfences{\sc}_\tau$
+				and $(e^\sc_1, e^\sc_2) \in$ $\setSB$;($\setHB$ 
+				$\union$ $\setMO$ $\union$ $\setRF$ $\union$ $\setFR$)
+			
+				$\implies$ $\to{\tau}{e^\sc_1}{e^\sc_2}$
+				(using [to2] since $\setSB$ $\subseteq$ $\setHB$).
+				
+			\item [so2:] $e^\sc_1, e^\sc_2 \in \ordfences{\sc}_\tau$
+				and $(e^\sc_1, e^\sc_2) \in$ $\setSB$;($\setHB$ $\union$ 
+				$\setMO$ $\union$ $\setRF$ $\union$ $\setFR$);$\setSB$
+			
+				$\implies$ $\to{\tau}{e^\sc_1}{e^\sc_2}$
+				(using [to2] since $\setSB$ $\subseteq$ $\setHB$).
+		\end{itemize}
+\end{proof}
+
+
+{\theorem {\stfence is sound: if there does not exist a total order on
+	the \sc ordered events of a trace $\tau$ then there exists a cycle 
+	in $\setSO$.}}
+\begin{proof}
+	Consider $e^\sc_1, e^\sc_2 \in \ordevents{\sc}_\tau$ \st 
+	both $\to{\tau}{e^\sc_1}{e^\sc_2}$ and 
+	$\to{\tau}{e^\sc_2}{e^\sc_1}$ agree with the other event relations.
+	To form the total order we can assume either one of the two orders
+	\cite{C11}. Assume $\to{\tau}{e^\sc_1}{e^\sc_2}$.
+	
+	Further, consider a total order cannot be formed on \sc events of
+	the intermediate trace $\imm{\tau}$ \st
+	$\to{\imm{\tau}}{e}{\to{\imm{\tau}}{...}{\to{\imm{\tau}}{e^\sc_1}{\to{\imm{\tau}}{e^\sc_2}{\to{\imm{\tau}}{...}{e}}}}}$
+	then we simply reverse to $\to{\imm{\tau}}{e^\sc_2}{e^\sc_1}$ and
+	eliminate the cycle.
+	
+	Thus, pairs of \sc ordered events that don't have a fixed order
+	cannot contribute to a strong cycle. \hfill{\it inf}(i).
+	
+	Given $e^\sc_1, e^\sc_2 \in \ordevents{\sc}_{\imm{\tau}}$
+	$\to{\imm{\tau}}{e^\sc_1}{e^\sc_2}$ if 
+	\begin{itemize}[label=to2,align=left,leftmargin=*]
+		\item [to1:] $(e^\sc_1, e^\sc_2) \in$ $\setHB$ $\union$ 
+			$\setMO$ $\union$ $\setRF$ $\union$ $\setFR$
+		
+			$\implies$ $\so{\imm{\tau}}{e^\sc_1}{e^\sc_2}$
+			(using [so1]).
+			
+			Thus, such events are related by $\so{\imm{\tau}}{}{}$
+			and would be considered by finding strong cycles.
+		
+		\item [to2:] $e^\sc_1$ $R_1;R_2;...;R_n$ $e^\sc_2$, where 
+			$R_i \in \{\setHB, \setMO, \setRF, \setFR\}$.
+			
+			It may be the case that $\nso{\imm{\tau}}{e^\sc_1}{e^\sc_2}$
+			because [so2], [so3] and [so4] only cover a subset of such 
+			cases. However, if
+			\begin{enumerate}
+				\item if $e^\sc_1 \neq e^\sc_2$ then there is no cycle;
+				\item if $e^\sc_1 = e^\sc_2$ then the cycle violates a
+					coherence condition and a corresponding weak cycle
+					would be detected.
+			\end{enumerate}
+	\end{itemize}
+	Thus, cycles created due to [to2] are not strong cycles and
+	$\so{\imm{\tau}}{}{}$ relates events related by $\to{\imm{\tau}}{}{}$
+	using [to1].\hfill{\it inf}(ii).
+	
+	Thus, from {\it inf}(i) and (ii), \stfence is sound.
 \end{proof}
