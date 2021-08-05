@@ -1,6 +1,6 @@
 {\theorem {\wkfence is sound} \label{thm:weak-sound}}
 \begin{proof}
-	\wkfence strategy checks validity of coherence conditions
+	\wkfence strategy checks the validity of coherence conditions
 	on event relations between program events and synthesized
 	fences.
 	
@@ -34,7 +34,7 @@
 	
 	\begin{itemize}[label=setmm,align=left,leftmargin=*]
 		\item [$\setRF$] The relation is formed from write events 
-			to read events, since fences cannot be both the $\setRF$
+			to read events, since fences cannot be both, the $\setRF$
 			relations remains unchanged \ie $\rf{\imm{\tau}}{}{}$ =
 			$\setRF$.
 		
@@ -61,7 +61,7 @@
 				\st $\hb{\imm{\tau}}{w_1}{w_2}$. 
 			
 				If $\mo{\tau}{w_1}{w_2}$ then there does not
-				exist a violation of any coherence condition.
+				exist a violation.
 			
 				However, if $\mo{\tau}{w_2}{w_1}$ then we will 
 				detect the violation as a cycle in 
@@ -74,7 +74,7 @@
 					$\rf{\imm{\tau}}{w_2}{r_1}$.
 			
 				If $\mo{\tau}{w_1}{w_2}$ then there does not
-				exist a violation of any coherence condition.
+				exist a violation.
 			
 				However, if $\mo{\tau}{w_2}{w_1}$ then we will 
 				detect the violation as a cycle in 
@@ -87,7 +87,7 @@
 				$\hb{\imm{\tau}}{r_1}{w_2}$.
 			
 				If $\mo{\tau}{w_1}{w_2}$ then there does not
-				exist a violation of any coherence condition.
+				exist a violation.
 			
 				However, if $\mo{\tau}{w_2}{w_1}$ then we will 
 				detect the violation as a cycle in 
@@ -101,7 +101,7 @@
 					$\hb{\imm{\tau}}{r_1}{r_2}$. 
 					
 					If $\mo{\tau}{w_1}{w_2}$ then there does not
-					exist a violation of any coherence condition.
+					exist a violation.
 					
 					However, if $\mo{\tau}{w_2}{w_1}$ then we will 
 					detect the violation as a cycle in 
@@ -201,7 +201,7 @@ Section~\ref{sec:invalidating ce} as follows:\newline
 
 {\theorem {\stfence is sound: if there does not exist a total order on
 	the \sc ordered events of a trace $\tau$ then there exists a cycle 
-	in $\setSO$.}}
+	in $\setSO$.} \label{thm:strong-sound}}
 \begin{proof}
 	Consider $e^\sc_1, e^\sc_2 \in \ordevents{\sc}_\tau$ \st 
 	both $\to{\tau}{e^\sc_1}{e^\sc_2}$ and 
@@ -248,4 +248,26 @@ Section~\ref{sec:invalidating ce} as follows:\newline
 	using [to1].\hfill{\it inf}(ii).
 	
 	Thus, from {\it inf}(i) and (ii), \stfence is sound.
+\end{proof}
+
+{\lemma {\ourtechnique synthesizes the optimal number of fences.}}
+\begin{proof}
+	Let $\mathcal{F}$ represent the set of fences synthesized by
+	\ourtechnique and let $\mathcal{F}^o$ represent the optimal set
+	of fences. Assume $|\mathcal{F}^o| < |\mathcal{F}|$.
+	
+	The min-model of the non-optimal solution is computed using a
+	SAT solver (\z) and is assumed to be correct. As the consequence,
+	$|\mathcal{F}^o| < |\mathcal{F}|$ $\implies$ the optimal result
+	was not a part of the SAT query formula.
+	
+	Using Theorem~\ref{thm:weak-sound} and 
+	Theorem~\ref{thm:strong-sound} we know that \ourtechnique does 
+	not miss any weak or strong cycle
+	$\implies$ every set of fences that forms a correct solution,
+	including the optimal solution, is contained in the SAT query
+	formula.
+	
+	Thus, by contradiction, $|\mathcal{F}| = |\mathcal{F}|^o$ \ie
+	\ourtechnique synthesizes the optimal number of fences.
 \end{proof}
