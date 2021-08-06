@@ -76,7 +76,7 @@ def fn_main(filename):
 		sys.exit(0)
 	elif no_buggy_execs:
 		get_p = Processing(traces)
-		fences_present, fences_present_locs, z3vars, disjunctions, error_string, pre_calc_total, hb_cycles, so_cycles, hb_edges = get_p.get()				# runs and returns locations
+		fences_present, fences_present_locs, z3vars, disjunctions, error_string, pre_calc_total = get_p.get()				# runs and returns locations
 
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)

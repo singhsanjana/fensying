@@ -7,11 +7,10 @@ from constants import *
 
 class mo:
 
-	def __init__(self, trace, hb_matrix, size, so_edges):
+	def __init__(self, trace, hb_matrix, size):
 		self.trace = trace
 		self.hb_matrix = hb_matrix
 		self.size = size
-		self.so_edges = so_edges
 
 		self.writes = []
 		self.reads = []
@@ -28,7 +27,7 @@ class mo:
 		# print("mo edges=",self.mo_edges)
 
 	def get(self):
-		return self.mo_edges, self.so_edges
+		return self.mo_edges
 
 	def preprocessing(self, trace):
 		for t in trace:
@@ -44,8 +43,8 @@ class mo:
 					self.mo_edges.append((a[S_NO],b[S_NO]))
 
 					# if they are of memory order sc, then they need to also be counted as TO edges
-					if a[MO] == SEQ_CST and b[MO] == SEQ_CST:
-						self.so_edges.append((a[S_NO], b[S_NO]))
+					# if a[MO] == SEQ_CST and b[MO] == SEQ_CST:
+					# 	self.sc_edges.append((a[S_NO], b[S_NO]))
 	
 	def rule2(self):
 		for a in self.reads:
@@ -56,14 +55,14 @@ class mo:
 					self.mo_edges.append((x,y))
 
 					# if they are of memory order sc, then they need to also be counted as TO edges
-					k = 0
-					for write in self.writes:
-						if write[S_NO] == x and write[MO] == SEQ_CST:
-							k += 1
-						if write[S_NO] == y and write[MO] == SEQ_CST:
-							k += 1
-					if k == 2:
-						self.so_edges.append((x,y))
+					# k = 0
+					# for write in self.writes:
+					# 	if write[S_NO] == x and write[MO] == SEQ_CST:
+					# 		k += 1
+					# 	if write[S_NO] == y and write[MO] == SEQ_CST:
+					# 		k += 1
+					# if k == 2:
+					# 	self.sc_edges.append((x,y))
 
 	def rule3(self):
 		for a in self.reads:
@@ -73,12 +72,12 @@ class mo:
 					self.mo_edges.append((x,b[S_NO]))
 
 					# if they are of memory order sc, then they need to also be counted as TO edges
-					k = 0
-					for write in self.writes:
-						if write[S_NO] == x and write[MO] == SEQ_CST:
-							k += 1
-					if k == 1 and b[MO] == SEQ_CST:
-						self.so_edges.append((x,b[S_NO]))
+					# k = 0
+					# for write in self.writes:
+					# 	if write[S_NO] == x and write[MO] == SEQ_CST:
+					# 		k += 1
+					# if k == 1 and b[MO] == SEQ_CST:
+					# 	self.sc_edges.append((x,b[S_NO]))
 	
 	def rule4(self):
 		for x in self.writes:
@@ -88,12 +87,12 @@ class mo:
 					self.mo_edges.append((x[S_NO],y))
 
 					# if they are of memory order sc, then they need to also be counted as TO edges
-					k = 0
-					for write in self.writes:
-						if write[S_NO] == y and write[MO] == SEQ_CST:
-							k += 1
-					if k == 1 and x[MO] == SEQ_CST:
-						self.so_edges.append((x[S_NO],y))
+					# k = 0
+					# for write in self.writes:
+					# 	if write[S_NO] == y and write[MO] == SEQ_CST:
+					# 		k += 1
+					# if k == 1 and x[MO] == SEQ_CST:
+					# 	self.sc_edges.append((x[S_NO],y))
 
 	# unused
 	# to get all the transitive mo relations as well
