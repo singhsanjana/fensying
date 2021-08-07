@@ -10,8 +10,7 @@
 # Then proceeds on to find out cycles from the TO graph.
 # --------------------------------------------------------
 
-from pre_calculators.hb_calculator.hb import hb
-from pre_calculators.mo_calculator.mo import mo
+from model_checking_output.pre_calculator.pre_calculations import pre_calculations
 from preprocessing import preprocessing
 from edges_computation import edges_computation
 # from to import to
@@ -60,6 +59,7 @@ class Processing:
 			# print("---------Trace",trace_no,"---------")
 
 			pre_calc_start = time.time()
+			pre_calculations(trace)
 			# HB
 			# hb_graph = hb(trace)
 			# hb_matrix, size, so_edges = hb_graph.get()
@@ -110,11 +110,11 @@ class Processing:
 			check1 = weak_fensying(relaxed_cycles, hb_edges, mo_edges, rf_edges, fr_edges, rf1_edges)
 			relaxed_cycles = check1.get()
 			self.all_relaxed_cycles.append(relaxed_cycles)
-			print("relaxed_cycles =",relaxed_cycles)
+			# print("relaxed_cycles =",relaxed_cycles)
 
 			# STRONG FENSYING
 			strong_cycles = Cycles(self.sc_edges)
-			print("strong_cycles =",strong_cycles)
+			# print("strong_cycles =",strong_cycles)
 			self.all_strong_cycles.append(strong_cycles)
 
 			cycles = relaxed_cycles+strong_cycles
@@ -124,7 +124,7 @@ class Processing:
 			cycles_with_only_fences = [list(item) for item in set(tuple(sorted(row)) for row in cycles_with_only_fences)] # removing duplicate values
 			unique_fences = list(sorted(set(x for l in cycles_with_only_fences for x in l)))
 			# print("unique_fences=",unique_fences)
-			print("cycles_with_only_fences =",cycles_with_only_fences)
+			# print("cycles_with_only_fences =",cycles_with_only_fences)
 
 			if len(unique_fences)>0:
 				for fence in unique_fences:
@@ -228,7 +228,7 @@ class Processing:
 				if type(i[j]) is list and type(i[j+1]) is list:
 					if i[j][MO]  == SEQ_CST and i[j+1][MO] == SEQ_CST:
 						self.sc_edges.append((e0,e1))
-		print("sb_edges",sb_edges)
+		# print("sb_edges",sb_edges)
 		return sb_edges
 
 	def get(self):

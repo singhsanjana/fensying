@@ -1,6 +1,6 @@
-from hb_calculator.hb import hb
-from mo_calculator.mo import mo
-from graph import Graph
+from model_checking_output.pre_calculator.hb import hb
+from model_checking_output.pre_calculator.mo import mo
+from model_checking_output.pre_calculator.graph import Graph
 from constants import *
 
 def pre_calculations(trace):
@@ -17,17 +17,21 @@ def pre_calculations(trace):
 	while flag != 1:
 		hb_calc = hb(trace, initial_mo_edges, initial_hb_edges, initial_mat, mat_size, writes, reads, calc_all)
 		hb_matrix, hb_edges = hb_calc.get()
+		# print("hb_edges==",hb_edges)
 
 		mo_calc = mo(trace, hb_matrix, mat_size)
 		mo_edges = mo_calc.get()
+		# print("mo_edges==",mo_edges)
 
-		if (initial_mo_edges == mo_edges) and (initial_hb_edges == hb_edges):
+		if (set(initial_mo_edges) == set(mo_edges)) and (set(initial_hb_edges) == set(hb_edges)):
 			flag = 1
 		else:
 			initial_hb_edges = hb_edges
 			initial_mo_edges = mo_edges
 			initial_mat = hb_matrix
 			calc_all = False
+	
+	return hb_edges, mo_edges
 
 def preprocessing(trace):
 	writes = []

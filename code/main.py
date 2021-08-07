@@ -18,8 +18,8 @@ from constants import output_colours as oc
 from processing import Processing
 from z3run import z3run
 from insert import insert
-from translators.cds_checker.cds_checker import translate_cds
-from translators.cds_checker.delete_file import delete_generated_file
+from model_checking_output.model_checking_output import model_checking_output
+from model_checking_output.translators.cds_checker.delete_file import delete_generated_file
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", "-f", type=str, required=True, 
@@ -68,8 +68,7 @@ def fn_main(filename):
 	if no_traces:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
-	cds = translate_cds(filename, no_traces)								# translates CDS Checker output & returns a structure containing the traces
-	traces, mc_time, no_buggy_execs, mc_error_string = cds.get()
+	traces, mc_time, no_buggy_execs, mc_error_string = model_checking_output(filename, no_traces)
 
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)

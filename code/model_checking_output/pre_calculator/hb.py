@@ -2,7 +2,7 @@
 
 # --------------------------------------------------------
 
-from pre_calculators.graph import Graph
+from model_checking_output.pre_calculator.graph import Graph
 from constants import *
 
 class hb:
@@ -22,6 +22,7 @@ class hb:
 			self.sw(trace)
 		self.dob(trace)
 
+		self.hb_edges = list(set(self.hb_edges))					# remove duplicates
 		self.complete_matrix()
 
 	def get(self):
@@ -83,51 +84,43 @@ class hb:
 				if trace[j][MO] in write_models and trace[i][MO] in read_models:
 					self.hb_edges.append((j[S_NO],trace[i][S_NO]))
 					self.mat.addEdge(trace[j][S_NO],trace[i][S_NO])
-			
-				# dob rule
-				# elif trace[j][MO] not in write_models and trace[i][MO] in read_models:
-				# 	j_thread = trace[j][T_NO]
-				# 	try: j_thread_0 = next(i for i,v in enumerate(trace)
-				# 				if type(v) is list and v[T_NO] == j_thread)
-				# 	except: continue
-				# 	for a in range(j_thread_0, j):
-				# 		if trace[a][MO] in write_models or trace[a][MO] in read_models:
-				# 			self.mat.addEdge(trace[a][S_NO],trace[i][S_NO])
-				# 			# if they are of memory order sc, then they need to also be counted as TO edges
-				# 			if trace[a][MO] == SEQ_CST and trace[i][MO] == SEQ_CST:
-				# 				self.so_edges.append((trace[a][S_NO],trace[i][S_NO]))
 
 	def dob(self, trace):
-		for i in range(len(self.writes)):
+		for i in range(len(self.writes)-1):
 			write = self.writes[i]
 			if write[MO] in write_models:
-				self.next_release_sequence(i, write)
+				self.next_release_sequence(i+1, write)
 	
 	def next_release_sequence(self, i, write_rel):
+		if i == len(self.writes):
+			return
+
 		write_curr = self.writes[i]
 		# sb-release-sequence: write_rel --sb--> write --rf--> read => write_rel --dob--> read
 		for j in range(i, len(self.writes)):
 			write = self.writes[j]
-			if write[T_NO] == write_rel[T_NO]:
+			# print(write, write_rel)
+			if write[T_NO] == write_rel[T_NO] and write[ADDR] == write_rel[ADDR]:
 				for read in self.reads:
-					if read[RF] == write[S_NO]:
+					if read[RF] == write[S_NO] and read[MO] in read_models: # TODO: read should be acq. same condition add below
 						self.hb_edges.append((write_rel[S_NO], read[S_NO]))
 						self.mat.addEdge(write_rel[S_NO], read[S_NO])
-				self.next_release_sequence(j, write_rel)
+				self.next_release_sequence(j+1, write_rel)
 			else:
 				break
 		
 		# mo-release-sequence: write_rel --mo--> write --rf--> read => write_rel --dob--> read
 		for mo in self.mo_edges:
 			if mo[0] == write_curr[S_NO]:
-				write = next(v for i,v in enumerate(self.writes) if v[S_NO] == mo[1])
+				j = next(k for k,v in enumerate(self.writes) if v[S_NO] == mo[1])
+				write = self.writes[j]
 				# release sequence condition for ithb
 				if (write[T_NO] == write_curr[T_NO]) or (write[MO] in write_models):
 					for read in self.reads:
-						if read[RF] == write[S_NO]:
+						if read[RF] == write[S_NO] and read[MO] in read_models:
 							self.hb_edges.append((write_rel[S_NO], read[S_NO]))
 							self.mat.addEdge(write_rel[S_NO], read[S_NO])
-					self.next_release_sequence(j, write_rel)
+					self.next_release_sequence(j+1, write_rel)
 				else:
 					break
 		

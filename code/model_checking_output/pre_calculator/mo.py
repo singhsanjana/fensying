@@ -2,7 +2,6 @@
 
 # --------------------------------------------------------
 
-from pre_calculators.graph import Graph
 from constants import *
 
 class mo:
