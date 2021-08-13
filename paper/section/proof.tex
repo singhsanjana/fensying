@@ -1,4 +1,6 @@
-{\theorem {\wkfence is sound} \label{thm:weak-sound}}
+{\lemma {\wkfence is sound: If there exists a violation of a 
+	coherence condition then \wkfence detects a corresponding cycle} 
+	\label{lem:weak-sound}}
 \begin{proof}
 	\wkfence strategy checks the validity of coherence conditions
 	on event relations between program events and synthesized
@@ -162,7 +164,8 @@ Section~\ref{sec:invalidating ce} as follows:\newline
 
 
 {\lemma {$\setSO \subseteq \setTO$ ($\setSO$ does not relate 
-		two events that are not related by rules for $\setTO$)}}
+		two events that are not related by rules for $\setTO$)}
+	\label{lem:so subset to}}
 \begin{proof}
 		By definition of $\setSO$, $\so{\tau}{e^\sc_1}{e^\sc_2}$ if
 		\begin{itemize}[label=so4,align=left,leftmargin=*]
@@ -199,9 +202,9 @@ Section~\ref{sec:invalidating ce} as follows:\newline
 \end{proof}
 
 
-{\theorem {\stfence is sound: if there does not exist a total order on
+{\lemma {\stfence is sound: if there does not exist a total order on
 	the \sc ordered events of a trace $\tau$ then there exists a cycle 
-	in $\setSO$.} \label{thm:strong-sound}}
+	in $\setSO$.} \label{lem:strong-sound}}
 \begin{proof}
 	Consider $e^\sc_1, e^\sc_2 \in \ordevents{\sc}_\tau$ \st 
 	both $\to{\tau}{e^\sc_1}{e^\sc_2}$ and 
@@ -247,27 +250,200 @@ Section~\ref{sec:invalidating ce} as follows:\newline
 	$\so{\imm{\tau}}{}{}$ relates events related by $\to{\imm{\tau}}{}{}$
 	using [to1].\hfill{\it inf}(ii).
 	
-	Thus, from {\it inf}(i) and (ii), \stfence is sound.
+	Thus, from {\it inf}(i) and (ii) and Lemma~\ref{lem:so subset to}, 
+	\stfence is sound.
 \end{proof}
 
-{\lemma {\ourtechnique synthesizes the optimal number of fences.}}
+{\lemma {{\tt AssignMO} is sound: \ourtechnique does not assign a memory
+	order to a fence that is too weak to stop the buggy trace.}
+	\label{lem:mo-sound}}
 \begin{proof}
-	Let $\mathcal{F}$ represent the set of fences synthesized by
-	\ourtechnique and let $\mathcal{F}^o$ represent the optimal set
+	By definition of \hlref{coherence conditions} if there exists
+	a weak cycle in the intermediate trace $\imm{\tau}$ then 
+	$\exists$ $\sw{\imm{\tau}}{e}{e'}$ $\v$ 
+	$\dob{\imm{\tau}}{e}{e'}$. 
+	
+	Since, the buggy trace $\tau$ was returned by the counter
+	example generators 
+	
+	$\implies$ $\neg\sw{\tau}{e}{e'}$ $\^$
+	$\neg\dob{\tau}{e}{e'}$
+	
+	$\implies$ either $e$ or $e'$ or both are candidate fences 
+	introduced by \ourtechnique.
+	
+	By definitions of $\sw{\imm{\tau}}{e}{e'}$ and 
+	$\dob{\imm{\tau}}{e}{e'}$
+	if $e$ is a fence then its memory order must be \rel or 
+	stricter, if $e'$ is a fence then its memory order must be 
+	\acq or stronger.
+	
+	Thus, the locally assigned memory orders are sufficiently 
+	strong.\hfill{\it inf}(i)\newline
+	
+	\noindent
+	If there exists a fence, $\mathbb{F}$,  that was locally 
+	assigned a memory order $m$ and after coalescing with other 
+	buggy trace the final memory order of $\mathbb{F}$ is $m'$
+	then either $m' = m$ or $m'$ is stronger than $m$
+	(by construction).
+	
+	\noindent
+	Since from {\it inf}(i) we know that $m$ was sufficiently 
+	strong then final memory order $m'$ is also sufficiently strong. 
+	
+\end{proof}
+
+{\theorem {\ourtechnique is sound: If a buggy trace can be stopped 
+		by synthesizing \cc fences and \ourtechnique stops the trace.}}
+\begin{proof}
+	Consider induction on the number of buggy traces. 
+	Let {\tt CE} represent the set of counter examples or buggy traces.
+	
+	\noindent
+	{\sl Base Case:} Consider $|${\tt CE}$|$ = 1. 
+	Using Lemma~\ref{lem:weak-sound} and Lemma~\ref{lem:strong-sound}
+	we can state that a violation in \hlref{coherence conditions} or
+	\sc total order is not missed by \ourtechnique. \newline
+	%	
+	Further the fences introduced for at least 1 of the violations
+	exist in the final solution (by construction of SAT query).
+	\newline
+	%
+	Hence, \ourtechnique is sound for 1 trace.\newline
+	
+	\noindent 
+	{\sl Induction Hypothesis:}
+	Assume that \ourtechnique is sound for $|${\tt CE}$|$ = N.
+	\newline
+	
+	\noindent
+	{\sl Induction Step:}
+	Consider $|${\tt CE}$|$ = N+1.
+	
+	Since, we take a conjunction on the SAT formulas from various
+	traces thus at least 1 cycle from each trace exists in the 
+	{\tt min-model} (by construction of SAT query).\newline
+	%
+	Further, we know from Lemma~\ref{lem:mo-sound} that \ourtechnique
+	assigns memory orders that can stop all the corresponding traces.
+	\newline
+	%
+	Thus, \ourtechnique is sound for N+1 buggy traces.
+\end{proof}
+
+{\lemma {{\tt min-model} returns the optimal number of fences.}
+	\label{lem:opt-num}}
+\begin{proof}
+	Let $\mathcal{F}$ represent the set of fences returned by
+	{\tt min-model} and let $\mathcal{F}^o$ represent the optimal set
 	of fences. Assume $|\mathcal{F}^o| < |\mathcal{F}|$.
 	
 	The min-model of the non-optimal solution is computed using a
-	SAT solver (\z) and is assumed to be correct. As the consequence,
+	SAT solver (\z) and the computation is assumed to be correct. 
+	As the consequence,
 	$|\mathcal{F}^o| < |\mathcal{F}|$ $\implies$ the optimal result
 	was not a part of the SAT query formula.
 	
-	Using Theorem~\ref{thm:weak-sound} and 
-	Theorem~\ref{thm:strong-sound} we know that \ourtechnique does 
+	Using Lemma~\ref{lem:weak-sound} and 
+	Lemma~\ref{lem:strong-sound} we know that \ourtechnique does 
 	not miss any weak or strong cycle
 	$\implies$ every set of fences that forms a correct solution,
 	including the optimal solution, is contained in the SAT query
 	formula.
 	
-	Thus, by contradiction, $|\mathcal{F}| = |\mathcal{F}|^o$ \ie
-	\ourtechnique synthesizes the optimal number of fences.
+	Thus, by contradiction, $|\mathcal{F}| = |\mathcal{F}|^o$ 
+	\ie {\tt min-model} returns the optimal number of fences.
+\end{proof}
+
+{\theorem {\ourtechnique synthesizes the optimal number of fences
+	with the optimal memory orders.}}
+\begin{proof}
+	Let {\tt min-cycles} represent the set of weak and strong 
+	cycles of all buggy traces \st every candidate fence in the 
+	cycle belongs to {\tt min$\Phi$}. 
+	
+	We know that {\tt AssignMO} iterates over cycles in {\tt 
+	min-cycles} and takes union over fences of cycles from 
+	{\tt min-cycles}. As {\tt min$\Phi$} consists of the optimal
+	number of fences (Lemma~\ref{lem:opt-num}) then union over
+	cycles of {\tt min-cycles} has the same set of fences as
+	{\tt min$\Phi$}.\newline
+	Thus, \ourtechnique is optimal in the number of fences.
+	\newline
+	
+	Consider induction on the number of counter examples or buggy
+	traces {\tt CE}.\newline
+	
+	\noindent
+	{\sl Base Case-1:} Consider $|${\tt CE}$|$ = 1.
+	By definition of {\tt AssignMO} each fence is locally assigned
+	the weakest memory order that is sound (Lemma~\ref{lem:mo-sound}).
+
+	Thus, \ourtechnique is optimal in the memory order of fences
+	for 1 buggy trace.
+	\newline
+	
+	\noindent
+	{\sl Base Case-2:} Consider $|${\tt CE}$|$ = 2.
+	Let $\tau_1c_i$ for $i \in \{1...M_1\}$ represent the $M_1$
+	cycles of trace $\tau_1$ and 
+	let $\tau_2c_j$ for $j \in \{1...M_2\}$ represent the $M_2$
+	cycles of trace $\tau_2$.
+	Further, let $\tau_1c_i-\tau_2c_j$ represent the coalesce of 
+	cycles $\tau_1c_i$ and $\tau_2c_j$.
+	
+	Each coalesced solutions has the same number of fences = 
+	fences of {\tt min$\Phi$} because {\tt min$\Phi$} returns the
+	minimum number of fences required to stop $\tau_1$ and $\tau_2$.
+	
+	\noindent
+	If $\exists \mathbb{F}$ fence with memory order $m$ in a 
+	cycle $\tau_1c_i$ but the final solution of \ourtechnique
+	assigns memory order $m'$ to $\mathbb{F}$ \st $m'$ is stronger
+	than $m$
+	
+	then, $\exists \tau_2c_j$ where memory order of $\mathbb{F}$ is
+	$m'$ (by construction of coalesced solutions),
+	
+	further, $\nexists \tau_2c_k$ where memory order of $\mathbb{F}$
+	is $m$ \st $score(\tau_1c_i-\tau_2c_k) < score(\tau_1c_i-\tau_2c_j)$
+	(where $score(x)$ represents the score of the solution $x$).
+	
+	Thus, \ourtechnique is optimal in the memory order of fences
+	for 2 buggy traces.
+	\newline 
+	
+	\noindent
+	{\sl Induction Hypothesis:} Assume, \ourtechnique is optimal in the 
+	memory order of fences for N buggy trace.
+	\newline
+	
+	\noindent
+	{\sl Induction Step:} 
+	Consider $|${\tt CE}$|$ = N+1.
+	Let $s_1, ..., s_M$ represent the $M$ coalesced solutions for 
+	buggy traces $\tau_1, ..., \tau_N$ and $\tau_{N+1}c_i$ for 
+	$i \in \{1, ..., P \}$ represent the $P$ cycles of $(N+1)^{th}$
+	trace.
+	
+	Every coalesced solution $\tau_{N+1}s_j$ has the same number of 
+	fences = fences of {\tt min$\Phi$} because {\tt min$\Phi$} 
+	returns the minimum number of fences required to stop 
+	$\tau_1, ..., \tau_{N+1}$.
+	
+	If $\exists \mathbb{F}$ fence with memory order $m$ in a 
+	cycle $\tau_{N+1}c_i$ but the final solution of \ourtechnique
+	assigns memory order $m'$ to $\mathbb{F}$ \st $m'$ is stronger
+	than $m$
+	
+	then, $\exists s_j$ where memory order of $\mathbb{F}$ is
+	$m'$ (by construction of coalesced solutions),
+	
+	further, $\nexists s_k$ where memory order of $\mathbb{F}$
+	is $m$ \st $score(\tau_{N+1}c_i-s_k) < score(\tau_{N+1}c_i-s_j)$
+	(where $score(x)$ represents the score of the solution $x$).
+	
+	Thus, \ourtechnique is optimal in the memory order of fences
+	for N+1 buggy traces.
 \end{proof}
