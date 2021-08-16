@@ -96,7 +96,7 @@ class edges_computation:
 					write_rel_thread = write[T_NO] - 1
 					f1_index = self.fences_thread[write_rel_thread].index(f1)
 					for read in self.matched_reads:
-						f2 = self.reads[self.reads.index(read) - 1]
+						f2 = self.reads[self.reads.index(read) + 1]
 						r_thread = read[T_NO] -1
 						f2_index = self.fences_thread[r_thread].index(f2)
 						
