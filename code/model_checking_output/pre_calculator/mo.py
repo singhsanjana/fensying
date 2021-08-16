@@ -6,16 +6,15 @@ from constants import *
 
 class mo:
 
-	def __init__(self, trace, hb_matrix, size):
+	def __init__(self, trace, hb_matrix, size, so_edges, writes, reads):
 		self.trace = trace
 		self.hb_matrix = hb_matrix
 		self.size = size
+		self.so_edges = so_edges
 
-		self.writes = []
-		self.reads = []
+		self.writes = writes
+		self.reads = reads
 		self.mo_edges = []                      								# list of mo edges
-
-		self.preprocessing(trace)
 
 		self.rule1()
 		self.rule2()
@@ -26,72 +25,43 @@ class mo:
 		# print("mo edges=",self.mo_edges)
 
 	def get(self):
-		return self.mo_edges
+		return self.mo_edges, self.so_edges
 
-	def preprocessing(self, trace):
-		for t in trace:
-			if t[TYPE] == WRITE or t[TYPE] == INIT or t[TYPE] == RMW:
-				self.writes.append(t)
-			if t[TYPE] == READ or t[TYPE] == RMW:
-				self.reads.append(t)
-	
 	def rule1(self):
 		for a in self.writes:
 			for b in self.writes:
 				if a[ADDR] == b[ADDR] and self.hb_matrix.containsEdge(a[S_NO],b[S_NO]):		# checking if variable operated upon is same and if there is hb
 					self.mo_edges.append((a[S_NO],b[S_NO]))
-
-					# if they are of memory order sc, then they need to also be counted as TO edges
-					# if a[MO] == SEQ_CST and b[MO] == SEQ_CST:
-					# 	self.sc_edges.append((a[S_NO], b[S_NO]))
+					if a[MO] == SEQ_CST and b[MO] == SEQ_CST:
+						self.so_edges.append((a[S_NO], b[S_NO]))
 	
 	def rule2(self):
 		for a in self.reads:
-			x = a[RF] # "RF" of a refers to the serial number of the write instruction that it is reading from
+			x = next(v for i,v in enumerate(self.writes) if v[S_NO] == a[RF])
 			for b in self.reads:
-				if a[ADDR] == b[ADDR] and b[RF] != x and self.hb_matrix.containsEdge(a[S_NO],b[S_NO]): 	# checking if variable operated upon is same and if there is hb
-					y = b[RF]
-					self.mo_edges.append((x,y))
-
-					# if they are of memory order sc, then they need to also be counted as TO edges
-					# k = 0
-					# for write in self.writes:
-					# 	if write[S_NO] == x and write[MO] == SEQ_CST:
-					# 		k += 1
-					# 	if write[S_NO] == y and write[MO] == SEQ_CST:
-					# 		k += 1
-					# if k == 2:
-					# 	self.sc_edges.append((x,y))
+				if a[ADDR] == b[ADDR] and b[RF] != x[S_NO] and self.hb_matrix.containsEdge(a[S_NO],b[S_NO]): 	# checking if variable operated upon is same and if there is hb
+					y = next(v for i,v in enumerate(self.writes) if v[S_NO] == b[RF])
+					self.mo_edges.append((x[S_NO], y[S_NO]))
+					if x[MO] == SEQ_CST and y[MO] == SEQ_CST:
+							self.so_edges.append((x[S_NO], y[S_NO]))
 
 	def rule3(self):
 		for a in self.reads:
-			x = a[RF]
+			x = next(v for i,v in enumerate(self.writes) if v[S_NO] == a[RF])
 			for b in self.writes:
 				if b[ADDR] == a[ADDR] and self.hb_matrix.containsEdge(a[S_NO],b[S_NO]): 		# checking if variable operated upon is same and if there is hb
-					self.mo_edges.append((x,b[S_NO]))
-
-					# if they are of memory order sc, then they need to also be counted as TO edges
-					# k = 0
-					# for write in self.writes:
-					# 	if write[S_NO] == x and write[MO] == SEQ_CST:
-					# 		k += 1
-					# if k == 1 and b[MO] == SEQ_CST:
-					# 	self.sc_edges.append((x,b[S_NO]))
+					self.mo_edges.append((x[S_NO], b[S_NO]))
+					if x[MO] == SEQ_CST and b[MO] == SEQ_CST:
+						self.so_edges.append((x[S_NO], b[S_NO]))
 	
 	def rule4(self):
 		for x in self.writes:
 			for b in self.reads:
 				if x[ADDR] == b[ADDR] and self.hb_matrix.containsEdge(x[S_NO],b[S_NO]) and b[RF] != x[S_NO]:
-					y = b[RF]
-					self.mo_edges.append((x[S_NO],y))
-
-					# if they are of memory order sc, then they need to also be counted as TO edges
-					# k = 0
-					# for write in self.writes:
-					# 	if write[S_NO] == y and write[MO] == SEQ_CST:
-					# 		k += 1
-					# if k == 1 and x[MO] == SEQ_CST:
-					# 	self.sc_edges.append((x[S_NO],y))
+					y = next(v for i,v in enumerate(self.writes) if v[S_NO] == b[RF])
+					self.mo_edges.append((x[S_NO], y[S_NO]))
+					if x[MO] == SEQ_CST and y[MO] == SEQ_CST:
+						self.so_edges.append((x[S_NO], y[S_NO]))
 
 	# unused
 	# to get all the transitive mo relations as well

@@ -39,18 +39,9 @@ class Processing:
 
 		for trace in traces:										# run for each trace
 			self.all_events_thread = []						# list of all events separated by threads
-			self.all_sc_events = []								# list of all sc events in program after inserting candidate fences
+			# self.all_sc_events = []								# list of all sc events in program after inserting candidate fences
 			self.fences_thread = []								# list of fences in each thread
 			self.fences_in_trace = []							# list of fences already present in the program
-
-			# lists of edges
-			# hb_edges = []													# list of all SB+SW+DOB edge tuples
-			# mo_edges = []
-			# rf_edges = []
-			# fr_edges = []
-			self.sc_edges = []										# list of hb+mo+rf+fr edges with only sc events
-			self.sw_edges = []										# list of edges between thread create-start, finish-join statements
-			# rf1_edges = []
 
 			# cycles = []                        		# list of all cycles between the fences and events
 			loc_info = {}                         # information regarding the required fence locations
@@ -59,15 +50,7 @@ class Processing:
 			# print("---------Trace",trace_no,"---------")
 
 			pre_calc_start = time.time()
-			pre_calculations(trace)
-			# HB
-			# hb_graph = hb(trace)
-			# hb_matrix, size, so_edges = hb_graph.get()
-
-			# MO
-			# get_mo = mo(trace, hb_matrix, size)
-			# mo_edges, sc_edges = get_mo.get()
-			# print("mo =",mo_edges)
+			hb_edges, mo_edges, self.so_edges = pre_calculations(trace)
 			pre_calc_end = time.time()
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
 
@@ -79,23 +62,21 @@ class Processing:
 			# print("all_events_thread", self.all_events_thread)
 
 			# transitive SB calc, put into hb edges
-			# hb_edges = []
-			hb_edges = self.sb()
-			hb_edges += self.sw_edges
+			hb_edges += self.sb()
 			# print(hb_edges)
 
 			# pre-process and obtain separately reads, writes with neighbouring fences
 			reads, writes = preprocessing(order)
 
 			# CALC EDGES
-			calc_edges = edges_computation(reads, writes, self.fences_thread, hb_edges, self.sc_edges)
-			hb_edges, mo_edges, rf_edges, fr_edges, rf1_edges, self.sc_edges = calc_edges.get()
-			# print("hb = ", hb_edges)
+			calc_edges = edges_computation(reads, writes, self.fences_thread, hb_edges, mo_edges, self.so_edges)
+			hb_edges, rf_edges, fr_edges, rf1_edges, self.so_edges = calc_edges.get()
+			print("hb = ", hb_edges)
 			# print("mo = ", mo_edges)
 			# print("rf = ", rf_edges)
 			# print("fr = ", fr_edges)
 			# print("rf1 = ", rf1_edges)
-			# print("sc = ", self.sc_edges)
+			# print("so = ", self.so_edges)
 			
 			# CYCLES
 			relaxed_edges = hb_edges + mo_edges + rf_edges + fr_edges + rf1_edges
@@ -107,14 +88,14 @@ class Processing:
 			
 			# WEAK FENSYING
 			relaxed_cycles = [list(item) for item in set(tuple(row) for row in relaxed_cycles)] # removing duplicate values
-			check1 = weak_fensying(relaxed_cycles, hb_edges, mo_edges, rf_edges, fr_edges, rf1_edges)
+			check1 = weak_fensying(relaxed_cycles, hb_edges, mo_edges, rf_edges, rf1_edges)
 			relaxed_cycles = check1.get()
 			self.all_relaxed_cycles.append(relaxed_cycles)
-			# print("relaxed_cycles =",relaxed_cycles)
+			print("relaxed_cycles =",relaxed_cycles)
 
 			# STRONG FENSYING
-			strong_cycles = Cycles(self.sc_edges)
-			# print("strong_cycles =",strong_cycles)
+			strong_cycles = Cycles(self.so_edges)
+			print("strong_cycles =",strong_cycles)
 			self.all_strong_cycles.append(strong_cycles)
 
 			cycles = relaxed_cycles+strong_cycles
@@ -124,7 +105,7 @@ class Processing:
 			cycles_with_only_fences = [list(item) for item in set(tuple(sorted(row)) for row in cycles_with_only_fences)] # removing duplicate values
 			unique_fences = list(sorted(set(x for l in cycles_with_only_fences for x in l)))
 			# print("unique_fences=",unique_fences)
-			# print("cycles_with_only_fences =",cycles_with_only_fences)
+			print("cycles_with_only_fences =",cycles_with_only_fences)
 
 			if len(unique_fences)>0:
 				for fence in unique_fences:
@@ -155,7 +136,7 @@ class Processing:
 	def fence(self, trace):
 		order = ['F1n1']								
 		all_events = ['F1n1']
-		self.all_sc_events = ['F1n1']
+		# self.all_sc_events = ['F1n1']
 		fences_in_thread = ['F1n1']
 
 		current_thread = 1				# for fence naming
@@ -174,14 +155,14 @@ class Processing:
 				fence_no += 1
 				order.append(fence_name)
 				all_events.append(fence_name)
-				self.all_sc_events.append(fence_name)
+				# self.all_sc_events.append(fence_name)
 				fences_in_thread.append(fence_name)
 
 			if not trace[i][TYPE] == FENCE:
 				order.append(trace[i])
 				all_events.append(trace[i])
-				if trace[i][MO] == SEQ_CST:
-					self.all_sc_events.append(trace[i][S_NO])
+				# if trace[i][MO] == SEQ_CST:
+				# 	self.all_sc_events.append(trace[i][S_NO])
 			else:
 				self.fences_in_trace.append(fence_name)
 				if i == (len(trace)-1):
@@ -203,31 +184,36 @@ class Processing:
 				self.all_events_thread.append(all_events)
 				self.fences_thread.append(fences_in_thread)
 
-			# create sw's between thread create statements
-			if trace[i][TYPE] == CREATE:
-				v1 = trace[i][S_NO]
-				v2 = v1+1
-				self.sw_edges.append((v1,v2))
-			# create sw's between thread finish and join statements
-			if trace[i][TYPE] == JOIN:
-				t = trace[i][VALUE]
-				for j in range(i,len(trace)):
-					if trace[j][TYPE] == FINISH and trace[j][T_NO] == t:
-						v1 = trace[j][S_NO]
-						v2 = trace[i][S_NO]
-						self.sw_edges.append((v1,v2))
 		return order
 
 	def sb(self):
 		sb_edges = []
-		for i in self.all_events_thread:
-			for j in range(len(i)-1):
-				e0 = i[j] if type(i[j]) is str else i[j][S_NO]
-				e1 = i[j+1] if type(i[j+1]) is str else i[j+1][S_NO]
-				sb_edges.append((e0, e1))
-				if type(i[j]) is list and type(i[j+1]) is list:
-					if i[j][MO]  == SEQ_CST and i[j+1][MO] == SEQ_CST:
-						self.sc_edges.append((e0,e1))
+		for thread_events in self.all_events_thread:
+			for i in range(len(thread_events)):
+				event = thread_events[i]
+				k = 0
+				if type(event) is str:
+					e0 = event
+					k += 1
+				else:
+					e0 = event[S_NO]
+					if event[MO] == SEQ_CST:
+						k += 1
+				# e0 = event if type(event) is str else event[S_NO]
+				for j in range(i+1, len(thread_events)):
+					k = 1 if k == 2 else 0
+					sb_event = thread_events[j]
+					if type(sb_event) is str:
+						e1 = sb_event
+						k += 1
+					else:
+						e1 = sb_event[S_NO]
+						if sb_event[MO] == SEQ_CST:
+							k += 1
+					e1 = sb_event if type(sb_event) is str else sb_event[S_NO]
+					sb_edges.append((e0, e1))
+					if k == 2:
+						self.so_edges.append((e0, e1))
 		# print("sb_edges",sb_edges)
 		return sb_edges
 

@@ -7,6 +7,7 @@ def pre_calculations(trace):
 	writes, reads = preprocessing(trace)
 	initial_mo_edges = []
 	initial_hb_edges = []
+	so_edges = []
 	calc_all = True
 	flag = 0
 
@@ -15,12 +16,12 @@ def pre_calculations(trace):
 	initial_mat = Graph(mat_size)
 
 	while flag != 1:
-		hb_calc = hb(trace, initial_mo_edges, initial_hb_edges, initial_mat, mat_size, writes, reads, calc_all)
-		hb_matrix, hb_edges = hb_calc.get()
+		hb_calc = hb(trace, initial_mo_edges, initial_hb_edges, so_edges, initial_mat, mat_size, writes, reads, calc_all)
+		hb_matrix, hb_edges, so_edges = hb_calc.get()
 		# print("hb_edges==",hb_edges)
 
-		mo_calc = mo(trace, hb_matrix, mat_size)
-		mo_edges = mo_calc.get()
+		mo_calc = mo(trace, hb_matrix, mat_size, so_edges, writes, reads)
+		mo_edges, so_edges = mo_calc.get()
 		# print("mo_edges==",mo_edges)
 
 		if (set(initial_mo_edges) == set(mo_edges)) and (set(initial_hb_edges) == set(hb_edges)):
@@ -31,7 +32,7 @@ def pre_calculations(trace):
 			initial_mat = hb_matrix
 			calc_all = False
 	
-	return hb_edges, mo_edges
+	return hb_edges, mo_edges, so_edges
 
 def preprocessing(trace):
 	writes = []
