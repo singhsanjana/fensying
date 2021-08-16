@@ -1,8 +1,8 @@
 class weak_fensying:
-	def __init__(self, cycles, hb_edges, mo_edges, rf_edges, fr_edges, rf1_edges):
-		self.candidate_cycles = self.check_for_weak_compositions(cycles, hb_edges, mo_edges, rf_edges, fr_edges, rf1_edges)
+	def __init__(self, cycles, hb_edges, mo_edges, rf_edges, rf1_edges):
+		self.candidate_cycles = self.check_for_weak_compositions(cycles, hb_edges, mo_edges, rf_edges, rf1_edges)
 
-	def check_for_weak_compositions(self, cycles, hb_edges, mo_edges, rf_edges, fr_edges, rf1_edges):
+	def check_for_weak_compositions(self, cycles, hb_edges, mo_edges, rf_edges, rf1_edges):
 		candidate_cycles = []
 		for cycle in cycles:
 			edges_in_cycle = []
@@ -18,10 +18,6 @@ class weak_fensying:
 				e1 = cycle[i+1]
 				edges_in_cycle.append((e0, e1))
 
-			# fix
-			# if edge in fr_edges:
-			# 	continue
-			
 			size = len(edges_in_cycle)
 
 			# check for composition 1- all hb
@@ -84,11 +80,12 @@ class weak_fensying:
 				check4 = 0
 				edge_generator = self.circular_list(edges_in_cycle, i)
 				mo_over = 0
-				rf_over = 0
+				rf_over = 1
 				for j in range(size):
 					edge = next(edge_generator)
 					if mo_over == 0 and edge in mo_edges:
 						check4 += 1
+						rf_over = 0
 					elif rf_over == 0 and edge in rf_edges:
 						mo_over = 1
 						check4 += 1
@@ -108,11 +105,12 @@ class weak_fensying:
 				check5 = 0
 				edge_generator = self.circular_list(edges_in_cycle, i)
 				mo_over = 0
-				hb_over = 0
+				hb_over = 1
 				for j in range(size):
 					edge = next(edge_generator)
 					if mo_over == 0 and edge in mo_edges:
 						check5 += 1
+						hb_over = 0
 					elif hb_over == 0 and edge in hb_edges:
 						mo_over = 1
 						check5 += 1
@@ -132,15 +130,17 @@ class weak_fensying:
 				check6 = 0
 				edge_generator = self.circular_list(edges_in_cycle, i)
 				mo_over = 0
-				rf_over = 0
-				hb_over = 0
+				rf_over = 1
+				hb_over = 1
 				for j in range(size):
 					edge = next(edge_generator)
 					if mo_over == 0 and edge in mo_edges:
 						check6 += 1
+						rf_over = 0
 					elif rf_over == 0 and edge in rf_edges:
 						mo_over = 1
 						check6 += 1
+						hb_over = 0
 					elif hb_over == 0 and edge in hb_edges:
 						rf_over = 1
 						check6 += 1
