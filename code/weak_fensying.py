@@ -32,6 +32,7 @@ class weak_fensying:
 					check1 += 1
 			if check1 == size:
 				candidate_cycles.append(cycle)
+				# print(cycle,"from all hb")
 				continue
 			
 			# check for composition 2- rf -> hb
@@ -49,6 +50,7 @@ class weak_fensying:
 						check2 += 1
 				if check2 == size:
 					candidate_cycles.append(cycle)
+					# print(cycle,"from all 2- rf -> hb")
 					flag = 1
 					break
 			if flag == 1:
@@ -69,6 +71,7 @@ class weak_fensying:
 						check3 += 1
 				if check3 == size:
 					candidate_cycles.append(cycle)
+					# print(cycle,"from all 3- mo -> hb")
 					flag = 1
 					break
 			if flag == 1:
@@ -94,6 +97,7 @@ class weak_fensying:
 						check4 += 1
 				if check4 == size:
 					candidate_cycles.append(cycle)
+					# print(cycle,"from all 4- mo -> rf -> hb")
 					flag = 1
 					break
 			if flag == 1:
@@ -119,6 +123,7 @@ class weak_fensying:
 						check5 += 1
 				if check5 == size:
 					candidate_cycles.append(cycle)
+					# print(cycle,"from all 5- mo -> hb -> rf-1")
 					flag = 1
 					break
 			if flag == 1:
@@ -149,6 +154,7 @@ class weak_fensying:
 						check6 += 1
 				if check6 == size:
 					candidate_cycles.append(cycle)
+					# print(cycle,"from all  6- mo -> rf -> hb -> rf-1")
 					flag = 1
 					break
 			if flag == 1:

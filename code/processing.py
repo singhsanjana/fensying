@@ -16,6 +16,7 @@ from edges_computation import edges_computation
 # from to import to
 from cycle import Cycles
 from weak_fensying import weak_fensying
+from compute_cycles_tags import compute_relaxed_tags, compute_strong_tags
 from z3translate import z3translate
 from constants import *
 
@@ -31,8 +32,8 @@ class Processing:
 		self.fences_present_locs = []
 		self.error_string = ''
 		self.pre_calc_total = 0									# time taken for calculation of initial values - HB, MO, SB
-		self.all_relaxed_cycles = []
-		self.all_strong_cycles = []
+		self.all_cycles = []
+		self.cycles_tags = []
 
 		trace_no = 0
 		# print("traces=",traces)
@@ -69,9 +70,11 @@ class Processing:
 			reads, writes = preprocessing(order)
 
 			# CALC EDGES
-			calc_edges = edges_computation(reads, writes, self.fences_thread, hb_edges, mo_edges, self.so_edges)
-			hb_edges, rf_edges, fr_edges, rf1_edges, self.so_edges = calc_edges.get()
-			print("hb = ", hb_edges)
+			calc_edges = edges_computation(reads, writes, self.fences_thread, mo_edges, self.so_edges)
+			swdob_edges, rf_edges, fr_edges, rf1_edges, self.so_edges = calc_edges.get()
+			hb_edges = hb_edges + swdob_edges
+			# print("swdob = ", swdob_edges)
+			# print("hb = ", hb_edges)
 			# print("mo = ", mo_edges)
 			# print("rf = ", rf_edges)
 			# print("fr = ", fr_edges)
@@ -79,24 +82,32 @@ class Processing:
 			# print("so = ", self.so_edges)
 			
 			# CYCLES
-			relaxed_edges = hb_edges + mo_edges + rf_edges + fr_edges + rf1_edges
-			relaxed_cycles = Cycles(relaxed_edges)
+			check_edges = hb_edges + mo_edges + rf_edges + fr_edges + rf1_edges
+			check_cycles = Cycles(check_edges)
 
-			if len(relaxed_cycles) == 0:
+			if len(check_cycles) == 0:
 				self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
 				return
 			
 			# WEAK FENSYING
+			relaxed_edges = hb_edges + mo_edges + rf_edges + rf1_edges
+			relaxed_cycles = Cycles(relaxed_edges)
 			relaxed_cycles = [list(item) for item in set(tuple(row) for row in relaxed_cycles)] # removing duplicate values
+			# print("relaxed_cycles=", relaxed_cycles)
+
 			check1 = weak_fensying(relaxed_cycles, hb_edges, mo_edges, rf_edges, rf1_edges)
 			relaxed_cycles = check1.get()
-			self.all_relaxed_cycles.append(relaxed_cycles)
-			print("relaxed_cycles =",relaxed_cycles)
+			self.all_cycles += relaxed_cycles
+			self.cycles_tags += compute_relaxed_tags(relaxed_cycles, swdob_edges)
+			# print("relaxed_cycles =",relaxed_cycles)
+			# print("self.all_cycles =",self.all_cycles)
+			# print("self.cycles_tags =",self.cycles_tags)
 
 			# STRONG FENSYING
 			strong_cycles = Cycles(self.so_edges)
 			print("strong_cycles =",strong_cycles)
-			self.all_strong_cycles.append(strong_cycles)
+			self.all_cycles += strong_cycles
+			self.cycles_tags += compute_strong_tags(strong_cycles)
 
 			cycles = relaxed_cycles+strong_cycles
 			cycles_with_only_fences = []

@@ -30,6 +30,13 @@ LINE_NO = 7				# line number in source code
 write_models = [REL, ACQ_REL, SEQ_CST]
 read_models = [ACQ, ACQ_REL, SEQ_CST]
 
+# fence tags
+class f_tags:
+	a = 'a'
+	r = 'r'
+	ar = 'ar'
+	sc = 'sc'
+
 # files and CDS Checker related constants
 class file_info:
 	Z3_FILE = "compute_fences"

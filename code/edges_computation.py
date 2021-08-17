@@ -2,7 +2,7 @@ from constants import *
 from mo import mo
 
 class edges_computation:
-	def __init__(self, reads, writes, fences_thread, hb_edges, mo_edges, so_edges):
+	def __init__(self, reads, writes, fences_thread, mo_edges, so_edges):
 		self.reads = reads
 		self.writes = writes
 		self.fences_thread = fences_thread
@@ -10,7 +10,7 @@ class edges_computation:
 		self.matched_reads = []					# global variable used in below recursive function to avoid nested lists
 		
 		# lists of edges
-		self.hb_edges = hb_edges
+		self.swdob_edges = []
 		self.mo_edges = mo_edges
 		self.so_edges = so_edges
 		self.rf_edges = []
@@ -24,12 +24,12 @@ class edges_computation:
 		self.mofr()
 	
 	def get(self):
-		self.hb_edges = list(set(self.hb_edges))
+		self.swdob_edges = list(set(self.swdob_edges))
 		self.rf_edges = list(set(self.rf_edges))
 		self.fr_edges = list(set(self.fr_edges))
 		self.rf1_edges = list(set(self.rf1_edges))
 		self.so_edges = list(set(self.so_edges))
-		return self.hb_edges, self.rf_edges, self.fr_edges, self.rf1_edges, self.so_edges
+		return self.swdob_edges, self.rf_edges, self.fr_edges, self.rf1_edges, self.so_edges
 
 	def hbrf(self):
 		# rf related rules
@@ -62,7 +62,7 @@ class edges_computation:
 					if wr2[MO] in read_models:
 						edge_FE = (self.fences_thread[wr1_thread][f1_in_sb_index], wr2[S_NO])
 						# rule swFE
-						self.hb_edges.append(edge_FE)
+						self.swdob_edges.append(edge_FE)
 						if wr2[MO] == SEQ_CST:
 							self.so_edges.append(edge_FE)
 
@@ -71,13 +71,13 @@ class edges_computation:
 							if wr1[MO] in write_models:
 								edge_EF = (wr1[S_NO], self.fences_thread[wr2_thread][f2_in_sb_index])
 								# rule swEF
-								self.hb_edges.append(edge_EF)
+								self.swdob_edges.append(edge_EF)
 								if wr1[MO] == SEQ_CST:
 									self.so_edges.append(edge_EF)
 
 						edge_FF = (self.fences_thread[wr1_thread][f1_in_sb_index], self.fences_thread[wr2_thread][f2_in_sb_index])
 						# rule swFF for w --rf--> r
-						self.hb_edges.append(edge_FF)
+						self.swdob_edges.append(edge_FF)
 						self.so_edges.append(edge_FF)
 
 					add_ef_edges = False # add only in the first run
@@ -110,7 +110,7 @@ class edges_computation:
 								if add_fe_edges:
 									edge_EF = (write[S_NO], self.fences_thread[r_thread][f2_in_sb_index])
 									# rule dobEF
-									self.hb_edges.append(edge_EF)
+									self.swdob_edges.append(edge_EF)
 									if write[MO] == SEQ_CST:
 										self.so_edges.append(edge_EF)
 
@@ -203,13 +203,13 @@ class edges_computation:
 							edge_FE = (self.fences_thread[read_thread][f1_in_sb_index], w2[S_NO])
 							self.so_edges.append(edge_FE)
 
-							for f2_in_sb_index in range(f2_index, len(self.fences_thread[w2_thread])):
-								if add_ef_edges:
-									if read[MO] == SEQ_CST:
-										edge_EF = (read[S_NO], self.fences_thread[w2_thread][f2_in_sb_index])
-										self.so_edges.append(edge_EF)
-								
-								edge_FF = (self.fences_thread[read_thread][f1_in_sb_index], self.fences_thread[w2_thread][f2_in_sb_index])
-								self.so_edges.append(edge_FF)
+						for f2_in_sb_index in range(f2_index, len(self.fences_thread[w2_thread])):
+							if add_ef_edges:
+								if read[MO] == SEQ_CST:
+									edge_EF = (read[S_NO], self.fences_thread[w2_thread][f2_in_sb_index])
+									self.so_edges.append(edge_EF)
+							
+							edge_FF = (self.fences_thread[read_thread][f1_in_sb_index], self.fences_thread[w2_thread][f2_in_sb_index])
+							self.so_edges.append(edge_FF)
 							
 							add_ef_edges = False # add only in the first run
