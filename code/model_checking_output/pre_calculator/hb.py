@@ -92,7 +92,7 @@ class hb:
 				except: continue
 				if trace[j][MO] in write_models and trace[i][MO] in read_models:
 					# rule sw
-					self.hb_edges.append((j[S_NO],trace[i][S_NO]))
+					self.hb_edges.append((trace[j][S_NO],trace[i][S_NO]))
 					self.mat.addEdge(trace[j][S_NO],trace[i][S_NO])
 					# no need to check and add so_edges here since rf_edges will be checked after fence addition anyway
 
