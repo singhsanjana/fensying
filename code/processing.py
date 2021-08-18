@@ -58,7 +58,7 @@ class Processing:
 			# ADD FENCES
 			order=self.fence(trace)
 			# print("order =",order)
-			# print("fences_present =", fences_in_trace)
+			# print("fences_present =", self.fences_in_trace)
 			# print("fences_thread =", fences_thread)
 			# print("all_events_thread", self.all_events_thread)
 
@@ -164,7 +164,6 @@ class Processing:
 				fence_no += 1
 				order.append(fence_name)
 				all_events.append(fence_name)
-				# self.all_sc_events.append(fence_name)
 				fences_in_thread.append(fence_name)
 
 			if not trace[i][TYPE] == FENCE:
@@ -208,9 +207,8 @@ class Processing:
 					e0 = event[S_NO]
 					if event[MO] == SEQ_CST:
 						k += 1
-				# e0 = event if type(event) is str else event[S_NO]
 				for j in range(i+1, len(thread_events)):
-					k = 1 if k == 2 else 0
+					k = 1 if k == 2 else k
 					sb_event = thread_events[j]
 					if type(sb_event) is str:
 						e1 = sb_event
@@ -224,6 +222,7 @@ class Processing:
 					if k == 2:
 						self.so_edges.append((e0, e1))
 		# print("sb_edges",sb_edges)
+		# print("so edges", self.so_edges) # TODO: so edges not getting computed properly here
 		return sb_edges
 
 	def get(self):
