@@ -80,9 +80,10 @@ class Processing:
 			# print("fr = ", fr_edges)
 			# print("rf1 = ", rf1_edges)
 			# print("so = ", self.so_edges)
+			# TODO: reduce even more by only including fences with 'l' in the name and no 'F' since only those get added anyway
 			
 			# CYCLES
-			check_edges = hb_edges + mo_edges + rf_edges + fr_edges + rf1_edges
+			check_edges = hb_edges + mo_edges + rf_edges + fr_edges # TODO: confirm this check. exclused rf1
 			check_cycles = Cycles(check_edges)
 
 			if len(check_cycles) == 0:
@@ -90,22 +91,19 @@ class Processing:
 				return
 			
 			# WEAK FENSYING
-			relaxed_edges = hb_edges + mo_edges + rf_edges + rf1_edges
-			relaxed_cycles = Cycles(relaxed_edges)
-			relaxed_cycles = [list(item) for item in set(tuple(row) for row in relaxed_cycles)] # removing duplicate values
-			# print("relaxed_cycles=", relaxed_cycles)
-
-			check1 = weak_fensying(relaxed_cycles, hb_edges, mo_edges, rf_edges, rf1_edges)
-			relaxed_cycles = check1.get()
-			self.all_cycles += relaxed_cycles
-			self.cycles_tags += compute_relaxed_tags(relaxed_cycles, swdob_edges)
-			# print("relaxed_cycles =",relaxed_cycles)
-			# print("self.all_cycles =",self.all_cycles)
-			# print("self.cycles_tags =",self.cycles_tags)
+			check1 = weak_fensying(hb_edges, mo_edges, rf_edges, rf1_edges)
+			cycles_exist = check1.compute_cycles()
+			if cycles_exist:
+				relaxed_cycles = check1.check_for_weak_compositions()
+				self.all_cycles += relaxed_cycles
+				self.cycles_tags += compute_relaxed_tags(relaxed_cycles, swdob_edges)
+				# print("relaxed_cycles =",relaxed_cycles)
+				# print("self.all_cycles =",self.all_cycles)
+				# print("self.cycles_tags =",self.cycles_tags)
 
 			# STRONG FENSYING
 			strong_cycles = Cycles(self.so_edges)
-			print("strong_cycles =",strong_cycles)
+			# print("strong_cycles =",strong_cycles)
 			self.all_cycles += strong_cycles
 			self.cycles_tags += compute_strong_tags(strong_cycles)
 
@@ -116,7 +114,7 @@ class Processing:
 			cycles_with_only_fences = [list(item) for item in set(tuple(sorted(row)) for row in cycles_with_only_fences)] # removing duplicate values
 			unique_fences = list(sorted(set(x for l in cycles_with_only_fences for x in l)))
 			# print("unique_fences=",unique_fences)
-			print("cycles_with_only_fences =",cycles_with_only_fences)
+			# print("cycles_with_only_fences =",cycles_with_only_fences)
 
 			if len(unique_fences)>0:
 				for fence in unique_fences:
@@ -229,4 +227,4 @@ class Processing:
 		return sb_edges
 
 	def get(self):
-		return self.fences_present, self.fences_present_locs, self.z3vars, self.disjunctions, self.error_string, self.pre_calc_total
+		return self.fences_present, self.fences_present_locs, self.z3vars, self.disjunctions, self.error_string, self.pre_calc_total, self.all_cycles, self.cycles_tags

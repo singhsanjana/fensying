@@ -1,10 +1,34 @@
-class weak_fensying:
-	def __init__(self, cycles, hb_edges, mo_edges, rf_edges, rf1_edges):
-		self.candidate_cycles = self.check_for_weak_compositions(cycles, hb_edges, mo_edges, rf_edges, rf1_edges)
+from cycle import Cycles
 
-	def check_for_weak_compositions(self, cycles, hb_edges, mo_edges, rf_edges, rf1_edges):
+class weak_fensying:
+	def __init__(self, hb_edges, mo_edges, rf_edges, rf1_edges):
+		self.relaxed_cycles = []
+		self.hb_edges = hb_edges
+		self.mo_edges = mo_edges
+		self.rf_edges = rf_edges
+		self.rf1_edges = rf1_edges
+
+	def compute_cycles(self):
+		rf_permutations = []
+		for i in range(len(self.rf_edges)):
+			temp_list = self.rf_edges[:]							# to pass by value and not by reference/object-reference
+			del temp_list[i]
+			temp_list.append(self.rf1_edges[i])
+			rf_permutations.append(temp_list)
+		
+		for p in rf_permutations:
+			self.relaxed_cycles += Cycles(self.hb_edges + self.mo_edges + p)
+		
+		self.relaxed_cycles = [list(item) for item in set(tuple(row) for row in self.relaxed_cycles)]
+		# print("relaxed_cycles=",self.relaxed_cycles)
+
+		if len(self.relaxed_cycles) == 0:
+			return False
+		return True
+
+	def check_for_weak_compositions(self):
 		candidate_cycles = []
-		for cycle in cycles:
+		for cycle in self.relaxed_cycles:
 			edges_in_cycle = []
 			
 			# first separate out all the edges in the cycle
@@ -25,7 +49,7 @@ class weak_fensying:
 			edge_generator = self.circular_list(edges_in_cycle, 0)
 			for i in range(size):
 				edge = next(edge_generator)
-				if edge not in hb_edges:
+				if edge not in self.hb_edges:
 					check1 = 0
 					break
 				else:
@@ -43,9 +67,9 @@ class weak_fensying:
 				rf_over = 0
 				for j in range(size):
 					edge = next(edge_generator)
-					if rf_over == 0 and edge in rf_edges:
+					if rf_over == 0 and edge in self.rf_edges:
 						check2 += 1
-					elif edge in hb_edges:
+					elif edge in self.hb_edges:
 						rf_over = 1
 						check2 += 1
 				if check2 == size:
@@ -64,9 +88,9 @@ class weak_fensying:
 				mo_over = 0
 				for j in range(size):
 					edge = next(edge_generator)
-					if mo_over == 0 and edge in mo_edges:
+					if mo_over == 0 and edge in self.mo_edges:
 						check3 += 1
-					elif edge in hb_edges:
+					elif edge in self.hb_edges:
 						mo_over = 1
 						check3 += 1
 				if check3 == size:
@@ -86,13 +110,13 @@ class weak_fensying:
 				rf_over = 1
 				for j in range(size):
 					edge = next(edge_generator)
-					if mo_over == 0 and edge in mo_edges:
+					if mo_over == 0 and edge in self.mo_edges:
 						check4 += 1
 						rf_over = 0
-					elif rf_over == 0 and edge in rf_edges:
+					elif rf_over == 0 and edge in self.rf_edges:
 						mo_over = 1
 						check4 += 1
-					elif edge in hb_edges:
+					elif edge in self.hb_edges:
 						rf_over = 1
 						check4 += 1
 				if check4 == size:
@@ -112,13 +136,13 @@ class weak_fensying:
 				hb_over = 1
 				for j in range(size):
 					edge = next(edge_generator)
-					if mo_over == 0 and edge in mo_edges:
+					if mo_over == 0 and edge in self.mo_edges:
 						check5 += 1
 						hb_over = 0
-					elif hb_over == 0 and edge in hb_edges:
+					elif hb_over == 0 and edge in self.hb_edges:
 						mo_over = 1
 						check5 += 1
-					elif edge in rf1_edges:
+					elif edge in self.rf1_edges:
 						hb_over = 1
 						check5 += 1
 				if check5 == size:
@@ -139,17 +163,17 @@ class weak_fensying:
 				hb_over = 1
 				for j in range(size):
 					edge = next(edge_generator)
-					if mo_over == 0 and edge in mo_edges:
+					if mo_over == 0 and edge in self.mo_edges:
 						check6 += 1
 						rf_over = 0
-					elif rf_over == 0 and edge in rf_edges:
+					elif rf_over == 0 and edge in self.rf_edges:
 						mo_over = 1
 						check6 += 1
 						hb_over = 0
-					elif hb_over == 0 and edge in hb_edges:
+					elif hb_over == 0 and edge in self.hb_edges:
 						rf_over = 1
 						check6 += 1
-					elif edge in rf1_edges:
+					elif edge in self.rf1_edges:
 						hb_over = 1
 						check6 += 1
 				if check6 == size:
