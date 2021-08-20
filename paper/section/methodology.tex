@@ -390,7 +390,7 @@ To achieve optimality in the memory order of fences, the
 minimal set of fences must be assigned the weakest memory
 order that can stop the buggy traces.
 Consider {\tt min-cycles} as the set of weak and strong cycles 
-of all buggy traces \st every candidate fence in the cycle belongs 
+of all buggy traces \st every  fence in the cycle belongs 
 to {\tt min$\Phi$}. 
 %
 \ourtechnique starts by assigning a memory order to fences of 
@@ -435,7 +435,7 @@ the memory orders \rel, \acqrel and \acq and weights 1, 2 and
 1 respectively. The weight of the cycle is computed as 4.
 
 The locally assigned memory orders represent the weakest 
-memory order that can stop a trace. 
+memory order that can stop the corresponding trace. 
 \ourtechnique further iterates over all buggy traces and 
 detects the weakest memory order for each fence that can stop 
 all the buggy traces as follows: 
@@ -481,17 +481,41 @@ as superscripts and the weights of the cycle $\tau_1c_1$,
 $\tau_1c_2$ and $\tau_2c_1$ are 4, 4, 3 respectively 
 written against the name of the cycles in the figure.
 %
-Assuming \ourtechnique starts from $\tau_1$, it detects 
+Assuming \ourtechnique starts with $\tau_1$, it detects 
 two candidate solutions ($\tau_1c_1$ and $\tau_1c_2$) that 
 can stop $\tau_1$. 
 %
 The candidate solutions are coalesced with $\tau_2c_1$
-to form $\tau_{12}c_{11}$ and $\tau_{12}c_{12}$ of
+to form $\tau_{12}c_{11}$ and $\tau_{12}c_{21}$ of
 weights 5 and 4 respectively. \ourtechnique discards
 $\tau_{12}c_{11}$ and assigns the optimal memory orders
 \rel, \acq and \acqrel to fences $\mathbb{F}_1$,
 $\mathbb{F}_2$ and $\mathbb{F}_3$ respectively.
+
+The candidate fences inserted by \ourtechnique that 
+are contained in {\tt min$\Phi$} are synthesized in
+the input program at their respective program 
+locations. 
 %
-The set of events $\events$ $\union$ $\{\mathbb{F}^\rel_1,
-\mathbb{F}^\acq_2, \mathbb{F}^\acqrel_3\}$ 
-form the events of $\fx{P}$.
+The set {\tt min$\Phi$} may contain fences that belong
+to $\events$ \ie fences in the events of the input 
+program, not inserted by \ourtechnique. The memory
+order of the program fence may differ from the memory
+order computed by \ourtechnique.
+%
+A stronger original memory order than the one computed
+is sound, however, if the original memory order is
+weaker then we synthesize a fresh fence at the 
+respective program location with a complementary
+memory order. 
+%
+For example, assume the input program contains a fence 
+($\mathbb{F}$) with memory order \rel and 
+\ourtechnique computes that $\mathbb{F}$
+$\in$ {\tt min$\Phi$} and must have the memory order
+\acqrel, in such a case we synthesize a fence 
+$\mathbb{F}'$ with memory order \acq immediately 
+program-ordered before $\mathbb{F}$.
+%
+The set of events $\events$ $\union$ the set of 
+synthesized fences form the events of $\fx{P}$.
