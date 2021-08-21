@@ -1,4 +1,5 @@
 from cycle import Cycles
+import time
 
 class weak_fensying:
 	def __init__(self, hb_edges, mo_edges, rf_edges, rf1_edges):
@@ -28,6 +29,8 @@ class weak_fensying:
 
 	def check_for_weak_compositions(self):
 		candidate_cycles = []
+		print("no of rlx cycles to check=", len(self.relaxed_cycles))
+		st = time.time()
 		for cycle in self.relaxed_cycles:
 			edges_in_cycle = []
 			
@@ -184,6 +187,8 @@ class weak_fensying:
 			if flag == 1:
 				continue
 		
+		en = time.time()
+		print("time taken to check=",round(en-st, 2))
 		return candidate_cycles
 
 	def circular_list(self, cycle, index):

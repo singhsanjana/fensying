@@ -32,8 +32,8 @@ class Processing:
 		self.fences_present_locs = []
 		self.error_string = ''
 		self.pre_calc_total = 0									# time taken for calculation of initial values - HB, MO, SB
-		self.all_cycles = []
-		self.cycles_tags = []
+		self.all_cycles_by_trace = []
+		self.cycles_tags_by_trace = []
 
 		trace_no = 0
 		# print("traces=",traces)
@@ -44,11 +44,12 @@ class Processing:
 			self.fences_thread = []								# list of fences in each thread
 			self.fences_in_trace = []							# list of fences already present in the program
 
-			# cycles = []                        		# list of all cycles between the fences and events
+			cycles = []                        		# list of all cycles in this trace
+			cycles_tags = []
 			loc_info = {}                         # information regarding the required fence locations
 
 			trace_no += 1
-			# print("---------Trace",trace_no,"---------")
+			print("---------Trace",trace_no,"---------")
 
 			pre_calc_start = time.time()
 			hb_edges, mo_edges, self.so_edges = pre_calculations(trace)
@@ -95,8 +96,8 @@ class Processing:
 			cycles_exist = check1.compute_cycles()
 			if cycles_exist:
 				relaxed_cycles = check1.check_for_weak_compositions()
-				self.all_cycles += relaxed_cycles
-				self.cycles_tags += compute_relaxed_tags(relaxed_cycles, swdob_edges)
+				cycles += relaxed_cycles
+				cycles_tags += compute_relaxed_tags(relaxed_cycles, swdob_edges)
 				# print("relaxed_cycles =",relaxed_cycles)
 				# print("self.all_cycles =",self.all_cycles)
 				# print("self.cycles_tags =",self.cycles_tags)
@@ -104,8 +105,11 @@ class Processing:
 			# STRONG FENSYING
 			strong_cycles = Cycles(self.so_edges)
 			# print("strong_cycles =",strong_cycles)
-			self.all_cycles += strong_cycles
-			self.cycles_tags += compute_strong_tags(strong_cycles)
+			cycles += strong_cycles
+			cycles_tags += compute_strong_tags(strong_cycles)
+
+			self.all_cycles_by_trace.append(cycles)
+			self.cycles_tags_by_trace.append(cycles_tags)
 
 			cycles = relaxed_cycles+strong_cycles
 			cycles_with_only_fences = []
@@ -226,4 +230,4 @@ class Processing:
 		return sb_edges
 
 	def get(self):
-		return self.fences_present, self.fences_present_locs, self.z3vars, self.disjunctions, self.error_string, self.pre_calc_total, self.all_cycles, self.cycles_tags
+		return self.fences_present, self.fences_present_locs, self.z3vars, self.disjunctions, self.error_string, self.pre_calc_total, self.all_cycles_by_trace, self.cycles_tags_by_trace

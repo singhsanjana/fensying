@@ -76,7 +76,7 @@ def fn_main(filename):
 		sys.exit(0)
 	elif no_buggy_execs:
 		get_p = Processing(traces)
-		fences_present, fences_present_locs, z3vars, disjunctions, error_string, pre_calc_total, all_cycles, cycles_tags = get_p.get()				# runs and returns locations
+		fences_present, fences_present_locs, z3vars, disjunctions, error_string, pre_calc_total, all_cycles_by_trace, cycles_tags_by_trace = get_p.get()				# runs and returns locations
 
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)
@@ -84,7 +84,7 @@ def fn_main(filename):
 
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions, fences_present)									# get output from z3 & get required locations
-			fence_tags = allocate_fence_orders(req_fences, all_cycles, cycles_tags)
+			fence_tags = allocate_fence_orders(req_fences, all_cycles_by_trace, cycles_tags_by_trace)
 			req_locs = [int(rf[1:]) for rf in req_fences]
 			new_filename = insert(req_locs, filename, fences_present_locs)		# insert fences into the source file at the required locations
 
