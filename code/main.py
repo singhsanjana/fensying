@@ -48,6 +48,7 @@ elif no_traces == 0 or max_iter == 0:
 mc_total = 0
 z3_total = 0
 fences_added = 0
+fence_tags_final = []
 total_iter = 0
 error_string = ""
 
@@ -56,6 +57,7 @@ def fn_main(filename):
 	global pre_calc_total
 	global z3_total
 	global fences_added
+	global fence_tags_final
 	global total_iter
 	global error_string
 
@@ -85,10 +87,10 @@ def fn_main(filename):
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions, fences_present)									# get output from z3 & get required locations
 			fence_tags = allocate_fence_orders(req_fences, all_cycles_by_trace, cycles_tags_by_trace)
-			req_locs = [int(rf[1:]) for rf in req_fences]
-			new_filename = insert(req_locs, filename, fences_present_locs)		# insert fences into the source file at the required locations
+			new_filename = insert(req_fences, fence_tags, filename, fences_present_locs)		# insert fences into the source file at the required locations
 
-			fences_added += len(req_locs)-len(fences_present)
+			fences_added += len(req_fences)-len(fences_present)
+			fence_tags_final += list(fence_tags.values())
 
 	mc_total += mc_time
 	z3_total += z3_time
@@ -96,7 +98,8 @@ def fn_main(filename):
 		print("Time- CDS Checker:\t",round(mc_time, 2))
 		if no_buggy_execs and not error_string:
 			print("Time- Z3:\t\t",round(z3_time, 2))
-			print("Fences added:\t\t",len(req_locs)-len(fences_present))
+			print("Fences added:\t\t",len(req_fences)-len(fences_present))
+			print("Orders:\t\t\t",list(fence_tags.values()))
 
 	if no_traces and no_buggy_execs and not error_string:
 		fn_main(new_filename)
@@ -114,6 +117,8 @@ except RuntimeError:
 print(oc.OKBLUE + oc.BOLD + "\n\n================= OVERALL =================" + oc.ENDC)
 if not error_string:
 	print(oc.OKGREEN, oc.BOLD, "Total fences added: \t", fences_added, oc.ENDC)
+	if (fences_added>0):
+		print(oc.BOLD, "Orders: \t\t", fence_tags_final, oc.ENDC)
 print("Time- CDS Checker:\t",round(mc_total, 2))
 print("Time- Pre-calculations:\t",round(pre_calc_total, 2))
 if z3_total > 0:

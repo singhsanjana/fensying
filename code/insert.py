@@ -1,8 +1,9 @@
 from operator import itemgetter
 from constants import file_info as fi
+from constants import f_tags as ft
 from constants import *
 
-def insert(loc, filename, fences_present_locs):
+def insert(fences, fence_tags, filename, fences_present_locs):
 	with open(filename) as f:
 		lines = f.readlines()
 	
@@ -13,11 +14,12 @@ def insert(loc, filename, fences_present_locs):
 		filename_new = filename[:extension_length]+fi.OUTPUT_FILE_APPEND_STRING
 
 	output_file = open(filename_new,'w')
-	fence_instr = fi.FENCE_INSTRUCTIONS[SEQ_CST]+'\n'
 
-	for i in loc:
-		if i not in fences_present_locs:
-			lines[i-1] += fence_instr
+	for f in fences:
+		if f not in fences_present_locs:
+			pos = int(f[1:])
+			order = fence_tags[f]
+			lines[pos-1] += fi.FENCE_INSTRUCTIONS[order]
 
 	for w in lines:
 		output_file.writelines(w)
