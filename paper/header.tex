@@ -146,13 +146,14 @@
 \newcommand{\nmo}[3]{\nreln{\textbf{\textcolor{RedOrange}{mo}}}{#1}{#2}{#3}\xspace}
 \renewcommand{\to}[3]{\reln{\textbf{\textcolor{Brown}{to}}}{#1}{#2}{#3}\xspace}
 \newcommand{\so}[3]{\reln{\textbf{\textcolor{Mahogany}{so}}}{#1}{#2}{#3}\xspace} %sc
+\newcommand{\nso}[3]{\nreln{\textbf{\textcolor{Mahogany}{so}}}{#1}{#2}{#3}\xspace} %sc
 \newcommand{\fr}[3]{\reln{\textbf{\textcolor{RoyalPurple}{fr}}}{#1}{#2}{#3}} %rb/fr
 \newcommand{\nfr}[3]{\nreln{\textbf{\textcolor{RoyalPurple}{fr}}}{#1}{#2}{#3}} %~rb/fr
 \newcommand{\ws}[3]{\reln{\textbf{\textcolor{Mahogany}{ws}}}{#1}{#2}{#3}} %sc-sw
 \newcommand{\frsc}[3]{\reln{\textbf{\textcolor{RoyalPurple}{\onsc{fr}}}}{#1}{#2}{#3}\xspace} %rb/fr
 \newcommand{\nfrsc}[3]{#2\onsc{\nrightarrow^{{\bf\textcolor{RoyalPurple}{fr}}}_{#1}}#3\xspace}
-\newcommand{\rfinv}[3]{#2 \rightarrow^{ \textcolor{PineGreen}{ \textbf{rf}^{-\textbf{1}} } }_{#1} #3\xspace} 
-\newcommand{\nrfinv}[3]{#2 \nrightarrow^{ \textcolor{PineGreen}{ \textbf{rf}^{-\textbf{1}} } }_{#1} #3\xspace}
+\newcommand{\rfinv}[3]{#2 \rightarrow^{ \textcolor{PineGreen}{ \textbf{rf}}^{-1} }_{#1} #3\xspace} 
+\newcommand{\nrfinv}[3]{#2 \nrightarrow^{ \textcolor{PineGreen}{ \textbf{rf}}^{-1} }_{#1} #3\xspace}
 
 % relation name without events
 \newcommand{\setSB}{\seqb{\tau}{}{}\xspace}

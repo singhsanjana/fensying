@@ -1,0 +1,11 @@
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+\begin{tikzpicture}[x=1em,y=1em,yscale=-1,xscale=-1]
+\tikzstyle{every node}=[font=\normalfont]
+\node (w1) {$ w_1 $};
+\node (w2) [below=20pt of w1] {$ w_2 $};
+\node (coww) [below=-3pt of w2] {\hl{coWW}};
+
+\draw [->,>=stealth,color=Cerulean] ($ (w1.south east)+(.3,-5pt) $) to[out=135,in=-125] node[midway,right=-2pt,font=\scriptsize] {\textcolor{black}{\lhb}} ($ (w2.north east)+(0.2,3pt) $);
+\draw [->,>=stealth,color=RedOrange] ($ (w2.north west)+(-0.2,3pt) $) to[out=-45,in=45] node[left=-2pt,pos=.25,font=\scriptsize] {\textcolor{black}{\lmo}}($ (w1.south west)+(-0.3,-5pt) $);
+
+\end{tikzpicture}

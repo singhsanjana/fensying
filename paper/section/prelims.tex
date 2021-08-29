@@ -1,147 +1,117 @@
-Consider a\deleted{n acyclic} multi-threaded \cc
-program \added{$P$ $:=$ $\parallel_{i\in \text{\tt TID}} P_i$, 
-where $\text{\tt TID}= \{1,\ldots,n\}$ is the set of thread ids}. 
-\deleted{The} \added{Each} thread \deleted {of the program}
-\added{$P_i$ is a loop-free program, which}
-performs a sequence of memory access operations on a set of shared
-memory objects and \cc memory fences.  The memory access operations
-can be atomic or non-atomic in nature.
+Consider a multi-threaded \cc program, 
+$P$ $:=$ $\parallel_{i\in \text{\tt TID}} P_i$
+where $\text{\tt TID}= \{1,\ldots,n\}$, is the 
+set of thread ids. 
+Each thread $P_i$ is a loop-free program, which
+performs a sequence of memory access operations 
+on a set of shared memory objects and \cc memory 
+fences.  The memory access operations can be 
+atomic or non-atomic in nature.
 %
-An instance of a thread operation in an execution is called an {\em
-event}.  Events of a thread $t$ are uniquely indexed with an id.
+An instance of a thread operation in an execution 
+is called an {\em event}.  Events of a thread $t$ 
+are uniquely indexed with an id.
 %
-\begin{definition}[Event]
-An event $i$ of thread $t$ is represented by a tuple $\langle i, t, act, obj,$ $ ord, inst \rangle$ where:
+{\definition {Event} \label{def:event}}\newline
+An event $i$ of thread $t$ is represented by a tuple 
+$\langle i, t, act, obj,$ $ ord, inst \rangle$ where:
 \begin{itemize}[label=inst,align=left,leftmargin=*]
-\item [$act$] represents the event action $\in \{\text{read}, \text{write}, \text{rmw}, \text{fence} \} $,
-\item [$obj$] is the set of memory objects accessed,
-\item [$ord$] records the \cc memory order associated with the event, and
-\item [$inst$] is the corresponding \deleted{program} \added{thread} instruction.
+\item [$act$] represents the event action $\in 
+	\{$read, write, fence$\}$,
+\item [$obj$] is the memory object accessed,
+\item [$ord$] records the \cc memory order associated 
+	with the event, and
+\item [$inst$] is the corresponding thread instruction.
 \end{itemize}
-\end{definition}
-The $act$ of rmw kind represents {\em read-modify-write}.
 %
-Note that the set of memory objects of an rmw event can be non-singleton 
-and for a fence event it is an empty set.
+Let $\events$ denote the set of all program events. 
+Furthermore, $\writes$, $\reads$ and $\fences$ denote 
+the write, read and fence events of the input program.
 %
-Let $\events$ denote the set of all program events. Furthermore,
-$\writes$, $\reads$ and $\fences$ denote the write, read and fence 
-events of the input program.
-%
-Throughout the text, use of read event as well as write event includes rmw
-events unless specified otherwise.
-%
-\begin{definition}[Trace]\newline
-\svs{The definition is cyclic, it uses $\events_\tau$ to define $\tau$. Also, I am not convinced why 
-rf and mo together are insufficient and why we need hb additionally? }
-\snj{$\events_\tau$ is just a representative symbol, it is not parametric on $\tau$.
-The set $\events_\tau \subseteq \events$.}
-\svs{I don't buy this argument. Read below how you have defined $\events_\tau$!}
-\snj{rewritten, is it better?}
-	A trace or a maximal execution $\tau$ of the input 
-	program $P$ under \cc is a tuple 
-	$\langle \events_\tau, \setHB, \setMO, \setRF \rangle$, where
-	\begin{itemize}[label=sethb,align=left,leftmargin=*]
-		\item [$\events_\tau$] $\subseteq \events$ represents the set of 
-			events in the trace $\tau$,
-		\item [$\setHB$] ({\em Happens-before}) is a partial order relation
-			$\subseteq \events_\tau \times \events_\tau$\added{, which captures}
-                        \deleted{represent} the event interactions and inter-thread
-			synchronizations, discussed in Section~\ref{sec:c11},
-		\item [$\setMO$] ({\em Modification-order}) is a total order on the
-			writes of an object that establishes coherence of $\tau$ 
-			\wrt $\setHB$ , and
-		\item [$\setRF$] ({\em Reads-from}) is a relation from a write event to
-			a read event signifying that the read event takes the value of 
-			the write event in $\tau$.
-	\end{itemize}
-\end{definition}
+{\definition {Trace} \label{def:trace}}\newline
+A trace or a maximal execution $\tau$ of the input 
+program $P$ under \cc is a tuple 
+$\langle \events_\tau, \setHB, \setMO, \setRF \rangle$, 
+where
+\begin{itemize}[label=sethb,align=left,leftmargin=*]
+	\item [$\events_\tau$] $\subseteq \events$ 
+		represents the set of events in the trace 
+		$\tau$,
+	\item [$\setHB$] ({\em Happens-before}) is a partial 
+		order relation $\subseteq \events_\tau \times 
+		\events_\tau$, which captures the event 
+		interactions and inter-thread synchronizations, 
+		discussed in Section~\ref{sec:c11},
+	\item [$\setMO$] ({\em Modification-order}) is a 
+		total order on the writes of an object that 
+		establishes coherence of $\tau$ \wrt $\setHB$, 
+		and
+	\item [$\setRF$] ({\em Reads-from}) is a relation 
+		from a write event to a read event signifying 
+		that the read event takes the value of the write 
+		event in $\tau$.
+\end{itemize}
 
 \noindent
 {\bf Memory ordering under \cc}: 
-The memory access and fence operations are
-associated with ordering modes
-that defines the ordering restriction \added{ on them.}
-\snj{Technically, the restriction is on the events around the
-current event, as stated in the following deleted line:}
-\deleted{ placed on atomic and non-atomic access around atomic memory access.}
+The atomic memory accesses and fence operations are
+associated with ordering modes that define the 
+ordering restriction on atomic and non-atomic memory 
+access around them.
 %
-$\moset$ = $\{ \na, \rlx, \rel, \acq, \acqrel, \sc \}$, 
-represents the orders relaxed (\rlx), release (\rel), acquire (\acq),
-acquire-release (\acqrel) and sequentially consistent (\sc) for
-atomic events. A non-atomic event has \na memory order associated with 
-it.
+$\moset$ = $\{$\na, \rlx, \rel, \acq, \acqrel, \sc$\}$, 
+represents the orders relaxed (\rlx), release (\rel), 
+acquire$/$consume (\acq), acquire-release (\acqrel) and 
+sequentially consistent (\sc) for atomic events. 
+A non-atomic event is recognized by the \na memory 
+order.
 %
-We use $\ordevents{m}_\tau$ (and accordingly $\ordwrites{m}_\tau$, 
-$\ordreads{m}_\tau$ and $\ordfences{m}_\tau$) to represent the $m$
+We use $\ordevents{m}_\tau$ (and accordingly 
+$\ordwrites{m}_\tau$, $\ordreads{m}_\tau$ and 
+$\ordfences{m}_\tau$) to represent the $m$
 ordered events of a trace $\tau$ (where, $m \in \moset$);
-for example $\ordwrites{\rel}_\tau$ represents the write events of 
-$\tau$ with ordering restriction \rel. 
-\svs{Why not use $o \in \moset$ representing order as a replacement?}
-\snj{It makes the definitions very long and difficult to follow, 
-eg: let $x \in \events_\tau$
-$\^$ $ord(x) = \rel$ vs let $x \in \ordevents{\rel}_\tau$}
+for example $\ordwrites{\rel}_\tau$ represents the 
+write events of $\tau$ with ordering restriction \rel. 
 
 \noindent
-{\bf Buggy and fixed traces}: A program $P$ may contain {\em assert} 
-instructions as correctness specification. 
-\added{$P$ is considered buggy} when a trace of $P$ 
-\deleted {that violates an 
-assert check (\ie the condition in the assert check computes} \added{has an
-assert expression evaluating} to
-{\em false}. \deleted{is called a buggy trace.}
-\snj{We are more interested in defining a buggy `traces'. 
-So we can add in the end that such traces are called `buggy traces'.}
-
-
-\textcolor{Maroon}{The purpose of this work 
-is to synthesize \cc fences at appropriate
-program locations to invalidate buggy traces. Particularly, the
-event relation in the buggy traces with synthesized fences
-render the resulting program behavior invalid under \cc, thus ensuring
-that a previously buggy trace would not materialize as a 
-\cc program execution.} 
-%\comment{Consider moving the above para to the Intro!}
-\snj{We can state it in intro as well as here and thus keep reiterating our goal
-to make it clear to the reader (provided we have the space.)}
-
-\deleted{We represent the fixed trace corresponding to a
-buggy trace $\tau$ by $\inv{\tau}$. 
+{\bf Buggy and fixed traces}: A program $P$ may 
+contain {\em assert} statements as correctness 
+specification. 
+A trace of $P$ is considered {\em buggy} when an 
+assert expression evaluates to {\em false} in the trace.
+If traces of $P$ contain buggy traces then $P$ is 
+considered buggy.
 %
-As an intermediate step between $\tau$ and $\inv{\tau}$, we form an 
-intermediate version of the trace $\tau$ with candidate fences
-some of which are retained as a part of $\inv{\tau}$. We represent
-the intermediate version of $\tau$ as $\imm{\tau}$. The details
-of the intermediate step are discussed in Section~\ref{sec:methodology}.
-%
-We also use $\imm{P}$ and $\fx{P}$ to represent the intermediate and
-fixed versions of the input program $P$.} \svs{I don't like the above para.}
-\snj{The paragraph has been rewritten below:}
+In this work we synthesize \cc fences at appropriate
+program locations to invalidate buggy traces, thus 
+ensuring that a previously buggy trace would not 
+materialize as a \cc program execution.
 
-
-In the processes of invalidating a buggy trace $\tau$ of a program $P$,
-$\tau$ undergoes two versions of transformations, an intermediate version
-(represented as $\imm{\tau}$) and a final `invalidated' version (represented
-as $\inv{\tau}$). The transformations have been discussed in 
-Sections~\ref{sec:methodology} and \ref{sec:implementation}.
+In the processes of invalidating a buggy trace $\tau$ 
+of a program $P$, $\tau$ undergoes two versions of 
+transformations, an intermediate version (represented 
+as $\imm{\tau}$) and a final `invalidated' version 
+(represented as $\inv{\tau}$). The transformations 
+have been discussed in Sections~\ref{sec:methodology} 
+and \ref{sec:implementation}.
 %
-Note that once all the buggy traces $\tau$ have been transformed to 
-the invalidated version
-$\inv{\tau}$ by adding appropriate fences, we then consider the input 
-program $P$ {\em fixed} or free of bugs (represented as $\fx{P}$). 
+Note that once all the buggy traces $\tau$ have been 
+transformed to the invalidated version $\inv{\tau}$ by 
+adding appropriate fences, we then consider the input 
+program $P$ {\em fixed} or free of bugs (represented 
+as $\fx{P}$). 
 
 \noindent
 {\bf Relational Operators}: 
-We use $R^{-1}$ to represent the inverse of a relation $R$,
-$R^+$ to represent the transitive closure of $R$ and 
-$R_1;R_2$ to represent the composition of relations $R_1$ and $R_2$.
-Let $\onsc{R}$ represent a subset of a relation $R$ on \sc events;
-\ie $(e_1,e_2) \in \onsc{R}$ $\iff$ $(e_1,e_2) \in R$ $\^$
-$e_1,e_2 \in \ordevents{\sc}$. Note that we also use the infix 
-notation $e_1Re_2$ for $(e_1,e_2) \in R$.
-Lastly, we say a relation $R$ has cycle(s) if $\exists e_1, e_2 \in
-\events$ \st $e_1Re_2$ $\^$ $e_2Re_1$.
-\svs{Complete the discussion. Also mention $R^{+}$, etc. I read later the use of
-$R^{-}$, and I do not like it. It is better to use $\notin$ operator instead.}
-\snj{$R^+$ added. By $R^-$ are you referring to $R^{-1}$? $R^{-1}$ gives a relation
-	= inverse of a relation $R$. $\notin$ gives a boolean, they are not the same.}
+We use $R^{-1}$ to represent the inverse of a relation 
+$R$, $R^+$ to represent the transitive closure of $R$ 
+and $R_1;R_2$ to represent the composition of relations 
+$R_1$ and $R_2$.
+%
+Let $\onsc{R}$ represent a subset of a relation $R$ on 
+\sc events; \ie $(e_1,e_2) \in \onsc{R}$ $\iff$ $(e_1,e_2) 
+\in R$ $\^$ $e_1,e_2 \in \ordevents{\sc}$. Note that we 
+also use the infix notation $e_1Re_2$ for $(e_1,e_2) \in R$.
+%
+Lastly, we say a relation $R$ has cycle(s) if $\exists e_1, 
+e_2 \in \events$ \st $e_1Re_2$ $\^$ $e_2Re_1$.
