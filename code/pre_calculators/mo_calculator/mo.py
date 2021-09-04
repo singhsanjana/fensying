@@ -30,7 +30,7 @@ class mo:
 		# open exec files
 		# for event in trace:
 		# 	print(event)
-		print('finding mo for trace', traceno)
+		# print('finding mo for trace', traceno)
 		self.mo_edges = self.get_mo_from_dot(traceno)
 
 		# print("mo edges=",self.mo_edges)
@@ -41,7 +41,7 @@ class mo:
 	def get_mo_from_dot(self, traceno):
 		mo_found = []
 		filename= file_info.CDS_FOLDER_PATH + '/exec%04d.dot' % (traceno)
-		print(filename)
+		# print(filename)
 		with open(filename) as file:
 			lines=file.readlines()
 			for line in lines:
