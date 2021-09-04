@@ -3,7 +3,7 @@ from model_checking_output.pre_calculator.mo import mo
 from model_checking_output.pre_calculator.graph import Graph
 from constants import *
 
-def pre_calculations(trace):
+def pre_calculations(trace, buggy_trace_no):
 	writes, reads = preprocessing(trace)
 	initial_mo_edges = []
 	initial_hb_edges = []
@@ -20,7 +20,8 @@ def pre_calculations(trace):
 		hb_matrix, hb_edges, so_edges = hb_calc.get()
 		# print("hb_edges==",hb_edges)
 
-		mo_calc = mo(trace, hb_matrix, mat_size, so_edges, writes, reads)
+		# print('computing mo for buggy_trace_no:', buggy_trace_no)
+		mo_calc = mo(trace, hb_matrix, mat_size, so_edges, writes, reads, buggy_trace_no)
 		mo_edges, so_edges = mo_calc.get()
 		# print("mo_edges==",mo_edges)
 

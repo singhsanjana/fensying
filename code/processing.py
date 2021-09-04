@@ -25,7 +25,7 @@ import time
 
 # IDEA: any var with _thread at the end means that it is an array of arrays separated by thread number
 class Processing:
-	def __init__(self, traces):
+	def __init__(self, traces, buggy_trace_no):
 		self.z3vars = []												# list of all z3 constants
 		self.disjunctions = []									# list of disjunctions for the z3 function
 		self.fences_present = []								# list of fences converted to their respective variable names
@@ -52,7 +52,8 @@ class Processing:
 			print("---------Trace",trace_no,"---------")
 
 			pre_calc_start = time.time()
-			hb_edges, mo_edges, self.so_edges = pre_calculations(trace)
+			# print('calling pre_calc for trace_no, buggy_trace_no', trace_no, buggy_trace_no)
+			hb_edges, mo_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
 			pre_calc_end = time.time()
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
 
