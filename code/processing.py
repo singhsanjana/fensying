@@ -22,7 +22,7 @@ import time
 
 # IDEA: any var with _thread at the end means that it is separated by thread number
 class Processing:
-	def __init__(self, traces):
+	def __init__(self, traces, buggy_trace_no):
 		self.z3vars = []												# list of all z3 constants
 		self.disjunctions = []											# list of disjunctions for the z3 function
 		self.fences_present = []										# list of fences converted to their respective variable names
@@ -51,7 +51,7 @@ class Processing:
 			hb_matrix, size, self.to_edges = hb_graph.get()
 
 			# MO
-			get_mo = mo(trace, hb_matrix, size, self.to_edges)
+			get_mo = mo(trace, hb_matrix, size, self.to_edges, buggy_trace_no[trace_no-1])
 			mo_edges, self.to_edges = get_mo.get()
 			# print("mo =",mo_edges)
 			pre_calc_end = time.time()
