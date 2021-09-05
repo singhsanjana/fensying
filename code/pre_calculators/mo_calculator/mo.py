@@ -2,12 +2,13 @@
 
 # --------------------------------------------------------
 
+from z3_functions import constant
 from pre_calculators.graph import Graph
 from constants import *
 
 class mo:
 
-	def __init__(self, trace, hb_matrix, size, to_edges):
+	def __init__(self, trace, hb_matrix, size, to_edges, traceno=1):
 		self.trace = trace
 		self.hb_matrix = hb_matrix
 		self.size = size
@@ -17,18 +18,37 @@ class mo:
 		self.reads = []
 		self.mo_edges = []                      								# list of mo edges
 
-		self.preprocessing(trace)
+		# self.preprocessing(trace)
 
-		self.rule1()
-		self.rule2()
-		self.rule3()
-		self.rule4()
+		# self.rule1()
+		# self.rule2()
+		# self.rule3()
+		# self.rule4()
 
-		self.mo_edges = list(dict.fromkeys(self.mo_edges))
+		# self.mo_edges = list(dict.fromkeys(self.mo_edges))
+
+		# open exec files
+		# for event in trace:
+		# 	print(event)
+		# print('finding mo for trace', traceno)
+		self.mo_edges = self.get_mo_from_dot(traceno)
+
 		# print("mo edges=",self.mo_edges)
 
 	def get(self):
 		return self.mo_edges, self.to_edges
+
+	def get_mo_from_dot(self, traceno):
+		mo_found = []
+		filename= file_info.CDS_FOLDER_PATH + '/exec%04d.dot' % (traceno)
+		# print(filename)
+		with open(filename) as file:
+			lines=file.readlines()
+			for line in lines:
+				index = line.find('->')
+				if index != -1 and 'N0' not in line:
+					mo_found.append((int(line[1:index-1]), int(line[index+4:-2])))
+		return mo_found
 
 	def preprocessing(self, trace):
 		for t in trace:

@@ -69,13 +69,13 @@ def fn_main(filename):
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
 	cds = translate_cds(filename, no_traces)								# translates CDS Checker output & returns a structure containing the traces
-	traces, mc_time, no_buggy_execs, mc_error_string = cds.get()
+	traces, mc_time, no_buggy_execs, mc_error_string, buggy_trace_no = cds.get()
 
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
 		sys.exit(0)
 	elif no_buggy_execs:
-		get_p = Processing(traces)
+		get_p = Processing(traces, buggy_trace_no)
 		fences_present, fences_present_locs, z3vars, disjunctions, error_string, pre_calc_total = get_p.get()				# runs and returns locations
 
 		if error_string:

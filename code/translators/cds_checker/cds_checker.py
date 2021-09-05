@@ -24,6 +24,7 @@ class translate_cds:
 		self.no_buggy_execs = 0											# number of buggy executions for this run
 		self.error_string = None										# handle error in CDS Checker
 		self.cds_time = 0
+		self.buggy_trace_no = []										# no of buggy traces, required for mo file name
 
 		copy = "cp " + filename + " " + fi.CDS_TEST_FOLDER_PATH
 		make = "cd "+ fi.CDS_FOLDER_PATH + " && make"
@@ -63,18 +64,29 @@ class translate_cds:
 
 			if self.no_buggy_execs != 0:
 				self.create_structure(filename)
+				# self.print_traces()
 		finally:
 			delete_copied_file(filename)
-			return
+			#return
 
 
 	def get(self):
-		return self.traces, self.cds_time, self.no_buggy_execs, self.error_string
+		# print('traces:', self.traces)
+		# print('cds_time: ', self.cds_time)
+		# print('no_buggy_execs: ', self.no_buggy_execs)
+		# print('error_string: ', self.error_string)
+		# print('buggy_trace_no', self.buggy_trace_no)
+		return self.traces, self.cds_time, self.no_buggy_execs, self.error_string, self.buggy_trace_no
 
 	# to differentiate and obtain each trace from the std output in the terminal
 	def obtain_traces(self,p):
 		f=0                                                         	# flag for finding execution trace
 		for line in p.split('\n'):
+			tmp_index = line.find('Execution trace ')					# find execution number for buggy traces
+			if tmp_index != -1:											# this line gives us number of this trace
+				# print(line[tmp_index+len('Execution trace '):line.find(':')])
+				self.buggy_trace_no.append(int(line[tmp_index+len('Execution trace '):line.find(':')]))
+
 			if f==2:
 				if "HASH" in line:                                  	# indicates end of one execution trace
 					f=0
@@ -110,3 +122,16 @@ class translate_cds:
 
 		# for i in self.traces[S_NO]:
 		# 	print(i)
+
+	# Helper functions
+	def print_traces(self):
+		i=1
+		for trace in self.traces:
+			print('Trace', i)
+			for event in trace:
+				# print_event(event)
+				print(*event, sep='\t')
+			i=i+1
+	
+		
+	
