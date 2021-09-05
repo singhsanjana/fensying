@@ -15,30 +15,30 @@ for the following reasons;
 
 \begin{enumerate}
 	\item \cds is a stateless model checker that returns traces 
-		with assert violations (or buggy traces) if any.
+		with assert violations (or buggy traces) if any along with 
+		the $\setRF$, $\setHB$ and $\setMO$ relations between the 
+		events of the trace.
 	
-	\item Unlike competing alternatives, \cds does not halt at the detection 
-		of the first buggy trace instead it continues to provide all buggy 
-		traces as required by \ourtechnique.
+	\item Unlike competing alternatives, \cds does not halt at the 
+		detection of the first buggy trace instead it continues to 
+		provide all buggy traces as required by \ourtechnique.
 	
-	\item \cds also provides $\setRF$ and $\setSB$ relations between the events 
-		of the buggy trace. The information returned by \cds is sufficient
-		to compute the $\setHB$ and $\setMO$ relations.
-	
-	\item Competing alternatives that return buggy traces for an input
-		program, namely \genmc \cite{genmc-PLDI19} and \tracer \cite{tracer2018}, 
-		do not support our requirements.
+	\item Competing alternatives that return buggy traces for an 
+		input program, namely \genmc \cite{genmc-PLDI19} and \tracer 
+		\cite{tracer2018}, do not support our requirements.
 		%
-		\genmc is designed for a variant of \cc \cite{LahavVafeiadis-PLDI17} and
-		does not support an option for returning all buggy traces. \tracer is
-		designed for a subset of \cc that has no support for \sc, \na or \rel 
-		memory orders. \snj{What about Herd?}
+		\genmc is designed for a variant of \cc 
+		\cite{LahavVafeiadis-PLDI17} and does not support an option 
+		for returning all buggy traces. 
+		\tracer is designed for a subset of \cc that has no support 
+		for \sc, \na or \rel memory orders. \snj{What about Herd?}
 \end{enumerate}
 
 To bridge the gap between \cds's output and \ourtechnique's requirement,
-we perform a pre-processing step that uses the $\setSB$ and $\setRF$ relations 
-provided by \cds to compute the $\setHB$ and $\setMO$ relations on the events
-of the buggy traces, based on the coherence rules provided by \cc model.
+we perform a pre-processing step that uses the $\setSB$ and $\setRF$ 
+relations provided by \cds to compute the $\setHB$ and $\setMO$ relations 
+on the events of the buggy traces, based on the coherence rules provided 
+by \cc model.
 %
 The buggy traces along with $\setSB$, $\setRF$ and computed $\setHB$ 
 and $\setMO$ relations are provided as input to the core technique 
@@ -120,7 +120,7 @@ $\formula{{\tt C}_{\tau_2}}$ in the next iteration and return
 as the result which is not optimal in the number of fences.
 
 However, it was observed from the experimental results that the time
-efficient technique significantly outperforms the primary technique in terms of 
-the analysis time while adding a reasonably small number of extra
-fences. The experimental results have been discussed in the 
+efficient technique significantly outperforms the primary technique in 
+terms of the analysis time while adding a reasonably small number of 
+extra fences. The experimental results have been discussed in the 
 following section.

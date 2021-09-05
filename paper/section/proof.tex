@@ -118,16 +118,57 @@
 
 \noindent
 \cc defines a total-order on \sc ordered events in agreement with
-the $\setHB$, $\setMO$, $\setRF$ relations \cite{C11} \ie:\newline
-Given $e^\sc_1, e^\sc_2 \in \ordevents{\sc}_\tau$,
-$\to{\tau}{e^\sc_1}{e^\sc_2}$ if 
-$e^\sc_1$ $(\setHB \union \setMO \union \setRF \union \setFR)^+$ 
-$e^\sc_2$. \hfill[to]
-\newline
+the $\setHB$, $\setMO$, $\setRF$ relations.
+%
+We borrow the following definition of total-order from 
+\cite{C11}\cite{vafeiadis2015common}:
+Given
 
+$order(P,R)$ $\definedas$ 
+	($\nexists a\ R(a,a)$) $\^$
+	($R^+ \subseteq R$) $\^$
+	($R \subseteq P \times P$);  and,
+
+$total(P,R)$ $\ \definedas$
+	$\forall a,b\ P(a) \^ P(b)$ $\implies$
+	$a = b$ $\v$ $R(a,b)$ $\v$ $R(b,a)$.
+\newline
+%
+All \sc ordered events must form a total order $\setTO$ \st
+the following two conditions are satisfied:
+
+\begin{enumerate}
+	\item $order(\ordevents{\sc},\setTO)$ $\^$ 
+		$total(\ordevents{\sc},\setTO)$ $\^$ $\onsc{\setHB}$ 
+		$\intersection$ $\onsc{\setMO}$ $\subseteq$ $\setTO$
+		\hfill [coTO]
+	\item $\forall \rf{\tau}{e_w}{e_r}$ \st $e_r \in 
+		\ordevents{\sc}_\tau$
+		\begin{itemize}
+			\item either, $e_w \in \ordevents{\sc}_\tau$ $\^$ 
+				$\to{\tau}{e_w}{e_r}$ $\^$ $\nexists e_w' 
+				\in \ordevents{\sc}_\tau$ \st 
+				$\to{\tau}{\to{\tau}{e_w}{e_w'}}{e_r}$,
+				\hfill [rfTO1]
+			\item or, $e_w \nin \ordevents{\sc}_\tau$ $\^$
+				$\nexists e_w' \in \ordwrites{\sc}_\tau$ \st
+				$\hb{\tau}{e_w}{e_w'}$ $\^$ 
+				($\to{\tau}{e_w'}{e_r}$ \st $\nexists e_w'' \in$
+				$\ordwrites{\sc}$ where
+				$\to{\tau}{\to{\tau}{e_w'}{e_w''}}{e_r}$).
+				\hfill [rfTO2]
+		\end{itemize}
+	\item  $\forall \rf{\tau}{e_w}{e_r}$ \st $e_w \in 
+		\ordevents{\sc}_\tau$, $\exists \mathbb{F} \in
+		\ordfences{\sc}_\tau$ \st $\seqb{\tau}{\mathbb{F}}{e_r}$
+		$\^$ $\to{\tau}{e_w}{\mathbb{F}}$
+		$\^$ $\nexists e_w' \in \ordwrites{\sc}$ where
+		$\to{\tau}{\to{\tau}{e_w}{e_w'}}{\mathbb{F}}$.
+		\hfill [FrfTO]
+\end{enumerate}
 
 \noindent
-The relation $\setSO$ has been defined in 
+Recall that, the relation $\setSO$ has been defined in 
 Section~\ref{sec:invalidating ce} as follows:\newline
 	$\forall e_1, e_2 \in \events_\tau$ \st 
 	$(e_1,e_2) \in$ $\setHB$ $\union$ $\setMO$ $\union$ $\setRF$ 
@@ -171,7 +212,7 @@ Section~\ref{sec:invalidating ce} as follows:\newline
 				$\setMO$ $\union$ $\setRF$ $\union$ $\setFR$
 				
 				$\implies$ $\to{\tau}{e^\sc_1}{e^\sc_2}$
-				(using [to]).
+				(using [coTO] and [rfTO1]).
 				
 			\item [so2:] $e^\sc_1 \in \ordevents{\sc}_\tau$,
 				$e^\sc_2 \in \ordfences{\sc}_\tau$
@@ -179,7 +220,8 @@ Section~\ref{sec:invalidating ce} as follows:\newline
 				$\setMO$ $\union$ $\setRF$ $\union$ $\setFR$);$\setSB$
 			
 				$\implies$ $\to{\tau}{e^\sc_1}{e^\sc_2}$
-				(using [to] since $\setSB$ $\subseteq$ $\setHB$).
+				(using [coTO] and \hlref{coherence conditions} 
+				since $\setSB$ $\subseteq$ $\setHB$).
 				
 			\item [so3:] $e^\sc_2 \in \ordevents{\sc}_\tau$,
 				$e^\sc_1 \in \ordfences{\sc}_\tau$
