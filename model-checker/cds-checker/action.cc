@@ -619,10 +619,10 @@ void ModelAction::print() const
 	else if (line_no)
 		model_print("       %d",line_no);
 	if (cv) {
-		if (is_read())
-			model_print(" ");
+		if (line_no)
+			model_print("   ");
 		else
-			model_print("      ");
+			model_print("            ");
 		cv->print();
 	} else
 		model_print("\n");
