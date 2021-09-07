@@ -77,7 +77,6 @@ def fn_main(filename):
 	elif no_buggy_execs:
 		get_p = Processing(traces, buggy_trace_no)
 		fences_present, fences_present_locs, z3vars, disjunctions, error_string, pre_calc_total = get_p.get()				# runs and returns locations
-
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)
 			delete_generated_file(filename)

@@ -108,7 +108,6 @@ class translate_cds:
 			
 	# to convert each trace into a structure
 	def create_structure(self,filename):
-
 		# map the variable names from the source code to the memory address used by the variable as shown in the traces
 		for trace in self.traces_raw:
 			execution = []

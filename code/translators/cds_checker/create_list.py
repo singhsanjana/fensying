@@ -2,12 +2,29 @@
 # Creates a structured list
 # --------------------------------------------------------
 
+def read_cv(instr):
+	cv = []
+	cv_str = ''
+
+	if instr[3] == 'read' or instr[3] == 'rmw':
+		cv_str = instr[9]
+	elif instr[3] == 'write':
+		cv_str = instr[8]
+	else:
+		cv_str = instr[7]
+
+	cv_str = cv_str[3:len(cv_str)-1] # removing ( and )
+	cv = cv_str.split(',')
+	
+	return cv
+
 def create_list(instr):
 	line = []
 
 	line.append(int(instr[0]))							# 0: serial number of the instruction
 	line.append(int(instr[1]))							# 1: thread number
 
+	# skipped 'action' ie instr[2] because its not required
 	line.append(instr[3])								# 2: instruction type
 
 	line.append(instr[4])								# 3: memory order
@@ -35,5 +52,7 @@ def create_list(instr):
 		line.append(int(instr[7]))						# 7: line number
 	else:
 		line.append("NA")								# 7: line number = NA in case of non-read/write/rmw operation
+
+	line.append(read_cv(instr))
 
 	return line
