@@ -54,6 +54,10 @@ class Processing:
 			pre_calc_start = time.time()
 			# print('calling pre_calc for trace_no, buggy_trace_no', trace_no, buggy_trace_no)
 			hb_edges, mo_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			print("hb_edges==",hb_edges)
+			print("mo_edges==",mo_edges)
+			print("so_edges==",self.so_edges)
+			
 			pre_calc_end = time.time()
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
 
