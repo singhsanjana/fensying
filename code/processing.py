@@ -52,12 +52,13 @@ class Processing:
 			print("---------Trace",trace_no,"---------")
 
 			pre_calc_start = time.time()
-			# print('calling pre_calc for trace_no, buggy_trace_no', trace_no, buggy_trace_no)
-			hb_edges, mo_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
-			print("hb_edges==",hb_edges)
-			print("mo_edges==",mo_edges)
-			print("so_edges==",self.so_edges)
-			
+			# [snj]: hb edges does not include sb, sb would be computed after inserting fences
+			hb_edges, mo_edges, rf_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			# hb_print = hb_edges
+			# hb_print.sort(key = lambda x:x[1])
+			# hb_print.sort(key = lambda x:x[0])
+			# print("hb-pre-fences=" + str(hb_print))
+
 			pre_calc_end = time.time()
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
 
@@ -65,12 +66,13 @@ class Processing:
 			order=self.fence(trace)
 			# print("order =",order)
 			# print("fences_present =", self.fences_in_trace)
-			# print("fences_thread =", fences_thread)
+			# print("fences_thread =", self.fences_thread)
 			# print("all_events_thread", self.all_events_thread)
 
 			# transitive SB calc, put into hb edges
 			hb_edges += self.sb()
-			# print(hb_edges)
+			# print("hb-post-fences=" + str(hb_edges))
+			# print("so-of-sb-post-fences=" + str(self.so_edges))
 
 			# pre-process and obtain separately reads, writes with neighbouring fences
 			reads, writes = preprocessing(order)
@@ -203,36 +205,66 @@ class Processing:
 
 		return order
 
+	# computes transitive sb
+	# computes non-transitive so between events of a thread
 	def sb(self):
 		sb_edges = []
-		for thread_events in self.all_events_thread:
-			for i in range(len(thread_events)):
-				event = thread_events[i]
-				k = 0
-				if type(event) is str:
-					e0 = event
-					k += 1
+		for thread_events in self.all_events_thread: # events of one thread at a time
+			# first event in a thread is always fence and fences are considered sc
+			last_sc_event = thread_events[0] 
+
+			for i in range(1, len(thread_events)): # 1 event at a time, 1st event skipped because it has no sb before
+				is_sc = False
+
+				# event = label (if fence) or S_NO (otherwise)
+				if type(thread_events[i]) is str: # event is a fence
+					event = thread_events[i]
+					is_sc = True
 				else:
-					e0 = event[S_NO]
-					if event[MO] == SEQ_CST:
-						k += 1
-				for j in range(i+1, len(thread_events)):
-					k = 1 if k == 2 else k
-					sb_event = thread_events[j]
-					if type(sb_event) is str:
-						e1 = sb_event
-						k += 1
-					else:
-						e1 = sb_event[S_NO]
-						if sb_event[MO] == SEQ_CST:
-							k += 1
-					e1 = sb_event if type(sb_event) is str else sb_event[S_NO]
-					sb_edges.append((e0, e1))
-					if k == 2:
-						self.so_edges.append((e0, e1))
-		# print("sb_edges",sb_edges)
-		# print("so edges", self.so_edges) # TODO: so edges not getting computed properly here
+					event = thread_events[i][S_NO]
+					if thread_events[i][MO] == SEQ_CST:
+						is_sc = True
+
+				# if seq_cst ordered add so edge
+				if is_sc:
+					self.so_edges.append((last_sc_event, event))
+					last_sc_event = event
+
+				# add sb edge with each event that occurs before in thread
+				for j in range(i):
+					sb_edges.append((thread_events[j][S_NO], event))
+
 		return sb_edges
+
+
+		# for thread_events in self.all_events_thread:
+		# 	for i in range(len(thread_events)):
+		# 		event = thread_events[i]
+		# 		k = 0
+		# 		if type(event) is str:
+		# 			e0 = event
+		# 			k += 1
+		# 		else:
+		# 			e0 = event[S_NO]
+		# 			if event[MO] == SEQ_CST:
+		# 				k += 1
+		# 		for j in range(i+1, len(thread_events)):
+		# 			k = 1 if k == 2 else k
+		# 			sb_event = thread_events[j]
+		# 			if type(sb_event) is str:
+		# 				e1 = sb_event
+		# 				k += 1
+		# 			else:
+		# 				e1 = sb_event[S_NO]
+		# 				if sb_event[MO] == SEQ_CST:
+		# 					k += 1
+		# 			e1 = sb_event if type(sb_event) is str else sb_event[S_NO]
+		# 			sb_edges.append((e0, e1))
+		# 			if k == 2:
+		# 				self.so_edges.append((e0, e1))
+		# # print("sb_edges",sb_edges)
+		# # print("so edges", self.so_edges) # TODO: so edges not getting computed properly here
+		# return sb_edges
 
 	def get(self):
 		return self.fences_present, self.fences_present_locs, self.z3vars, self.disjunctions, self.error_string, self.pre_calc_total, self.all_cycles_by_trace, self.cycles_tags_by_trace
