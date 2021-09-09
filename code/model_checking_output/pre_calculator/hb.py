@@ -7,49 +7,45 @@ from constants import *
 
 class hb:
 
-	def __init__(self, trace, mo_edges, initial_hb_edges, so_edges, hb_graph, mat_size, writes, reads, calc_all):
+	def __init__(self, trace, so_edges, hb_graph, mat_size):
 		# print(trace)
-		self.hb_edges = initial_hb_edges									# list of all sb+sw+dob edges between instructions
-		self.mo_edges = mo_edges
+		self.hb_edges = []	
 		self.so_edges = so_edges
-		self.writes = writes
-		self.reads = reads
 
 		self.mat = hb_graph
 		self.size = mat_size
 
 		self.matched_reads = []													# global variable used in below recursive function to avoid nested lists
 
-		if calc_all:
-			self.sb(trace)
-			self.sw(trace)
+		self.sb(trace)
+		self.sw(trace)
 		
 		self.hb_edges = list(set(self.hb_edges))					# remove duplicates
-		self.complete_matrix()
+		# self.complete_matrix()
 
 	def get(self):
-		return self.mat, self.hb_edges, self.so_edges
+		return self.hb_edges, self.so_edges
 
 	# adds all transitive relations
-	def complete_matrix(self):
+	# def complete_matrix(self):
 
-		temp = Graph(self.size)
-		temp.adjMatrix = self.mat.adjMatrix
-		flag = 0
+	# 	temp = Graph(self.size)
+	# 	temp.adjMatrix = self.mat.adjMatrix
+	# 	flag = 0
 
-		# print("t=",temp.adjMatrix)
+	# 	# print("t=",temp.adjMatrix)
 
-		while flag!=2:
-			for i in range(self.size):
-				v1 = i
-				for j in range(self.size):
-					if(self.mat.containsEdge(v1,j)):
-						for k in range(self.size):
-							if(self.mat.containsEdge(j,k)):
-								self.mat.addEdge(v1,k)
+	# 	while flag!=2:
+	# 		for i in range(self.size):
+	# 			v1 = i
+	# 			for j in range(self.size):
+	# 				if(self.mat.containsEdge(v1,j)):
+	# 					for k in range(self.size):
+	# 						if(self.mat.containsEdge(j,k)):
+	# 							self.mat.addEdge(v1,k)
 
-			if(temp.adjMatrix == self.mat.adjMatrix):
-				flag += 1
+	# 		if(temp.adjMatrix == self.mat.adjMatrix):
+	# 			flag += 1
 
 	def sb(self, trace):
 		# getting a list of sb as tuples of two
@@ -75,14 +71,14 @@ class hb:
 
 				v1 = int(trace[i][CV][j])
 				v2 = int(trace[i][S_NO])
-				self.mat.addEdge(v1,v2)
+				# self.mat.addEdge(v1,v2)
 				self.hb_edges.append((v1,v2))
 				
-				if (self.get_mo(trace, v1) == SEQ_CST and trace[i][MO] == SEQ_CST):
+				if (self.get_mem_order(trace, v1) == SEQ_CST and trace[i][MO] == SEQ_CST):
 					self.so_edges.append((v1,v2))
 					
 				
-	def get_mo(self, trace, s_no):
+	def get_mem_order(self, trace, s_no):
 		for i in range(len(trace)):
 			if int(trace[i][S_NO]) == s_no:
 				return trace[i][MO]
