@@ -14,7 +14,9 @@ def read_cv(instr):
 		cv_str = instr[7]
 
 	cv_str = cv_str[3:len(cv_str)-1] # removing ( and )
-	cv = cv_str.split(',')
+	cv = []
+	if len(cv_str) > 0:
+		cv = cv_str.split(',')
 	
 	return cv
 
