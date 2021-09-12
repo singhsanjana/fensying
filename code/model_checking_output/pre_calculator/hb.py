@@ -10,6 +10,7 @@ class hb:
 	def __init__(self, trace, so_edges):
 		self.hb_edges = []
 		self.rf_edges = []
+		self.rfinv_edges = []
 		self.so_edges = so_edges
 
 		# self.sb(trace)
@@ -18,7 +19,7 @@ class hb:
 		self.hb_edges = list(set(self.hb_edges))
 
 	def get(self):
-		return self.hb_edges, self.rf_edges, self.so_edges
+		return self.hb_edges, self.rf_edges, self.rfinv_edges, self.so_edges
 
 	# [snj]: function not in use
 	def sb(self, trace):
@@ -34,10 +35,11 @@ class hb:
 				v1 = trace[i][RF]
 				v2 = trace[i][S_NO]
 				self.rf_edges.append((v1, v2))
+				self.rfinv_edges.append((v2, v1))
 
 				if self.get_mem_order(trace, v1) == SEQ_CST and trace[i][MO] == SEQ_CST:
 					self.so_edges.append((v1,v2))
-
+			
 			# read sw using CV
 			for j in range(len(trace[i][CV])):
 				if j+1 == trace[i][T_NO]: # sb computed after inserting fences (valid threads start at 1)

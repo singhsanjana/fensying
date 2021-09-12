@@ -53,7 +53,7 @@ class Processing:
 
 			pre_calc_start = time.time()
 			# [snj]: hb edges does not include sb, sb would be computed after inserting fences
-			hb_edges, mo_edges, rf_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			hb_edges, mo_edges, rf_edges, rfinv_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
 			# hb_print = hb_edges
 			# hb_print.sort(key = lambda x:x[1])
 			# hb_print.sort(key = lambda x:x[0])
