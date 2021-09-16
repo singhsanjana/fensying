@@ -1,12 +1,11 @@
+from networkx.convert import from_edgelist
 from model_checking_output.pre_calculator.hb import hb
 from model_checking_output.pre_calculator.mo import mo
 from model_checking_output.pre_calculator.graph import Graph
 from constants import *
 
 def pre_calculations(trace, buggy_trace_no):
-	so_edges = []
-
-	hb_calc = hb(trace, so_edges)
+	hb_calc = hb(trace)
 	hb_edges, rf_edges, rfinv_edges, so_edges = hb_calc.get()
 	
 	mo_calc = mo(trace, so_edges, buggy_trace_no)

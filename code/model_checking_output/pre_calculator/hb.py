@@ -7,11 +7,11 @@ from constants import *
 
 class hb:
 
-	def __init__(self, trace, so_edges):
-		self.hb_edges = []
-		self.rf_edges = []
+	def __init__(self, trace):
+		self.hb_edges    = []
+		self.rf_edges    = []
 		self.rfinv_edges = []
-		self.so_edges = so_edges
+		self.so_edges    = []
 
 		# self.sb(trace)
 		self.swrf(trace)

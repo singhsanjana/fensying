@@ -64,7 +64,7 @@ class Processing:
 
 			# ADD FENCES
 			order=self.fence(trace)
-			# print("order =",order)
+			print("order =",order)
 			# print("fences_present =", self.fences_in_trace)
 			# print("fences_thread =", self.fences_thread)
 			# print("all_events_thread", self.all_events_thread)
@@ -79,15 +79,15 @@ class Processing:
 
 			# CALC EDGES
 			calc_edges = edges_computation(reads, writes, self.fences_thread, mo_edges, self.so_edges)
-			swdob_edges, rf_edges, fr_edges, rf1_edges, self.so_edges = calc_edges.get()
+			swdob_edges, fr_edges, self.so_edges = calc_edges.get()
 			hb_edges = hb_edges + swdob_edges
-			# print("swdob = ", swdob_edges)
-			# print("hb = ", hb_edges)
-			# print("mo = ", mo_edges)
-			# print("rf = ", rf_edges)
-			# print("fr = ", fr_edges)
-			# print("rf1 = ", rf1_edges)
-			# print("so = ", self.so_edges)
+			print("swdob = ", swdob_edges)
+			print("hb = ", hb_edges)
+			print("mo = ", mo_edges)
+			print("rf = ", rf_edges)
+			print("fr = ", fr_edges)
+			print("rf1 = ", rfinv_edges)
+			print("so = ", self.so_edges)
 			# TODO: reduce even more by only including fences with 'l' in the name and no 'F' since only those get added anyway
 			
 			# CYCLES
@@ -99,7 +99,7 @@ class Processing:
 				return
 			
 			# WEAK FENSYING
-			check1 = weak_fensying(hb_edges, mo_edges, rf_edges, rf1_edges)
+			check1 = weak_fensying(hb_edges, mo_edges, rf_edges, rfinv_edges)
 			cycles_exist = check1.compute_cycles()
 			if cycles_exist:
 				relaxed_cycles = check1.check_for_weak_compositions()
