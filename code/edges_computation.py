@@ -17,8 +17,11 @@ class edges_computation:
 		self.fr_edges    = []
 
 		self.compute_all_edges()
+		print('sw-fences:', self.swdob_edges)
+		print('so:', self.so_edges)
 	
 	def compute_all_edges(self):
+		print()
 		self.sw_fences()
 		self.so_fences_from_mofr()
 	
@@ -29,7 +32,7 @@ class edges_computation:
 		return self.swdob_edges, self.fr_edges, self.so_edges
 
 	def sw_fences(self):
-		for wr2_index in range(len(self.reads)): # includes reads + the fence above and below the reads
+		for wr2_index in range(len(self.reads)): # self.reads includes reads + the fence above and below the reads
 			wr2 = self.reads[wr2_index] # read at indes wr2_index
 
 			if (type(wr2) is list): # is a read event, not a fence
@@ -40,9 +43,14 @@ class edges_computation:
 				wr1_thread = wr1[T_NO] -1
 				wr2_thread = wr2[T_NO] -1
 
-				f1 = self.writes[wr1_index-1] # fence above the write wr1
+				if wr1[TYPE] == INIT: 
+					# INIT write's MO = relaxed, hence no sw with INIT
+					# also, INIT write has no fence before and after
+					continue
+
+				f1 = self.writes[wr1_index-1] # fence before the write wr1
 				f1_index = self.fences_thread[wr1_thread].index(f1)
-				f2 = self.reads[wr2_index+1]  # fence below the read wr2
+				f2 = self.reads[wr2_index+1]  # fence after the read wr2
 				f2_index = self.fences_thread[wr2_thread].index(f2)
 
 				add_ef_edges = True
@@ -87,6 +95,11 @@ class edges_computation:
 			w1_thread = w1[T_NO] - 1
 			w2_thread = w2[T_NO] - 1
 
+			if w1[TYPE] == INIT:
+				# no fences before INIT hence no so from mo involving INIT
+				# INIT cannot be fr realed to any read, hence no fr with INIT and no so from fr involving INIT
+				continue
+
 			f1 = self.writes[w1_index - 1] # fence before w1
 			f1_index = self.fences_thread[w1_thread].index(f1)
 			f2 = self.writes[w2_index + 1] # fence after w2
@@ -112,13 +125,17 @@ class edges_computation:
 			for read_index in range(len(self.reads)):
 				read = self.reads[read_index]
 				if type(read) is list and read[RF] == w1[S_NO]:
+					# read --rf_inv--> w1 --mo--> w2 ==> read --fr--> w2
 					self.fr_edges.append((read[S_NO], w2[S_NO]))
+					if read[MO] == SEQ_CST and w2[MO] == SEQ_CST:
+						edge_EE = (read[S_NO], w2[S_NO])
+						self.so_edges.append(edge_EE)
 
-					f1 = self.reads[read_index - 1]
 					read_thread = read[T_NO] - 1
+					f1 = self.reads[read_index - 1] # fence before read
 					f1_index = self.fences_thread[read_thread].index(f1)
 
-					f2 = self.writes[w2_index + 1]
+					f2 = self.writes[w2_index + 1] # fence after write
 					f2_index = self.fences_thread[w2_thread].index(f2)
 
 					add_ef_edges = True
@@ -126,9 +143,6 @@ class edges_computation:
 						if w2[MO] == SEQ_CST:
 							edge_FE = (self.fences_thread[read_thread][f1_in_sb_index], w2[S_NO])
 							self.so_edges.append(edge_FE)
-							if w1[MO] == SEQ_CST:
-								edge_EE = (w1[S_NO], w2[S_NO])
-								self.so_edges.append(edge_EE)
 
 						for f2_in_sb_index in range(f2_index, len(self.fences_thread[w2_thread])):
 							if add_ef_edges:
