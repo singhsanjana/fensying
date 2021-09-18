@@ -48,7 +48,7 @@ class Processing:
 			loc_info = {}                         # information regarding the required fence locations
 
 			trace_no += 1
-			print("---------Trace",trace_no,"---------")
+			# print("---------Trace",trace_no,"---------")
 			# print(trace)
 
 			pre_calc_start = time.time()

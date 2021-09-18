@@ -1,6 +1,5 @@
 from os import write
 from constants import *
-from mo import mo
 
 class edges_computation:
 	def __init__(self, reads, writes, fences_thread, mo_edges, so_edges):
@@ -17,8 +16,6 @@ class edges_computation:
 		self.fr_edges    = []
 
 		self.compute_all_edges()
-		print('sw-fences:', self.swdob_edges)
-		print('so:', self.so_edges)
 	
 	def compute_all_edges(self):
 		print()
