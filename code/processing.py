@@ -90,10 +90,7 @@ class Processing:
 			# print("fr = ", fr_edges)
 			# print("rfinv = ", rfinv_edges)
 			# print("so = ", self.so_edges)
-			# TODO: reduce even more by only including fences with 'l' in the name and no 'F' since only those get added anyway
 			
-			# [snj]: TODO check if mo.py and precalc are needed file anf folder
-
 			# CYCLES
 			check_edges = hb_edges + mo_edges + rf_edges + fr_edges # TODO: confirm this check. exclused rf1
 			check_cycles = Cycles(check_edges)
@@ -179,7 +176,7 @@ class Processing:
 				events_in_thread.append('F' + str(trace[i][S_NO]))
 				fences_in_thread.append('F' + str(trace[i][S_NO])) 
 				self.fences_in_program.append('F' + str(trace[i][S_NO]))
-				# [snj]: TODO preferrably keep line no for fences and change this name accordingly
+				# [snj]: no line no. for fences from model_checker
 				
 				# communicate to the next event that a fence has been added
 				added_fence_after_previous_event = True
@@ -246,36 +243,6 @@ class Processing:
 					sb_edges.append((thread_events[j][S_NO], event))
 
 		return sb_edges
-
-
-		# for thread_events in self.all_events_by_thread:
-		# 	for i in range(len(thread_events)):
-		# 		event = thread_events[i]
-		# 		k = 0
-		# 		if type(event) is str:
-		# 			e0 = event
-		# 			k += 1
-		# 		else:
-		# 			e0 = event[S_NO]
-		# 			if event[MO] == SEQ_CST:
-		# 				k += 1
-		# 		for j in range(i+1, len(thread_events)):
-		# 			k = 1 if k == 2 else k
-		# 			sb_event = thread_events[j]
-		# 			if type(sb_event) is str:
-		# 				e1 = sb_event
-		# 				k += 1
-		# 			else:
-		# 				e1 = sb_event[S_NO]
-		# 				if sb_event[MO] == SEQ_CST:
-		# 					k += 1
-		# 			e1 = sb_event if type(sb_event) is str else sb_event[S_NO]
-		# 			sb_edges.append((e0, e1))
-		# 			if k == 2:
-		# 				self.so_edges.append((e0, e1))
-		# # print("sb_edges",sb_edges)
-		# # print("so edges", self.so_edges) # TODO: so edges not getting computed properly here
-		# return sb_edges
 
 	def get(self):
 		return self.fences_present, self.fences_present_locs, self.z3vars, self.disjunctions, self.error_string, self.pre_calc_total, self.all_cycles_by_trace, self.cycles_tags_by_trace
