@@ -92,32 +92,6 @@ class edges_computation:
 			w1_thread = w1[T_NO] - 1
 			w2_thread = w2[T_NO] - 1
 
-			if w1[TYPE] == INIT:
-				# no fences before INIT hence no so from mo involving INIT
-				# INIT cannot be fr realed to any read, hence no fr with INIT and no so from fr involving INIT
-				continue
-
-			f1 = self.writes[w1_index - 1] # fence before w1
-			f1_index = self.fences_thread[w1_thread].index(f1)
-			f2 = self.writes[w2_index + 1] # fence after w2
-			f2_index = self.fences_thread[w2_thread].index(f2)
-
-			# so from mo
-			add_ef_edges = True 
-			for f1_in_sb_index in range(0, f1_index+1): # fences po before f1 (including f1)
-				if w2[MO] == SEQ_CST:
-					edge_FE = (self.fences_thread[w1_thread][f1_in_sb_index], w2[S_NO])
-					self.so_edges.append(edge_FE)
-				
-				for f2_in_sb_index in range(f2_index, len(self.fences_thread[w2_thread])):
-					if add_ef_edges:
-						if w1[MO] == SEQ_CST:
-							edge_EF = (w1[S_NO], self.fences_thread[w2_thread][f2_in_sb_index])
-							self.so_edges.append(edge_EF)
-					
-					edge_FF = (self.fences_thread[w1_thread][f1_in_sb_index], self.fences_thread[w2_thread][f2_in_sb_index])
-					self.so_edges.append(edge_FF)
-			
 			# so from fr
 			for read_index in range(len(self.reads)):
 				read = self.reads[read_index]
@@ -151,3 +125,28 @@ class edges_computation:
 							self.so_edges.append(edge_FF)
 							
 							add_ef_edges = False # add only in the first run
+
+			if w1[TYPE] == INIT:
+				# no fences before INIT hence no so from mo involving INIT
+				continue
+
+			f1 = self.writes[w1_index - 1] # fence before w1
+			f1_index = self.fences_thread[w1_thread].index(f1)
+			f2 = self.writes[w2_index + 1] # fence after w2
+			f2_index = self.fences_thread[w2_thread].index(f2)
+
+			# so from mo
+			add_ef_edges = True 
+			for f1_in_sb_index in range(0, f1_index+1): # fences po before f1 (including f1)
+				if w2[MO] == SEQ_CST:
+					edge_FE = (self.fences_thread[w1_thread][f1_in_sb_index], w2[S_NO])
+					self.so_edges.append(edge_FE)
+				
+				for f2_in_sb_index in range(f2_index, len(self.fences_thread[w2_thread])):
+					if add_ef_edges:
+						if w1[MO] == SEQ_CST:
+							edge_EF = (w1[S_NO], self.fences_thread[w2_thread][f2_in_sb_index])
+							self.so_edges.append(edge_EF)
+					
+					edge_FF = (self.fences_thread[w1_thread][f1_in_sb_index], self.fences_thread[w2_thread][f2_in_sb_index])
+					self.so_edges.append(edge_FF)
