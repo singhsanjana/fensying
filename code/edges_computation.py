@@ -1,5 +1,5 @@
+from os import write
 from constants import *
-from mo import mo
 
 class edges_computation:
 	def __init__(self, reads, writes, fences_thread, mo_edges, so_edges):
@@ -11,190 +11,102 @@ class edges_computation:
 		
 		# lists of edges
 		self.swdob_edges = []
-		self.mo_edges = mo_edges
-		self.so_edges = so_edges
-		self.rf_edges = []
-		self.fr_edges = []
-		self.rf1_edges = []
+		self.mo_edges    = mo_edges
+		self.so_edges    = so_edges
+		self.fr_edges    = []
 
 		self.compute_all_edges()
 	
 	def compute_all_edges(self):
-		self.hbrf()
-		self.mofr()
+		print()
+		self.sw_fences()
+		self.so_fences_from_mofr()
 	
 	def get(self):
 		self.swdob_edges = list(set(self.swdob_edges))
-		self.rf_edges = list(set(self.rf_edges))
-		self.fr_edges = list(set(self.fr_edges))
-		self.rf1_edges = list(set(self.rf1_edges))
-		self.so_edges = list(set(self.so_edges))
-		return self.swdob_edges, self.rf_edges, self.fr_edges, self.rf1_edges, self.so_edges
+		self.fr_edges    = list(set(self.fr_edges))
+		self.so_edges    = list(set(self.so_edges))
+		return self.swdob_edges, self.fr_edges, self.so_edges
 
-	def hbrf(self):
-		# rf related rules
-		for wr2_index in range(len(self.reads)):
-			wr2 = self.reads[wr2_index]
+	def sw_fences(self):
+		for wr2_index in range(len(self.reads)): # self.reads includes reads + the fence above and below the reads
+			wr2 = self.reads[wr2_index] # read at indes wr2_index
 
-			if (type(wr2) is list):
+			if (type(wr2) is list): # is a read event, not a fence
 				wr1_index = next(i for i,v in enumerate(self.writes)
-						if (type(v) is list) and (v[S_NO] == wr2[RF]))
-				wr1 = self.writes[wr1_index]
+						if (type(v) is list) and (v[S_NO] == wr2[RF])) # index of write that wr2 reads from
+				wr1 = self.writes[wr1_index]  # write at index wr1_index
 
 				wr1_thread = wr1[T_NO] -1
 				wr2_thread = wr2[T_NO] -1
 
-				f1 = self.writes[wr1_index-1]
+				if wr1[TYPE] == INIT: 
+					# INIT write's MO = relaxed, hence no sw with INIT
+					# also, INIT write has no fence before and after
+					continue
+
+				f1 = self.writes[wr1_index-1] # fence before the write wr1
 				f1_index = self.fences_thread[wr1_thread].index(f1)
-				f2 = self.reads[wr2_index+1]
+				f2 = self.reads[wr2_index+1]  # fence after the read wr2
 				f2_index = self.fences_thread[wr2_thread].index(f2)
 
-				# wr1 --rf--> wr2
-				self.rf_edges.append((wr1[S_NO], wr2[S_NO]))
-				self.rf1_edges.append((wr2[S_NO], wr1[S_NO]))
-				if wr1[MO] == SEQ_CST:
-					if wr2[MO] == SEQ_CST:
-						self.so_edges.append((wr1[S_NO], wr2[S_NO]))
-
 				add_ef_edges = True
-				for f1_in_sb_index in range(0, f1_index+1):
+				for f1_in_sb_index in range(0, f1_index+1): # fences in thread of f1, po before f1 (including f1)
 
-					if wr2[MO] in read_models:
-						edge_FE = (self.fences_thread[wr1_thread][f1_in_sb_index], wr2[S_NO])
+					if wr2[MO] in strong_read_models: 
+						# fence-event sw added when a strong read reads-from a write with a fence above it
+						edge_FE = (self.fences_thread[wr1_thread][f1_in_sb_index], wr2[S_NO]) 
 						# rule swFE
 						self.swdob_edges.append(edge_FE)
 						if wr2[MO] == SEQ_CST:
 							self.so_edges.append(edge_FE)
 
 					for f2_in_sb_index in range(f2_index, len(self.fences_thread[wr2_thread])):
-						if add_ef_edges:
-							if wr1[MO] in write_models:
+						if add_ef_edges: # true only once to avoid redundant computation
+							if wr1[MO] in strong_write_models: 
+								# event-fence sw added when read with a fence below it reads from a strong write 
 								edge_EF = (wr1[S_NO], self.fences_thread[wr2_thread][f2_in_sb_index])
 								# rule swEF
 								self.swdob_edges.append(edge_EF)
 								if wr1[MO] == SEQ_CST:
 									self.so_edges.append(edge_EF)
 
+						# fence-fence sw when a read with fence below it reads from a write with a fence above it
 						edge_FF = (self.fences_thread[wr1_thread][f1_in_sb_index], self.fences_thread[wr2_thread][f2_in_sb_index])
-						# rule swFF for w --rf--> r
+						# rule swFF
 						self.swdob_edges.append(edge_FF)
 						self.so_edges.append(edge_FF)
 
 					add_ef_edges = False # add only in the first run
 
-		# release sequence	related rules
-		for i in range(1, len(self.writes), 3):
-			write = self.writes[i]
-			if type(write) is list:
-				if write[MO] in write_models:
-					self.matched_reads = []
-					self.next_release_sequence(i+3, write)
-					self.matched_reads = [self.matched_reads[i] for i in range(len(self.matched_reads)) if i == 0 or self.matched_reads[i] != self.matched_reads[i-1]]					# remove duplicate values
-
-					# make the relations for write (release sequence head) --hb--> read (RF of end of release sequence write)
-					f1 = self.writes[self.writes.index(write) - 1]
-					write_rel_thread = write[T_NO] - 1
-					f1_index = self.fences_thread[write_rel_thread].index(f1)
-					for read in self.matched_reads:
-						f2 = self.reads[self.reads.index(read) + 1]
-						r_thread = read[T_NO] -1
-						f2_index = self.fences_thread[r_thread].index(f2)
-						
-						add_fe_edges = True
-						for f1_in_sb_index in range(0, f1_index+1):
-							if read[MO] == SEQ_CST:
-								edge_FE = (self.fences_thread[write_rel_thread][f1_in_sb_index], read[S_NO])
-								self.so_edges.append(edge_FE)
-
-							for f2_in_sb_index in range(f2_index, len(self.fences_thread[r_thread])):
-								if add_fe_edges:
-									edge_EF = (write[S_NO], self.fences_thread[r_thread][f2_in_sb_index])
-									# rule dobEF
-									self.swdob_edges.append(edge_EF)
-									if write[MO] == SEQ_CST:
-										self.so_edges.append(edge_EF)
-
-								edge_FF = (self.fences_thread[write_rel_thread][f1_in_sb_index], self.fences_thread[r_thread][f2_in_sb_index])
-								self.so_edges.append(edge_FF)
-
-							add_fe_edges = False # add only in the first run
-
-	def next_release_sequence(self, i, write_rel):
-		if i >= len(self.writes):
-			return
-
-		write_curr = self.writes[i]
-		if type(write_curr) is list:
-			# sb-release-sequence: write_rel --sb--> write --rf--> read => write_rel --dob--> read
-			for j in range(i, len(self.writes), 3):
-				write = self.writes[j]
-				if type(write) is list:
-					if write[T_NO] == write_rel[T_NO] and write[ADDR] == write_rel[ADDR]:
-						for k in range(len(self.reads)):
-							read = self.reads[k]
-							if (type(read) is list) and (read[RF] == write[S_NO]):
-								self.matched_reads.append(read)
-						self.next_release_sequence(j+3, write_rel)
-					else:
-						break
-			
-			# mo-release-sequence: write_rel --mo--> write --rf--> read => write_rel --dob--> read
-			for mo in self.mo_edges:
-				if mo[0] == write_curr[S_NO]:
-					j = next(k for k,v in enumerate(self.writes) if (type(v) is list) and (v[S_NO] == mo[1]))
-					write = self.writes[j]
-					# release sequence condition for ithb
-					if (write[T_NO] == write_curr[T_NO]) or (write[MO] in write_models):
-						for k in self.reads:
-							read = self.reads[k]
-							if (type(read) is list) and (read[RF] == write[S_NO]):
-								self.matched_reads.append(read)
-						self.next_release_sequence(j+3, write_rel)
-
-		return
-
-	def mofr(self):
+	def so_fences_from_mofr(self):
 		# mo related rules
 		for mo in self.mo_edges:
 			w1_index = next(i for i,v in enumerate(self.writes) if type(v) is list and v[S_NO] == mo[0])
 			w2_index = next(i for i,v in enumerate(self.writes) if type(v) is list and v[S_NO] == mo[1])
 
-			w1 = self.writes[w1_index]
+			# w1 --mo--> w2
+			w1 = self.writes[w1_index] 
 			w2 = self.writes[w2_index]
 
-			f1 = self.writes[w1_index - 1]
 			w1_thread = w1[T_NO] - 1
-			f1_index = self.fences_thread[w1_thread].index(f1)
-
-			f2 = self.writes[w2_index + 1]
 			w2_thread = w2[T_NO] - 1
-			f2_index = self.fences_thread[w2_thread].index(f2)
 
-			add_ef_edges = True
-			for f1_in_sb_index in range(0, f1_index+1):
-				if w2[MO] == SEQ_CST:
-					edge_FE = (self.fences_thread[w1_thread][f1_in_sb_index], w2[S_NO])
-					self.so_edges.append(edge_FE)
-				
-				for f2_in_sb_index in range(f2_index, len(self.fences_thread[w2_thread])):
-					if add_ef_edges:
-						if w1[MO] == SEQ_CST:
-							edge_EF = (w1[S_NO], self.fences_thread[w2_thread][f2_in_sb_index])
-							self.so_edges.append(edge_EF)
-					
-					edge_FF = (self.fences_thread[w1_thread][f1_in_sb_index], self.fences_thread[w2_thread][f2_in_sb_index])
-					self.so_edges.append(edge_FF)
-			
+			# so from fr
 			for read_index in range(len(self.reads)):
 				read = self.reads[read_index]
 				if type(read) is list and read[RF] == w1[S_NO]:
+					# read --rf_inv--> w1 --mo--> w2 ==> read --fr--> w2
 					self.fr_edges.append((read[S_NO], w2[S_NO]))
+					if read[MO] == SEQ_CST and w2[MO] == SEQ_CST:
+						edge_EE = (read[S_NO], w2[S_NO])
+						self.so_edges.append(edge_EE)
 
-					f1 = self.reads[read_index - 1]
 					read_thread = read[T_NO] - 1
+					f1 = self.reads[read_index - 1] # fence before read
 					f1_index = self.fences_thread[read_thread].index(f1)
 
-					f2 = self.writes[w2_index + 1]
+					f2 = self.writes[w2_index + 1] # fence after write
 					f2_index = self.fences_thread[w2_thread].index(f2)
 
 					add_ef_edges = True
@@ -213,3 +125,28 @@ class edges_computation:
 							self.so_edges.append(edge_FF)
 							
 							add_ef_edges = False # add only in the first run
+
+			if w1[TYPE] == INIT:
+				# no fences before INIT hence no so from mo involving INIT
+				continue
+
+			f1 = self.writes[w1_index - 1] # fence before w1
+			f1_index = self.fences_thread[w1_thread].index(f1)
+			f2 = self.writes[w2_index + 1] # fence after w2
+			f2_index = self.fences_thread[w2_thread].index(f2)
+
+			# so from mo
+			add_ef_edges = True 
+			for f1_in_sb_index in range(0, f1_index+1): # fences po before f1 (including f1)
+				if w2[MO] == SEQ_CST:
+					edge_FE = (self.fences_thread[w1_thread][f1_in_sb_index], w2[S_NO])
+					self.so_edges.append(edge_FE)
+				
+				for f2_in_sb_index in range(f2_index, len(self.fences_thread[w2_thread])):
+					if add_ef_edges:
+						if w1[MO] == SEQ_CST:
+							edge_EF = (w1[S_NO], self.fences_thread[w2_thread][f2_in_sb_index])
+							self.so_edges.append(edge_EF)
+					
+					edge_FF = (self.fences_thread[w1_thread][f1_in_sb_index], self.fences_thread[w2_thread][f2_in_sb_index])
+					self.so_edges.append(edge_FF)

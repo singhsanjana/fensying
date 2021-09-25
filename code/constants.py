@@ -28,8 +28,8 @@ LINE_NO = 7					# line number in source code
 CV = 8						# clock vector representing hb relation
 
 # models
-write_models = [REL, ACQ_REL, SEQ_CST]
-read_models = [ACQ, ACQ_REL, SEQ_CST]
+strong_write_models = [REL, ACQ_REL, SEQ_CST]
+strong_read_models = [ACQ, ACQ_REL, SEQ_CST]
 
 # fence tags
 class f_tags:
