@@ -21,9 +21,9 @@ S_NO = 0					# instruction serial number
 T_NO = 1					# instruction thread number
 TYPE = 2					# instruction type or thread operation
 MO	= 3						# memory order
-ADDR = 4					# memory address where instr is stored
+ADDR = 4					# memory address that instr is accessing
 VALUE = 5					# value of variable/thread in the instruction
-RF = 6						# rf serial no
+RF = 6						# S_NO of source write
 LINE_NO = 7					# line number in source code
 CV = 8						# clock vector representing hb relation
 

@@ -12,13 +12,13 @@ def preprocessing(order):
     if order[i][TYPE] == WRITE or order[i][TYPE] == RMW:
       if not (len(writes) > 0 and writes[-1] == order[i-1]): # not (common fence between this and previous write)
         writes.append(order[i-1]) # fence before write
-      writes.append(order[i])   # write
-      writes.append(order[i+1]) # fence after write
+      writes.append(order[i])     # write
+      writes.append(order[i+1])   # fence after write
 
     if order[i][TYPE] == READ or order[i][TYPE] == RMW:
       if not (len(reads) > 0 and reads[-1] == order[i-1]): # not (common fence between this and previous read)
         reads.append(order[i-1]) # fence before read
-      reads.append(order[i])   # read
-      reads.append(order[i+1]) # fence after read
+      reads.append(order[i])     # read
+      reads.append(order[i+1])   # fence after read
   
   return reads, writes
