@@ -58,6 +58,9 @@ class Processing:
 			# hb_print.sort(key = lambda x:x[1])
 			# hb_print.sort(key = lambda x:x[0])
 			# print("hb-pre-fences=" + str(hb_print))
+			# print ('rf:', rf_edges)
+			# print ('rfinv:', rfinv_edges)
+			# print ('mo:', mo_edges)
 
 			pre_calc_end = time.time()
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
@@ -80,10 +83,10 @@ class Processing:
 			# print ('writes:', writes)
 
 			# CALC EDGES
-			calc_edges = edges_computation(reads, writes, self.fences_by_thread, mo_edges, self.so_edges)
+			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, self.so_edges)
 			swdob_edges, fr_edges, self.so_edges = calc_edges.get()
 			hb_edges = hb_edges + swdob_edges
-			# print("swdob = ", swdob_edges)
+			print("swdob = ", swdob_edges)
 			# print("hb = ", hb_edges)
 			# print("mo = ", mo_edges)
 			# print("rf = ", rf_edges)
@@ -91,13 +94,13 @@ class Processing:
 			# print("rfinv = ", rfinv_edges)
 			# print("so = ", self.so_edges)
 			
-			# CYCLES
-			check_edges = hb_edges + mo_edges + rf_edges + fr_edges # TODO: confirm this check. exclused rf1
-			check_cycles = Cycles(check_edges)
+			# # CYCLES
+			# check_edges = hb_edges + mo_edges + rf_edges # [snj]: TODO: rfinv cycles??
+			# check_cycles = Cycles(check_edges)
 
-			if len(check_cycles) == 0:
-				self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
-				return
+			# if len(check_cycles) == 0:
+			# 	self.error_string = "\nBehavior of Trace #"+str(trace_no)+" cannot be stopped using C11 fences\n"
+			# 	return
 			
 			# WEAK FENSYING
 			check1 = weak_fensying(hb_edges, mo_edges, rf_edges, rfinv_edges)
