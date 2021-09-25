@@ -9,9 +9,9 @@ def pre_calculations(trace, buggy_trace_no):
 	hb_edges, rf_edges, rfinv_edges, so_edges = hb_calc.get()
 	
 	mo_calc = mo(trace, so_edges, buggy_trace_no)
-	mo_edges, so_edges = mo_calc.get()
+	mo_edges, so_edges, rs_edges = mo_calc.get()
 
-	return hb_edges, mo_edges, rf_edges, rfinv_edges, so_edges
+	return hb_edges, mo_edges, rf_edges, rfinv_edges, so_edges, rs_edges
 
 def preprocessing(trace):
 	writes = []

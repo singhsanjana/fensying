@@ -53,7 +53,8 @@ class Processing:
 
 			pre_calc_start = time.time()
 			# [snj]: hb edges does not include sb, sb would be computed after inserting fences
-			hb_edges, mo_edges, rf_edges, rfinv_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			hb_edges, mo_edges, rf_edges, rfinv_edges, self.so_edges, rs_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			# print(rs_edges)
 			# hb_print = hb_edges
 			# hb_print.sort(key = lambda x:x[1])
 			# hb_print.sort(key = lambda x:x[0])
@@ -143,20 +144,20 @@ class Processing:
 						self.fences_present.append(var_name)
 						self.fences_present_locs.append(order[i-1][LINE_NO])
 			
-				# print("fences loc_info =",loc_info)
+			# 	# print("fences loc_info =",loc_info)
 
 				# [snj]: TODO remove program fences from z3 formula
 				get_translation = z3translate(cycles_with_only_fences, loc_info)
 				consts, translation = get_translation.get()
 
-				for con in consts:
-					if con not in self.z3vars:
-						self.z3vars.append(con)
-				self.disjunctions.append(translation)
+			# 	for con in consts:
+			# 		if con not in self.z3vars:
+			# 			self.z3vars.append(con)
+			# 	self.disjunctions.append(translation)
 
-			else:
-				self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
-				return
+			# else:
+			# 	self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
+			# 	return
 
 	def fence(self, trace):
 		order = []                # trace with fences
