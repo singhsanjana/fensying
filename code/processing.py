@@ -53,7 +53,8 @@ class Processing:
 
 			pre_calc_start = time.time()
 			# [snj]: hb edges does not include sb, sb would be computed after inserting fences
-			hb_edges, mo_edges, rf_edges, rfinv_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			hb_edges, mo_edges, rf_edges, rfinv_edges, self.so_edges, rs_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			# print(rs_edges)
 			# hb_print = hb_edges
 			# hb_print.sort(key = lambda x:x[1])
 			# hb_print.sort(key = lambda x:x[0])
@@ -63,95 +64,95 @@ class Processing:
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
 
 			# ADD FENCES
-			order=self.fence(trace)
-			# print("order =",order)
-			# print("fences_present =", self.fences_in_trace)
-			# print("fences_thread =", self.fences_thread)
-			# print("all_events_thread", self.all_events_thread)
+			# order=self.fence(trace)
+			# # print("order =",order)
+			# # print("fences_present =", self.fences_in_trace)
+			# # print("fences_thread =", self.fences_thread)
+			# # print("all_events_thread", self.all_events_thread)
 
-			# transitive SB calc, put into hb edges
-			hb_edges += self.sb()
-			# print("hb-post-fences=" + str(hb_edges))
-			# print("so-of-sb-post-fences=" + str(self.so_edges))
+			# # transitive SB calc, put into hb edges
+			# hb_edges += self.sb()
+			# # print("hb-post-fences=" + str(hb_edges))
+			# # print("so-of-sb-post-fences=" + str(self.so_edges))
 
-			# pre-process and obtain separately reads, writes with neighbouring fences
-			reads, writes = preprocessing(order)
+			# # pre-process and obtain separately reads, writes with neighbouring fences
+			# reads, writes = preprocessing(order)
 
-			# CALC EDGES
-			calc_edges = edges_computation(reads, writes, self.fences_thread, mo_edges, self.so_edges)
-			swdob_edges, rf_edges, fr_edges, rf1_edges, self.so_edges = calc_edges.get()
-			hb_edges = hb_edges + swdob_edges
-			# print("swdob = ", swdob_edges)
-			# print("hb = ", hb_edges)
-			# print("mo = ", mo_edges)
-			# print("rf = ", rf_edges)
-			# print("fr = ", fr_edges)
-			# print("rf1 = ", rf1_edges)
-			# print("so = ", self.so_edges)
-			# TODO: reduce even more by only including fences with 'l' in the name and no 'F' since only those get added anyway
+			# # CALC EDGES
+			# calc_edges = edges_computation(reads, writes, self.fences_thread, mo_edges, self.so_edges)
+			# swdob_edges, rf_edges, fr_edges, rf1_edges, self.so_edges = calc_edges.get()
+			# hb_edges = hb_edges + swdob_edges
+			# # print("swdob = ", swdob_edges)
+			# # print("hb = ", hb_edges)
+			# # print("mo = ", mo_edges)
+			# # print("rf = ", rf_edges)
+			# # print("fr = ", fr_edges)
+			# # print("rf1 = ", rf1_edges)
+			# # print("so = ", self.so_edges)
+			# # TODO: reduce even more by only including fences with 'l' in the name and no 'F' since only those get added anyway
 			
-			# CYCLES
-			check_edges = hb_edges + mo_edges + rf_edges + fr_edges # TODO: confirm this check. exclused rf1
-			check_cycles = Cycles(check_edges)
+			# # CYCLES
+			# check_edges = hb_edges + mo_edges + rf_edges + fr_edges # TODO: confirm this check. exclused rf1
+			# check_cycles = Cycles(check_edges)
 
-			if len(check_cycles) == 0:
-				self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
-				return
+			# if len(check_cycles) == 0:
+			# 	self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
+			# 	return
 			
-			# WEAK FENSYING
-			check1 = weak_fensying(hb_edges, mo_edges, rf_edges, rf1_edges)
-			cycles_exist = check1.compute_cycles()
-			if cycles_exist:
-				relaxed_cycles = check1.check_for_weak_compositions()
-				cycles += relaxed_cycles
-				cycles_tags += compute_relaxed_tags(relaxed_cycles, swdob_edges)
-				# print("relaxed_cycles =",relaxed_cycles)
-				# print("self.all_cycles =",self.all_cycles)
-				# print("self.cycles_tags =",self.cycles_tags)
+			# # WEAK FENSYING
+			# check1 = weak_fensying(hb_edges, mo_edges, rf_edges, rf1_edges)
+			# cycles_exist = check1.compute_cycles()
+			# if cycles_exist:
+			# 	relaxed_cycles = check1.check_for_weak_compositions()
+			# 	cycles += relaxed_cycles
+			# 	cycles_tags += compute_relaxed_tags(relaxed_cycles, swdob_edges)
+			# 	# print("relaxed_cycles =",relaxed_cycles)
+			# 	# print("self.all_cycles =",self.all_cycles)
+			# 	# print("self.cycles_tags =",self.cycles_tags)
 
-			# STRONG FENSYING
-			strong_cycles = Cycles(self.so_edges)
-			# print("strong_cycles =",strong_cycles)
-			cycles += strong_cycles
-			cycles_tags += compute_strong_tags(strong_cycles)
+			# # STRONG FENSYING
+			# strong_cycles = Cycles(self.so_edges)
+			# # print("strong_cycles =",strong_cycles)
+			# cycles += strong_cycles
+			# cycles_tags += compute_strong_tags(strong_cycles)
 
-			self.all_cycles_by_trace.append(cycles)
-			self.cycles_tags_by_trace.append(cycles_tags)
+			# self.all_cycles_by_trace.append(cycles)
+			# self.cycles_tags_by_trace.append(cycles_tags)
 
-			cycles = relaxed_cycles+strong_cycles
-			cycles_with_only_fences = []
-			for i in range(len(cycles)):
-				cycles_with_only_fences.append([c for c in cycles[i] if type(c) is str])
-			cycles_with_only_fences = [list(item) for item in set(tuple(sorted(row)) for row in cycles_with_only_fences)] # removing duplicate values
-			unique_fences = list(sorted(set(x for l in cycles_with_only_fences for x in l)))
-			# print("unique_fences=",unique_fences)
-			# print("cycles_with_only_fences =",cycles_with_only_fences)
+			# cycles = relaxed_cycles+strong_cycles
+			# cycles_with_only_fences = []
+			# for i in range(len(cycles)):
+			# 	cycles_with_only_fences.append([c for c in cycles[i] if type(c) is str])
+			# cycles_with_only_fences = [list(item) for item in set(tuple(sorted(row)) for row in cycles_with_only_fences)] # removing duplicate values
+			# unique_fences = list(sorted(set(x for l in cycles_with_only_fences for x in l)))
+			# # print("unique_fences=",unique_fences)
+			# # print("cycles_with_only_fences =",cycles_with_only_fences)
 
-			if len(unique_fences)>0:
-				for fence in unique_fences:
-					i = order.index(fence)
-					fence_name = order[i]
-					var_name = 'l'+str(order[i-1][LINE_NO])
-					loc_info[fence_name] = var_name
+			# if len(unique_fences)>0:
+			# 	for fence in unique_fences:
+			# 		i = order.index(fence)
+			# 		fence_name = order[i]
+			# 		var_name = 'l'+str(order[i-1][LINE_NO])
+			# 		loc_info[fence_name] = var_name
 					
-					# check for the fences already present in input prgm and replace them with these variables
-					if (fence in self.fences_in_trace) and (var_name not in self.fences_present):
-						self.fences_present.append(var_name)
-						self.fences_present_locs.append(order[i-1][LINE_NO])
+			# 		# check for the fences already present in input prgm and replace them with these variables
+			# 		if (fence in self.fences_in_trace) and (var_name not in self.fences_present):
+			# 			self.fences_present.append(var_name)
+			# 			self.fences_present_locs.append(order[i-1][LINE_NO])
 			
-				# print("fences loc_info =",loc_info)
+			# 	# print("fences loc_info =",loc_info)
 
-				get_translation = z3translate(cycles_with_only_fences, loc_info)
-				consts, translation = get_translation.get()
+			# 	get_translation = z3translate(cycles_with_only_fences, loc_info)
+			# 	consts, translation = get_translation.get()
 
-				for con in consts:
-					if con not in self.z3vars:
-						self.z3vars.append(con)
-				self.disjunctions.append(translation)
+			# 	for con in consts:
+			# 		if con not in self.z3vars:
+			# 			self.z3vars.append(con)
+			# 	self.disjunctions.append(translation)
 
-			else:
-				self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
-				return
+			# else:
+			# 	self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
+			# 	return
 
 	def fence(self, trace):
 		order = ['F1n1']								
