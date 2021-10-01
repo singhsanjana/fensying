@@ -1,18 +1,3 @@
-# --------------------------------------------------------
-# check benchmarks/misc/relseq_test.cc
-# MO doesn't include some transitive edges
-# Trace1 MO: [(2, 5), (2, 8), (2, 10), (2, 11), (2, 13), (5, 8), (8, 10), (11, 13), (13, 10)]
-# Here (5,10) and (11,10) are missing
-# --------------------------------------------------------
-# Check benchmarks/misc/relseq_test.cc exec0004.dot
-# 8 has two direct edges to 10 and 11. 
-# So there are two relseq for 8, 8 : { 10 : [8, 10] } { 11 : [8, 11] } 
-# The MO here is not complete. This can have two possible MO: [8,10,11] or [8,11,10]
-# Both of these can be relseq. It can potentially change other relseq 
-# Currently, [11,13] is a relseq. But if 10 comes after 11, 10 will break it.
-# To discuss: How to handle it?
-# --------------------------------------------------------
-
 from constants import *
 import networkx as nx
 
@@ -24,14 +9,53 @@ class mo:
 		self.mo_edges = []                      		# list of mo edges
 		self.rs_edges = {}								# dict of rs paths
 
-		self.mo_edges = self.get_mo_from_dot(traceno)
+		immediate_mo_edges = self.get_mo_from_dot(traceno)
 		# print("mo edges=",self.mo_edges)
-		self.get_rs_from_mo()
-		self.get_transitive_mo()
+		# self.get_rs_from_mo()
+		self.get_transitive_mo(immediate_mo_edges)
+		# print(self.mo_edges)
+
 
 	def get(self):
 		return self.mo_edges, self.so_edges, self.rs_edges
 	
+	def get_mo_from_dot(self, traceno):
+		mo_found = []
+		filename= file_info.CDS_FOLDER_PATH + '/exec%04d.dot' % (traceno)
+		# print(filename)
+		with open(filename) as file:
+			lines=file.readlines()
+			for line in lines:
+				index = line.find('->')
+				if index != -1 and 'N0' not in line:
+					x = int(line[1:index-1])
+					y = int(line[index+4:-2])
+					mo_found.append((x, y))
+
+					if (self.get_mem_order(x) == SEQ_CST and self.get_mem_order(y)):
+						self.so_edges.append((x, y))
+		return mo_found
+
+	def get_mem_order(self, s_no):
+		for i in range(len(self.trace)):
+			if int(self.trace[i][S_NO]) == s_no:
+				return self.trace[i][MO]
+
+	def get_transitive_mo(self, immediate_mo_edges):
+		# create a graph over mo_edges
+		G=nx.DiGraph(immediate_mo_edges)
+		# compute all paths over mo_edges. the format is {from: {to: 1/0, ...}, ...}
+		paths = nx.all_pairs_node_connectivity(G)
+		for fr,to_list in paths.items():
+			for to, has_path in to_list.items():
+				if has_path == 1:
+					self.mo_edges.append((fr,to))
+	
+
+	######################
+	# These functions are for release sequences. 
+	# Probably not required anymore
+	######################
 	def get_rs_from_mo(self):
 		G = nx.DiGraph(self.mo_edges)
 		print(self.mo_edges)
@@ -67,28 +91,6 @@ class mo:
 			self.rs_edges[rs_head]= {rs_end: rs_seq}
 		return
 
-	def get_mo_from_dot(self, traceno):
-		mo_found = []
-		filename= file_info.CDS_FOLDER_PATH + '/exec%04d.dot' % (traceno)
-		# print(filename)
-		with open(filename) as file:
-			lines=file.readlines()
-			for line in lines:
-				index = line.find('->')
-				if index != -1 and 'N0' not in line:
-					x = int(line[1:index-1])
-					y = int(line[index+4:-2])
-					mo_found.append((x, y))
-
-					if (self.get_mem_order(x) == SEQ_CST and self.get_mem_order(y)):
-						self.so_edges.append((x, y))
-		return mo_found
-
-	def get_mem_order(self, s_no):
-		for i in range(len(self.trace)):
-			if int(self.trace[i][S_NO]) == s_no:
-				return self.trace[i][MO]
-	
 	def get_thread_no(self, s_no):
 		for i in range(len(self.trace)):
 			if int(self.trace[i][S_NO]) == s_no:
@@ -101,8 +103,5 @@ class mo:
 			for rs_end, rs_seq in rs_tail.items():
 				print ('{', rs_end, ':', rs_seq, '}', end=' ')
 			print()
-
-	def get_transitive_mo(self):
-		pass
 
 	
