@@ -66,34 +66,43 @@ class weak_fensying:
 			count_of_relations_in_cycle = [0] * len(self.coherence_rules)
 
 			first_edge = ( cycle[0], cycle[1] )
+			# for each coherence rule find the first relation that matches
+			# to start checking for cycle that relation onwards
 			for n in range(len(self.coherence_rules)):
 				for i in range(len(self.coherence_rules[n])):
 					if first_edge in self.coherence_rules[n][i]:
 						current_relation[n] = i
 						break
+				# if the first edge does not exist in the relations of
+				# coherence rule then the rule is not violated by this cycle
 				if i == len(self.coherence_rules[n]):
 					active_rules[n] = False
 					active_count = active_count - 1
 					
-
+			# for each edge of the cycle (except the first edge)
 			for i in range(1, len(cycle)):
+				# no rule is violated
 				if active_count == 0:
 					break
 
 				next_edge = ( cycle[i], cycle[ (i+1) % len(cycle) ] ) 
 
+				# check for each coherence rule
 				for n in range(len(self.coherence_rules)):
 					if not active_rules[n]:
 						continue
 					
 					if next_edge in self.coherence_rules[n][current_relation[n]]:
+						# rule may be violated
 						continue
 
+					# change current relation to nect in rule
 					count_of_relations_in_cycle[n] = count_of_relations_in_cycle[n] + 1
 					current_relation[n] = (current_relation[n] + 1) % len(self.coherence_rules[n])
 					if next_edge in self.coherence_rules[n][current_relation[n]]:
 						continue
 
+					# rule not violated 
 					active_rules[n] = False
 					active_count = active_count - 1
 				
