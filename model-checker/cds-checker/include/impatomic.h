@@ -123,8 +123,8 @@ inline void atomic_flag::clear( memory_order __x__ ) volatile
                 else {  model_rmwc_action((void *)__p__, __x__); *__q__ = __t__;  __r__ = false;} \
                 __r__; })
 
-#define _ATOMIC_FENCE_( __x__ ) \
-	({ model_fence_action(__x__);})
+#define _ATOMIC_FENCE_( line_no, __x__ ) \
+	({ model_fence_action(__x__, line_no);})
  
 
 #define ATOMIC_CHAR_LOCK_FREE 1
@@ -3910,8 +3910,8 @@ T* atomic<T*>::fetch_sub( int line_no, ptrdiff_t __v__, memory_order __x__ ) vol
 #ifdef __cplusplus
 extern "C" {
 #endif
-static inline void atomic_thread_fence(memory_order order)
-{ _ATOMIC_FENCE_(order); }
+static inline void atomic_thread_fence(int line_no, memory_order order)
+{ _ATOMIC_FENCE_(line_no, order); }
 
 /** @todo Do we want to try to support a user's signal-handler? */
 static inline void atomic_signal_fence(memory_order order)

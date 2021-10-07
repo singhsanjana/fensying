@@ -18,7 +18,7 @@ void model_init_action(void * obj, uint64_t val);
 uint64_t model_rmwr_action(void *obj, memory_order ord, int line_no);
 void model_rmw_action(void *obj, memory_order ord, uint64_t val);
 void model_rmwc_action(void *obj, memory_order ord);
-void model_fence_action(memory_order ord);
+void model_fence_action(memory_order ord, int line_no);
 
 
 #if __cplusplus

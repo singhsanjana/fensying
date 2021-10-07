@@ -38,6 +38,6 @@ void model_rmwc_action(void *obj, memory_order ord) {
 }
 
 /** Issues a fence operation. */
-void model_fence_action(memory_order ord) {
-	model->switch_to_master(new ModelAction(ATOMIC_FENCE, ord, FENCE_LOCATION));
+void model_fence_action(memory_order ord, int line_no) {
+	model->switch_to_master(new ModelAction(line_no, ATOMIC_FENCE, ord, FENCE_LOCATION));
 }
