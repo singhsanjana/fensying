@@ -29,6 +29,8 @@ class weak_fensying:
 		has_cycles_in_union = self.compute_cycles_in_union()
 		if has_cycles_in_union:
 			self.detect_cycles_in_coherence_conditions()
+			self.weak_cycles = [list(item) for item in set(tuple(row) for row in self.weak_cycles)]
+			# [snj]:  TODO remove duplicates of kind [1,2] [2,1]
 			
 	def has_weak_cycles(self):
 		return (len(self.weak_cycles) > 0)
@@ -36,7 +38,7 @@ class weak_fensying:
 	def compute_cycles_in_union(self):
 		rf_permutations = []
 		# given w --rf--> r a cycle can either contain w --rf--> r or r --rf_inv --> w
-		# thus, from rf_edges, pick 1 edge at a time anf compute cycles with its inv
+		# thus, from rf_edges, pick 1 edge at a time and compute cycles with its inv
 		# considering all other rf, hb and mo edges
 		for i in range(len(self.rf_edges)):
 			temp_list = self.rf_edges[:] # to pass by value and not by reference/object-reference
@@ -58,12 +60,23 @@ class weak_fensying:
 
 	def detect_cycles_in_coherence_conditions(self):
 		for cycle in self.mo_hb_rf_rfinv_cycles:
-			current_relation = [0 for x in range(len(self.coherence_rules))]
-			active_rules     = [True for x in range(len(self.coherence_rules))]
+			current_relation = [0]    * len(self.coherence_rules)
+			active_rules     = [True] * len(self.coherence_rules)
 			active_count     = len(self.coherence_rules)
-			count_of_relations_in_cycle = [0 for x in range(len(self.coherence_rules))]
+			count_of_relations_in_cycle = [0] * len(self.coherence_rules)
 
-			for i in range(len(cycle)):
+			first_edge = ( cycle[0], cycle[1] )
+			for n in range(len(self.coherence_rules)):
+				for i in range(len(self.coherence_rules[n])):
+					if first_edge in self.coherence_rules[n][i]:
+						current_relation[n] = i
+						break
+				if i == len(self.coherence_rules[n]):
+					active_rules[n] = False
+					active_count = active_count - 1
+					
+
+			for i in range(1, len(cycle)):
 				if active_count == 0:
 					break
 
