@@ -98,10 +98,9 @@ class Processing:
 			wf = weak_fensying(hb_edges, mo_edges, rf_edges, rfinv_edges)
 			if wf.has_weak_cycles():
 				candidate_cycles = wf.get()
-				# candidate_cycles_tags = compute_relaxed_tags(relaxed_cycles, swdob_edges)
-				# print("weak_cycles =",candidate_cycles)
-				# print("self.all_cycles =",self.all_cycles)
-				# print("self.cycles_tags =",self.cycles_tags)
+				candidate_cycles_tags = compute_relaxed_tags(candidate_cycles, swdob_edges)
+				print("weak_cycles =",candidate_cycles)
+				print("self.cycles_tags =",candidate_cycles_tags)
 
 			# STRONG FENSYING
 			# strong_cycles = Cycles(self.so_edges)
