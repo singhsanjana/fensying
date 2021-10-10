@@ -99,8 +99,8 @@ class Processing:
 			if wf.has_weak_cycles():
 				candidate_cycles = wf.get()
 				candidate_cycles_tags = compute_relaxed_tags(candidate_cycles, swdob_edges)
-				print("weak_cycles =",candidate_cycles)
-				print("self.cycles_tags =",candidate_cycles_tags)
+				# print("weak_cycles =",candidate_cycles)
+				# print("self.cycles_tags =",candidate_cycles_tags)
 
 			# STRONG FENSYING
 			# strong_cycles = Cycles(self.so_edges)
@@ -153,7 +153,7 @@ class Processing:
 		fences_in_thread = []     # list of fences of a thread
 		current_thread = 1
 		added_fence_after_previous_event = False
-
+		
 		for i in range(len(trace)):
 			if trace[i][T_NO] != current_thread: # done with events of a thread
 				self.all_events_by_thread.append(events_in_thread)
@@ -164,22 +164,25 @@ class Processing:
 				current_thread = current_thread + 1
 
 			if trace[i][TYPE] == FENCE:
-				order.append('F' + str(trace[i][S_NO]))
-				events_in_thread.append('F' + str(trace[i][S_NO]))
-				fences_in_thread.append('F' + str(trace[i][S_NO])) 
-				self.fences_in_program.append('F' + str(trace[i][S_NO]))
+				# Consider fence as read/write events.
+				# we will insert candidate-fences before and after program fences  
+				fence_name = 'F_at_' + str(trace[i][LINE_NO])
+				order.append(fence_name)
+				events_in_thread.append(fence_name)
+				fences_in_thread.append(fence_name) 
+				self.fences_in_program.append(fence_name)
 				# [snj]: no line no. for fences from model_checker
-				
-				# communicate to the next event that a fence has been added
-				added_fence_after_previous_event = True
 				continue
 
-			if trace[i][LINE_NO] != 'NA': # is a read or a write
+			if trace[i][LINE_NO] != 'NA': # is a read or a write or a fence event
 				if not added_fence_after_previous_event:
 					# if no fence before current read/write then add fence
 					order.append('F_before_' + str(trace[i][LINE_NO]))
 					events_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
 					fences_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
+				else:
+					# the previous fence must be the last element in the order
+					order[-1] = order[-1] + '_before_' + str(trace[i][LINE_NO])
 
 				# add event itself
 				order.append(trace[i])
@@ -202,7 +205,7 @@ class Processing:
 		# add last thread lists
 		self.all_events_by_thread.append(events_in_thread)
 		self.fences_by_thread.append(fences_in_thread)
-
+		
 		return order
 
 	# computes transitive sb

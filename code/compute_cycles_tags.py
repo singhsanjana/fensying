@@ -42,10 +42,6 @@ def compute_relaxed_tags(cycles, swdob_edges):
 
 	return all_cycles_tag
 
-def print_list(ls):
-	for item in ls:
-		print (item)
-
 def compute_strong_tags(cycles):
 	all_cycles_tag = []
 	for cycle in cycles:

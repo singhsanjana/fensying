@@ -50,7 +50,7 @@ def create_list(instr):
 
 	if instr[3] == "read" or instr[3] == "rmw":
 		line.append(int(instr[8]))						# 7: line number
-	elif  instr[3] == "write":
+	elif  instr[3] == "write" or instr[3] == "fence":
 		line.append(int(instr[7]))						# 7: line number
 	else:
 		line.append("NA")								# 7: line number = NA in case of non-read/write/rmw operation
