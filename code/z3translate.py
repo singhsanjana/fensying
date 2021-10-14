@@ -9,7 +9,7 @@ class z3translate:
         conjunctions     = []             # list of all cycles, each cycle translated into a conjunction
         self.formula = ""
         
-        self.variables = set([item for sublist in cycles for item in sublist]) # list of unique fences
+        self.variables = list(set([item for sublist in cycles for item in sublist])) # list of unique fences
         
         for cycle in cycles:
             conjunctions.append(z3.conjunct(cycle))

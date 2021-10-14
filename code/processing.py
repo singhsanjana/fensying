@@ -26,12 +26,11 @@ import time
 # IDEA: any var with _thread at the end means that it is an array of arrays separated by thread number
 class Processing:
 	def __init__(self, traces, buggy_trace_no):
-		self.z3vars = []												# list of all z3 constants
-		self.disjunctions = []									# list of disjunctions for the z3 function
-		self.fences_present = []								# list of fences converted to their respective variable names
-		self.fences_present_locs = []
+		self.z3vars  = []										# list of all z3 variables ie fences
+		self.formula = []										# list of disjunctions for the z3 formula
 		self.error_string = ''
 		self.pre_calc_total = 0									# time taken for calculation of initial values - HB, MO, SB
+	
 		self.all_cycles_by_trace = []
 		self.cycles_tags_by_trace = []
 
@@ -40,13 +39,12 @@ class Processing:
 
 		for trace in traces:									# run for each trace
 			self.all_events_by_thread = []						# list of all events separated by threads
-			self.fences_by_thread = []							# list of fences in each thread
-			self.fences_in_program = []							# list of fences already present in the program
+			self.fences_by_thread     = []						# list of fences in each thread
+			self.fences_in_program    = []						# list of fences already present in the program
 
-			candidate_cycles = []                        		# list of all cycles in this trace
+			candidate_cycles      = []                        	# list of all cycles in this trace
 			candidate_cycles_tags = []
-			loc_info = {}                         # information regarding the required fence locations
-
+			
 			trace_no += 1
 			# print("---------Trace",trace_no,"---------")
 			# print(trace)
@@ -115,7 +113,10 @@ class Processing:
 					cycles_of_candidate_fences.append([e for e in c if (type(e) is str) and ('_at' not in e)])
 
 				get_translation = z3translate(cycles_of_candidate_fences)
-				formula_variabales, formula = get_translation.get()
+				formula_variables, formula = get_translation.get()
+
+				self.z3vars   = list(set(self.z3vars + formula_variables)) # add to list of unique fences
+				self.formula += formula # add to disjuctions
 
 			else: # len(candidate_cycles) = 0
 				self.error_string = '\nABORT: buggy trace #' + str(trace_no) + 'cannot be stopped by C11 fences\n'
@@ -206,4 +207,5 @@ class Processing:
 		return sb_edges
 
 	def get(self):
-		return self.fences_present, self.fences_present_locs, self.z3vars, self.disjunctions, self.error_string, self.pre_calc_total, self.all_cycles_by_trace, self.cycles_tags_by_trace
+		# [snj]: TODO what is fences_present??
+		return self.fences_present, self.z3vars, self.formula, self.error_string, self.pre_calc_total, self.all_cycles_by_trace, self.cycles_tags_by_trace
