@@ -43,6 +43,7 @@ def compute_relaxed_tags(cycles, swdob_edges):
 	return all_cycles_tag
 
 def compute_strong_tags(cycles):
+	# [snj]: TODO if a --so--> b --so--> c also a --sb--> b --sb--> c then remove the cycle that has these edges
 	all_cycles_tag = []
 	for cycle in cycles:
 		tags_for_cycle = {}

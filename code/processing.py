@@ -67,7 +67,7 @@ class Processing:
 
 			# ADD FENCES
 			order=self.fence(trace)
-			# print("order =",order)
+			print("order =",order)
 			# print("fences_present =", self.fences_in_program)
 			# print("fences_thread =", self.fences_by_thread)
 			# print("all_events_thread", self.all_events_by_thread)
@@ -99,60 +99,33 @@ class Processing:
 			if wf.has_weak_cycles():
 				candidate_cycles = wf.get()
 				candidate_cycles_tags = compute_relaxed_tags(candidate_cycles, swdob_edges)
-				# print("weak_cycles =",candidate_cycles)
-				# print("self.cycles_tags =",candidate_cycles_tags)
-
+				
 			# STRONG FENSYING
-			# strong_cycles = Cycles(self.so_edges)
-			# # print("strong_cycles =",strong_cycles)
-			# cycles += strong_cycles
-			# cycles_tags += compute_strong_tags(strong_cycles)
+			strong_cycles = Cycles(self.so_edges)
+			candidate_cycles += strong_cycles
+			candidate_cycles_tags += compute_strong_tags(strong_cycles)
 
-			# self.all_cycles_by_trace.append(cycles)
-			# self.cycles_tags_by_trace.append(cycles_tags)
+			# print('candidate cycles=', candidate_cycles)
+			if (len(candidate_cycles) > 0):
+				self.all_cycles_by_trace.append(candidate_cycles)
+				self.cycles_tags_by_trace.append(candidate_cycles_tags)
 
-			# cycles = relaxed_cycles+strong_cycles
-			# cycles_with_only_fences = []
-			# for i in range(len(cycles)):
-			# 	cycles_with_only_fences.append([c for c in cycles[i] if type(c) is str])
-			# cycles_with_only_fences = [list(item) for item in set(tuple(sorted(row)) for row in cycles_with_only_fences)] # removing duplicate values
-			# unique_fences = list(sorted(set(x for l in cycles_with_only_fences for x in l)))
-			# print("unique_fences=",unique_fences)
-			# print("cycles_with_only_fences =",cycles_with_only_fences)
+				cycles_of_candidate_fences = []
+				for c in candidate_cycles:
+					cycles_of_candidate_fences.append([e for e in c if (type(e) is str) and ('_at' not in e)])
 
-			# if len(unique_fences)>0:
-			# 	for fence in unique_fences:
-			# 		i = order.index(fence)
-			# 		fence_name = order[i]
-			# 		var_name = 'l'+str(order[i-1][LINE_NO])
-			# 		loc_info[fence_name] = var_name
-					
-			# 		# check for the fences already present in input prgm and replace them with these variables
-			# 		if (fence in self.fences_in_program) and (var_name not in self.fences_present):
-			# 			self.fences_present.append(var_name)
-			# 			self.fences_present_locs.append(order[i-1][LINE_NO])
-			
-			# # 	# print("fences loc_info =",loc_info)
+				get_translation = z3translate(cycles_of_candidate_fences)
+				formula_variabales, formula = get_translation.get()
 
-			# 	# [snj]: TODO remove program fences from z3 formula
-			# 	get_translation = z3translate(cycles_with_only_fences, loc_info)
-			# 	consts, translation = get_translation.get()
-
-			# 	for con in consts:
-			# 		if con not in self.z3vars:
-			# 			self.z3vars.append(con)
-			# 	self.disjunctions.append(translation)
-
-			# else:
-			# 	self.error_string = "\nNo TO cycles can be formed for trace "+str(trace_no)+"\nHence this behaviour cannot be stopped using SC fences\n"
-			# 	return
+			else: # len(candidate_cycles) = 0
+				self.error_string = '\nABORT: buggy trace #' + str(trace_no) + 'cannot be stopped by C11 fences\n'
+				return
 
 	def fence(self, trace):
 		order = []                # trace with fences
 		events_in_thread = []     # list events of a thread
 		fences_in_thread = []     # list of fences of a thread
 		current_thread = 1
-		added_fence_after_previous_event = False
 		
 		for i in range(len(trace)):
 			if trace[i][T_NO] != current_thread: # done with events of a thread
@@ -164,26 +137,19 @@ class Processing:
 				current_thread = current_thread + 1
 
 			if trace[i][TYPE] == FENCE:
-				# Consider fence as read/write events.
-				# we will insert candidate-fences before and after program fences  
+				# note: no candidate-fences before and after program fences  
 				fence_name = 'F_at_' + str(trace[i][LINE_NO])
 				order.append(fence_name)
 				events_in_thread.append(fence_name)
 				fences_in_thread.append(fence_name) 
 				self.fences_in_program.append(fence_name)
-				# [snj]: no line no. for fences from model_checker
 				continue
 
-			if trace[i][LINE_NO] != 'NA': # is a read or a write or a fence event
-				if not added_fence_after_previous_event:
-					# if no fence before current read/write then add fence
-					order.append('F_before_' + str(trace[i][LINE_NO]))
-					events_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
-					fences_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
-				else:
-					# the previous fence must be the last element in the order
-					order[-1] = order[-1] + '_before_' + str(trace[i][LINE_NO])
-
+			if trace[i][LINE_NO] != 'NA': # is a read or a write event
+				order.append('F_before_' + str(trace[i][LINE_NO]))
+				events_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
+				fences_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
+				
 				# add event itself
 				order.append(trace[i])
 				events_in_thread.append(trace[i])
@@ -193,15 +159,12 @@ class Processing:
 				events_in_thread.append('F_after_' + str(trace[i][LINE_NO]))
 				fences_in_thread.append('F_after_' + str(trace[i][LINE_NO]))
 
-				# communicate to the next event that a fence has been added
-				added_fence_after_previous_event = True
 				continue
 
 			# not a fence or read or write
 			order.append(trace[i])
 			events_in_thread.append(trace[i])
-			added_fence_after_previous_event = False
-
+			
 		# add last thread lists
 		self.all_events_by_thread.append(events_in_thread)
 		self.fences_by_thread.append(fences_in_thread)

@@ -3,27 +3,20 @@ import z3_functions as z3
 
 class z3translate:
 
-    def __init__(self,cycles,var):
+    def __init__(self, cycles):
 
-        self.constants = []                                         # list of all constant declarations
-        conjunctions = []                                           # list of all cycles translated into conjunctions
-        self.translation = ""
-        self.loc_info = var
-
-        for i in var.keys():
-            name = var[i]
-            self.constants.append(name)
+        self.variables   = []             # list of formula variables ie fences
+        conjunctions     = []             # list of all cycles, each cycle translated into a conjunction
+        self.formula = ""
         
-        cycles_translated_to_var = []
-        for i in range(len(cycles)):
-            cycles_translated_to_var.append([var[x] for x in cycles[i]])
+        self.variables = set([item for sublist in cycles for item in sublist]) # list of unique fences
         
-        for cycle in cycles_translated_to_var:
+        for cycle in cycles:
             conjunctions.append(z3.conjunct(cycle))
 
-        self.translation = z3.disjunct(conjunctions)
+        self.formula = z3.disjunct(conjunctions)
 
-        # print(self.constants, conjunctions, self.translation)
+        # print(self.variables, conjunctions, self.formula)
 
     def get(self):
-        return self.constants, self.translation
+        return self.variables, self.formula
