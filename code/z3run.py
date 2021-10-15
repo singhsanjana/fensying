@@ -9,8 +9,8 @@ import time
 from z3convert import z3convert
 from constants import file_info as fi
 
-def z3run(z3vars, disjunctions, fences_present):
-	z3convert(z3vars, disjunctions, fences_present)										# create the z3 file based on the cycles
+def z3run(z3vars, disjunctions):
+	z3convert(z3vars, disjunctions)										# create the z3 file based on the cycles
 
 	z3_cmd = "z3 "+ fi.Z3_FILE
 	z3_run = shlex.split(z3_cmd)										# run z3 file

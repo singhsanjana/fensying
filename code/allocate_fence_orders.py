@@ -34,7 +34,7 @@ def allocate_fence_orders(req_fences, all_cycles_by_trace, cycles_tags_by_trace)
 	for cs in candidate_sol_tags:
 		if get_cycle_score(cs) < get_cycle_score(selected_cycle):
 			selected_cycle = cs
-	print(selected_cycle)
+	print('selected:',selected_cycle)
 	return selected_cycle
 
 def get_cycles_with_only_fences(all_cycles):

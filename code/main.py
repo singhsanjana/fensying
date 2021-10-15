@@ -77,16 +77,18 @@ def fn_main(filename):
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
 		sys.exit(0)
-	elif no_buggy_execs:
-		get_p = Processing(traces, buggy_trace_no)
-		fences_present, fences_present_locs, z3vars, disjunctions, error_string, pre_calc_total, all_cycles_by_trace, cycles_tags_by_trace = get_p.get()				# runs and returns locations
 
+	elif no_buggy_execs: # has buggy traces
+		get_p = Processing(traces, buggy_trace_no)
+		z3vars, disjunctions, error_string, pre_calc_total, all_cycles_by_trace, cycles_tags_by_trace = get_p.get()				# runs and returns locations
+		
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)
 			delete_generated_file(filename)
 
 		else:
-			req_fences, z3_time = z3run(z3vars, disjunctions, fences_present)									# get output from z3 & get required locations
+			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
+			print('min-model', req_fences)
 			fence_tags = allocate_fence_orders(req_fences, all_cycles_by_trace, cycles_tags_by_trace)
 			new_filename = insert(req_fences, fence_tags, filename, fences_present_locs)		# insert fences into the source file at the required locations
 
