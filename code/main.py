@@ -80,7 +80,7 @@ def fn_main(filename):
 
 	elif no_buggy_execs: # has buggy traces
 		get_p = Processing(traces, buggy_trace_no)
-		z3vars, disjunctions, error_string, pre_calc_total, all_cycles_by_trace, cycles_tags_by_trace = get_p.get()				# runs and returns locations
+		z3vars, disjunctions, error_string, pre_calc_total, cycles_tags_by_trace = get_p.get()				# runs and returns locations
 		
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)
@@ -89,7 +89,8 @@ def fn_main(filename):
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
 			print('min-model', req_fences)
-			fence_tags = allocate_fence_orders(req_fences, all_cycles_by_trace, cycles_tags_by_trace)
+			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
+			print('solution', fence_tags)
 			new_filename = insert(req_fences, fence_tags, filename, fences_present_locs)		# insert fences into the source file at the required locations
 
 			fences_added += len(req_fences)-len(fences_present)

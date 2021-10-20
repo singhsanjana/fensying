@@ -31,7 +31,6 @@ class Processing:
 		self.error_string = ''
 		self.pre_calc_total = 0									# time taken for calculation of initial values - HB, MO, SB
 	
-		self.all_cycles_by_trace = []
 		self.cycles_tags_by_trace = []
 
 		trace_no = 0
@@ -103,7 +102,6 @@ class Processing:
 
 			# print('candidate cycles=', candidate_cycles)
 			if (len(candidate_cycles) > 0):
-				self.all_cycles_by_trace.append(candidate_cycles)
 				self.cycles_tags_by_trace.append(candidate_cycles_tags)
 
 				cycles_of_candidate_fences = []
@@ -204,4 +202,4 @@ class Processing:
 		return sb_edges
 
 	def get(self):
-		return self.z3vars, self.formula, self.error_string, self.pre_calc_total, self.all_cycles_by_trace, self.cycles_tags_by_trace
+		return self.z3vars, self.formula, self.error_string, self.pre_calc_total, self.cycles_tags_by_trace
