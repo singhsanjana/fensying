@@ -75,7 +75,7 @@ class Processing:
 			# pre-process and obtain separately reads, writes with neighbouring fences
 			reads, writes = preprocessing(order)
 			# print ('reads:', reads)
-			print ('writes:', writes)
+			# print ('writes:', writes)
 
 			# CALC EDGES
 			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, self.so_edges)
