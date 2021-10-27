@@ -16,20 +16,23 @@ def insert(fence_tags, filename):
 
 	output_file = open(filename_new,'w')
 	
+	count_modified_fences = 0
 	for f, order_req in fence_tags.items():
 		already_has_fence, fen_index, order = get_fence_to_insert(f, order_req, lines)
 
 		# insert the fence
 		if not already_has_fence:
+			# Synthesize fence
 			lines[fen_index] += fi.FENCE_INSTRUCTIONS[order]
 		else:
-			# Need to change the existing fence
+			# Strengthen order of existing fence
+			count_modified_fences += 1
 			lines[fen_index] = fi.FENCE_INSTRUCTIONS[order]
 
 	for w in lines:
 		output_file.writelines(w)
 
-	return filename_new
+	return (filename_new, count_modified_fences)
 
 def get_fence_to_insert(f, order_req, lines):
 	line_no = int(f[f.rfind('_')+1:])

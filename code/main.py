@@ -48,6 +48,7 @@ elif no_traces == 0 or max_iter == 0:
 mc_total = 0
 z3_total = 0
 fences_added = 0
+fences_modified = 0
 fence_tags_final = []
 total_iter = 0
 error_string = ""
@@ -57,6 +58,7 @@ def fn_main(filename):
 	global pre_calc_total
 	global z3_total
 	global fences_added
+	global fences_modified
 	global fence_tags_final
 	global total_iter
 	global error_string
@@ -88,10 +90,13 @@ def fn_main(filename):
 
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
+			# print('mi-model', req_fences)
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
-			new_filename = insert(fence_tags, filename)		# insert fences into the source file at the required locations
+			# print('solution', fence_tags)
+			(new_filename, count_modified_fences) = insert(fence_tags, filename) # insert fences into the source file at the required locations
 
 			fences_added += len(req_fences)
+			fences_modified += count_modified_fences
 			fence_tags_final += list(fence_tags.values())
 
 	mc_total += mc_time
@@ -100,8 +105,8 @@ def fn_main(filename):
 		print("Time- CDS Checker:\t",round(mc_time, 2))
 		if no_buggy_execs and not error_string:
 			print("Time- Z3:\t\t",round(z3_time, 2))
-			print("Fences added:\t\t",len(req_fences))
-			print("Orders:\t\t\t",list(fence_tags.values()))
+			print("Fences synthesized: \t",len(req_fences))
+			print("Fences strengthened:\t",count_modified_fences)
 
 	if no_traces and no_buggy_execs and not error_string:
 		fn_main(new_filename)
@@ -116,18 +121,21 @@ except RuntimeError:
 	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
-print(oc.OKBLUE + oc.BOLD + "\n\n================= OVERALL =================" + oc.ENDC)
+print(oc.OKBLUE + oc.BOLD + "\n\n================= RESULT SUMMARY =================" + oc.ENDC)
 if not error_string:
 	# TODO: how to compute order of added fences if some existing fence is modified
-	print(oc.OKGREEN, oc.BOLD, "Total fences added: \t", fences_added, oc.ENDC)
-	if (fences_added>0):
-		print(oc.BOLD, "Orders: \t\t", fence_tags_final, oc.ENDC)
+	print(oc.OKGREEN, oc.BOLD, "Total fences synthesized:  \t", fences_added, oc.ENDC)
+	print(oc.OKGREEN, oc.BOLD, "Total fences strengthened: \t", fences_modified, oc.ENDC)
+
 print("Time- CDS Checker:\t",round(mc_total, 2))
-print("Time- Pre-calculations:\t",round(pre_calc_total, 2))
+print("Time- Cycle computation:",round(pre_calc_total, 2))
 if z3_total > 0:
 	print("Time- Z3:\t\t",round(z3_total, 2))
 print("\nTime- Total:\t\t",round(end-start, 2))
-print("Time- Tool only:\t",round(end-start-mc_total-pre_calc_total-z3_total, 2))
+print("Time- Fensying:\t\t",round(end-start-mc_total-pre_calc_total-z3_total, 2))
 if no_traces:
 	print("\nTotal iterations:\t",total_iter)
 	print("Time- avg per iter:\t",round((end-start)/total_iter, 2))
+
+fenced_filename = filename[:-3] + '_fenced.cc'
+print(oc.OKBLUE, oc.BOLD, "\n\nFixed program at:", fenced_filename, "\n", oc.ENDC)
