@@ -33,4 +33,4 @@ def z3convert(consts, disjunctions):
 	contents += "(check-sat)\n(get-model)"
 	file.write(contents)
 
-	print('z3file: ', contents)
+	# print('z3file: ', contents)

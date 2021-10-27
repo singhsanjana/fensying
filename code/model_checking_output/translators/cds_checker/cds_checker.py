@@ -60,7 +60,7 @@ class translate_cds:
 		else:
 			signal.alarm(900)											# set timer for 15 minutes for the rest of the tool
 			self.no_buggy_execs = int(self.no_buggy_execs)
-			print("\n\nBuggy executions:\t",self.no_buggy_execs)
+			# print("\n\nBuggy executions:\t",self.no_buggy_execs)
 
 			if self.no_buggy_execs != 0:
 				self.create_structure(filename)

@@ -88,10 +88,8 @@ def fn_main(filename):
 
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
-			print('min-model', req_fences)
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
-			print('solution', fence_tags)
-			new_filename = insert(req_fences, fence_tags, filename)		# insert fences into the source file at the required locations
+			new_filename = insert(fence_tags, filename)		# insert fences into the source file at the required locations
 
 			fences_added += len(req_fences)
 			fence_tags_final += list(fence_tags.values())
@@ -120,6 +118,7 @@ except RuntimeError:
 
 print(oc.OKBLUE + oc.BOLD + "\n\n================= OVERALL =================" + oc.ENDC)
 if not error_string:
+	# TODO: how to compute order of added fences if some existing fence is modified
 	print(oc.OKGREEN, oc.BOLD, "Total fences added: \t", fences_added, oc.ENDC)
 	if (fences_added>0):
 		print(oc.BOLD, "Orders: \t\t", fence_tags_final, oc.ENDC)

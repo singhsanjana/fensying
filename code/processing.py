@@ -63,7 +63,7 @@ class Processing:
 
 			# ADD FENCES
 			order=self.fence(trace)
-			print("order =",order)
+			# print("order =",order)
 			# print("fences_thread =", self.fences_by_thread)
 			# print("all_events_thread", self.all_events_by_thread)
 
@@ -81,7 +81,7 @@ class Processing:
 			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, self.so_edges)
 			swdob_edges, fr_edges, self.so_edges = calc_edges.get()
 			hb_edges = hb_edges + swdob_edges
-			print('done edge computation')
+			# print('done edge computation')
 			# print("swdob = ", swdob_edges)
 			# print("hb = ", hb_edges)
 			# print("mo = ", mo_edges)
@@ -92,18 +92,18 @@ class Processing:
 			
 			# WEAK FENSYING
 			wf = weak_fensying(hb_edges, mo_edges, rf_edges, rfinv_edges)
-			print('done weak fensying')
+			# print('done weak fensying')
 			if wf.has_weak_cycles():
 				candidate_cycles = wf.get()
 				candidate_cycles_tags = compute_relaxed_tags(candidate_cycles, swdob_edges)
-			print ('done weak fence tagging')
+			# print ('done weak fence tagging')
 				
 			# STRONG FENSYING
 			strong_cycles = Cycles(self.so_edges)
 			candidate_cycles += strong_cycles
-			print('done strong fensying')
+			# print('done strong fensying')
 			candidate_cycles_tags += compute_strong_tags(strong_cycles)
-			print ('done strong fence tagging')
+			# print ('done strong fence tagging')
 
 			# print('candidate cycles=', candidate_cycles)
 			if (len(candidate_cycles) > 0):
