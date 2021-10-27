@@ -45,10 +45,10 @@ class file_info:
 	CDS_MADE_FILE_EXTENSIONS = [".o", ".o.d"]
 	OUTPUT_FILE_APPEND_STRING = "_fenced"+FILE_EXTENSION
 	FENCE_INSTRUCTIONS = {
-		f_tags.sc: "atomic_thread_fence(memory_order_seq_cst);\n",
-		f_tags.a: "atomic_thread_fence(memory_order_acquire);\n",
-		f_tags.r: "atomic_thread_fence(memory_order_release);\n",
-		f_tags.ar: "atomic_thread_fence(memory_order_acq_rel);\n"
+		f_tags.sc	:	"atomic_thread_fence(__LINE__, memory_order_seq_cst);\n",
+		f_tags.a	:	"atomic_thread_fence(__LINE__, memory_order_acquire);\n",
+		f_tags.r	:	"atomic_thread_fence(__LINE__, memory_order_release);\n",
+		f_tags.ar	:	"atomic_thread_fence(__LINE__, memory_order_acq_rel);\n"
 	}
 	CDS_FOLDER_PATH = "../model-checker/cds-checker"
 	CDS_TEST_FOLDER_PATH = CDS_FOLDER_PATH+"/test"

@@ -12,7 +12,7 @@ from constants import file_info as fi
 def z3run(z3vars, disjunctions):
 	z3convert(z3vars, disjunctions)										# create the z3 file based on the cycles
 
-	z3_cmd = "z3 "+ fi.Z3_FILE
+	z3_cmd = "/home/divyanjali/Tools/z3/bin/z3 "+ fi.Z3_FILE
 	z3_run = shlex.split(z3_cmd)										# run z3 file
 
 	z3_start = time.time()

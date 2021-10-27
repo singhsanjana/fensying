@@ -91,9 +91,9 @@ def fn_main(filename):
 			print('min-model', req_fences)
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
 			print('solution', fence_tags)
-			new_filename = insert(req_fences, fence_tags, filename, fences_present_locs)		# insert fences into the source file at the required locations
+			new_filename = insert(req_fences, fence_tags, filename)		# insert fences into the source file at the required locations
 
-			fences_added += len(req_fences)-len(fences_present)
+			fences_added += len(req_fences)
 			fence_tags_final += list(fence_tags.values())
 
 	mc_total += mc_time
@@ -102,7 +102,7 @@ def fn_main(filename):
 		print("Time- CDS Checker:\t",round(mc_time, 2))
 		if no_buggy_execs and not error_string:
 			print("Time- Z3:\t\t",round(z3_time, 2))
-			print("Fences added:\t\t",len(req_fences)-len(fences_present))
+			print("Fences added:\t\t",len(req_fences))
 			print("Orders:\t\t\t",list(fence_tags.values()))
 
 	if no_traces and no_buggy_execs and not error_string:

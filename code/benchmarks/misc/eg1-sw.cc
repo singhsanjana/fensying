@@ -18,7 +18,7 @@ static void t1(void *arg) {
 }
 
 static void t2(void *arg) {
-  int x_temp = x.load(__LINE__, memory_order_seq_cst);
+  int x_temp = x.load(__LINE__, memory_order_relaxed);
   int y_temp = y.load(__LINE__, memory_order_relaxed);
   MODEL_ASSERT(!(x_temp == 1 && y_temp == 0));
 }
