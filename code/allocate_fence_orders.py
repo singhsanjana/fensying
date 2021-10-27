@@ -69,6 +69,7 @@ def get_min_cycles_of_trace(min_model, trace_cycles):
 def allocate_fence_orders(min_model, cycles_tags_by_trace):
 	# initialize candidate_solutions to min_cycle of trace 0
 	candidate_solutions = get_min_cycles_of_trace(min_model, cycles_tags_by_trace[0]) 
+	candidate_solutions = reduce(candidate_solutions)
 
 	# coalesce min_cycles of remaining traces with candidate_solutions
 	for i in range(1, len(cycles_tags_by_trace)): 
