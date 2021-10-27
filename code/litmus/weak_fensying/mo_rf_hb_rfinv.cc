@@ -7,7 +7,7 @@
 
 atomic_int x;
 atomic_int y;
-int a,b,c;
+int a, b, c;
 
 static void fn1(void *obj)
 {
@@ -25,7 +25,7 @@ static void fn3(void *obj)
 {
 	
 	b=atomic_load_explicit(__LINE__, &x, memory_order_relaxed);
-    c=atomic_load_explicit(__LINE__, &x, memory_order_relaxed);
+	c=atomic_load_explicit(__LINE__, &x, memory_order_relaxed);
 }
 
 int user_main(int argc, char **argv)
@@ -34,6 +34,7 @@ int user_main(int argc, char **argv)
 
 	atomic_init(&x, 0);
 	atomic_init(&y, 0);
+	a = b = c = 0;
 
 	thrd_create(&t1, (thrd_start_t)&fn1, NULL);
 	thrd_create(&t2, (thrd_start_t)&fn2, NULL);

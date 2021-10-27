@@ -7,10 +7,7 @@
 
 atomic_int x;
 atomic_int y;
-atomic_int a;
-atomic_int b;
-atomic_int c;
-atomic_int d;
+int a,b,c,d;
 
 static void fn1(void *obj)
 {
@@ -20,10 +17,9 @@ static void fn1(void *obj)
 static void fn2(void *obj)
 {
 	int r1 = atomic_load_explicit(__LINE__, &x, memory_order_acquire);
-    atomic_store_explicit(__LINE__, &a, r1, memory_order_relaxed);
+    a = r1;
     if (r1 == 1) {
-        int r2 = atomic_load_explicit(__LINE__, &y, memory_order_acquire);
-        atomic_store_explicit(__LINE__, &b, r2, memory_order_relaxed);
+        b = atomic_load_explicit(__LINE__, &y, memory_order_acquire);
     }
 }
 
@@ -35,10 +31,9 @@ static void fn3(void *obj)
 static void fn4(void *obj)
 {
 	int r1 = atomic_load_explicit(__LINE__, &y, memory_order_acquire);
-    atomic_store_explicit(__LINE__, &c, r1, memory_order_relaxed);
+    c = r1;
     if (r1 == 1) {
-        int r2 = atomic_load_explicit(__LINE__, &x, memory_order_acquire);
-        atomic_store_explicit(__LINE__, &d, r2, memory_order_relaxed);
+        d = atomic_load_explicit(__LINE__, &x, memory_order_acquire);
     }
 }
 
@@ -48,10 +43,7 @@ int user_main(int argc, char **argv)
 
 	atomic_init(&x, 0);
 	atomic_init(&y, 0);
-	atomic_init(&a, 0);
-	atomic_init(&b, 0);
-	atomic_init(&c, 0);
-	atomic_init(&d, 0);
+	a = b = c = d = 0;
 
 	thrd_create(&t1, (thrd_start_t)&fn1, NULL);
 	thrd_create(&t2, (thrd_start_t)&fn2, NULL);
@@ -63,12 +55,7 @@ int user_main(int argc, char **argv)
 	thrd_join(t3);
 	thrd_join(t4);
 
-    int ra = atomic_load_explicit(__LINE__, &a, memory_order_relaxed);
-    int rb = atomic_load_explicit(__LINE__, &b, memory_order_relaxed);
-    int rc = atomic_load_explicit(__LINE__, &c, memory_order_relaxed);
-    int rd = atomic_load_explicit(__LINE__, &d, memory_order_relaxed);
-
-    MODEL_ASSERT(! (ra==1 && rb==0 && rc==1 && rd==0) );
+    MODEL_ASSERT(! (a==1 && b==0 && c==1 && d==0) );
 
 	return 0;
 }
