@@ -49,7 +49,7 @@ int user_main(int argc, char **argv) {
     thrd_join(th2);
     thrd_join(th3);
 
-    int a_temp = a.load(__LINE__, memory_order_relaxed);
+    int a_temp = a.load(__LINE__, memory_order_relaxed); 
     int b_temp = b.load(__LINE__, memory_order_relaxed);
     int c_temp = c.load(__LINE__, memory_order_relaxed);
     MODEL_ASSERT(!(a_temp == 1 && b_temp == 1 && c_temp == 0));

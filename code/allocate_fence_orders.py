@@ -56,7 +56,7 @@ def get_min_cycles_of_trace(min_model, trace_cycles):
 	for cycle in trace_cycles:
 		is_min_cycle = True
 		for fence in cycle:
-			if 'at' in fence:
+			if 'at' in fence: # program fence, min-model has only synthesized fences
 				continue
 			if not fence in min_model:
 				is_min_cycle = False
