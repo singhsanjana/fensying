@@ -23,6 +23,7 @@ compute_fences
 *_fixed.cc
 *testing*
 code/benchmarks/test
+code/result
 
 # model checker files:
 # cds checker
