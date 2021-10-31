@@ -25,10 +25,29 @@ def run_file(dir_name, filename, t=0):
     process = subprocess.Popen(process_command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
     lines = process.stdout.readlines()
     
-    aborted = False
+    aborted   = False
+    timed_out = False
+    time_out_msg = ''
+
     for i in range(len(lines)):
         if 'ABORT' in lines[i]:
             aborted = True
+
+        if 'Model Checking time exceeded' in lines[i]:
+            time_limit = lines[i][len('Model Checking time exceeded '):]
+            time_limit = time_limit.split('minutes')[0]
+            time_limit = time_limit.replace(' ', '')
+
+            timed_out = True
+            time_out_msg = 'CDS TO (' + time_limit + ')'
+
+        if 'Tool time exceeded' in lines[i]:
+            time_limit = lines[i][len('Tool time exceeded '):]
+            time_limit = time_limit.split('minutes')[0]
+            time_limit = time_limit.replace(' ', '')
+
+            timed_out = True
+            time_out_msg = 'Fensying TO (' + time_limit + ')'
 
         if 'RESULT SUMMARY' in lines[i]:
             break
@@ -43,6 +62,8 @@ def run_file(dir_name, filename, t=0):
     total_attributes     = 6
     if aborted:
         total_attributes = 3
+    elif timed_out:
+        total_attributes = 0
 
     for j in range(i,len(lines)):
         line = clean(lines[j])
@@ -80,26 +101,29 @@ def run_file(dir_name, filename, t=0):
             attributes_collected+=1
             continue
 
-    assert(attributes_collected == total_attributes)
-    if aborted:
+    if timed_out:
+        csv_out = time_out_msg + ',,,,,,'
+    elif aborted:
         csv_out = 'ABORT,,' + time_ceg + ',,' + time_fensying + ',' + time_total + ','
     else:
         csv_out = synthesized + ',' + strengthened + ',' + time_ceg + ',' + time_z3 + ',' + time_fensying + ',' + time_total + ','
 
     output = ''
+    if attributes_collected != total_attributes:
+        output = 'ATRIBUTES MISMATCH collected=' + attributes_collected + ' total=' + total_attributes + '\n'
     output = output.join(map(str, lines)) # list to string
     return (csv_out, output)
 
 
 
 
-# directories = [
-#     "benchmarks/cds_examples", "benchmarks/genmc_examples", "benchmarks/misc",
-#     "benchmarks/rcmc_examples", "benchmarks/tracer_examples",
-#     "benchmarks/watts_examples",
-#     "litmus", "litmus/weak_fensying"
-# ]
-directories = ["litmus", "litmus/weak_fensying"]
+directories = [
+    "benchmarks/cds_examples", "benchmarks/genmc_examples", "benchmarks/misc",
+    "benchmarks/rcmc_examples", "benchmarks/tracer_examples",
+    "benchmarks/watts_examples",
+    "litmus", "litmus/weak_fensying"
+]
+# directories = ["litmus", "litmus/weak_fensying"]
 t_flags = [0, 1, 2]
 
 csv_header = 'Directory,Test Name,'

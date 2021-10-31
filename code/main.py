@@ -119,7 +119,7 @@ try:
 	fn_main(filename)
 	end = time.time()
 except RuntimeError:
-	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
+	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 60 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
 print(oc.OKBLUE + oc.BOLD + "\n\n================= RESULT SUMMARY =================" + oc.ENDC)
