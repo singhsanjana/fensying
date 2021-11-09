@@ -119,7 +119,7 @@ try:
 	fn_main(filename)
 	end = time.time()
 except RuntimeError:
-	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 60 minutes.\n" + oc.ENDC)
+	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 30 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
 print(oc.OKBLUE + oc.BOLD + "\n\n================= RESULT SUMMARY =================" + oc.ENDC)
@@ -137,5 +137,6 @@ if no_traces:
 	print("\nTotal iterations:\t",total_iter)
 	print("Time- avg per iter:\t",round((end-start)/total_iter, 2))
 
-fenced_filename = filename[:-3] + fi.OUTPUT_FILE_APPEND_STRING
-print(oc.OKBLUE, oc.BOLD, "\n\nFixed program at:", fenced_filename, "\n", oc.ENDC)
+if z3_total > 0:
+	fenced_filename = filename[:-3] + fi.OUTPUT_FILE_APPEND_STRING
+	print(oc.OKBLUE, oc.BOLD, "\n\nFixed program at:", fenced_filename, "\n", oc.ENDC)
