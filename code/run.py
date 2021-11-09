@@ -27,6 +27,7 @@ def run_file(dir_name, filename, t=0):
     
     aborted   = False
     timed_out = False
+    result_generated = False
     time_out_msg = ''
 
     for i in range(len(lines)):
@@ -50,6 +51,7 @@ def run_file(dir_name, filename, t=0):
             time_out_msg = 'Fensying TO (' + time_limit + ')'
 
         if 'RESULT SUMMARY' in lines[i]:
+            result_generated = True
             break
 
     synthesized   = ''
@@ -59,11 +61,20 @@ def run_file(dir_name, filename, t=0):
     time_fensying = ''
     time_total    = ''
     attributes_collected = 0
-    total_attributes     = 6
-    if aborted:
+    total_attributes     = 0
+    
+    if result_generated:
+        total_attributes = 6
+    elif aborted:
         total_attributes = 3
     elif timed_out:
         total_attributes = 0
+
+    if not (result_generated or aborted or timed_out):
+        csv_out = 'run not completed' + ',,,,,,'
+        output = ''
+        output = output.join(map(str, lines)) # list to string
+        return (csv_out, output)
 
     for j in range(i,len(lines)):
         line = clean(lines[j])
@@ -110,21 +121,31 @@ def run_file(dir_name, filename, t=0):
 
     output = ''
     if attributes_collected != total_attributes:
-        output = 'ATRIBUTES MISMATCH collected=' + attributes_collected + ' total=' + total_attributes + '\n'
+        output = 'ATRIBUTES MISMATCH collected=' + str(attributes_collected) + ' total=' + str(total_attributes) + '\n'
     output = output.join(map(str, lines)) # list to string
     return (csv_out, output)
 
 
 
+rmw_tests = {
+    'genmc_examples' : ['hwqueue-ra0.cc', 'hwqueue-ra0.cc', 'hwqueue-ra0.cc', 'hwqueue-ra0.cc', 'inc+inc+rr+w+rr0.cc', 'inc+inc+rr+w+rr0.cc'],
+    'cds_examples' : ['fib_bench_false-unreach-call.cc', 'fib_bench_false-unreach-call.cc', 'read_write_lock_unreach_13.cc', 'read_write_lock_unreach_13.cc', 'read_write_lock_unreach_12.cc', 'read_write_lock_unreach_12.cc', 'crew_2.cc', 'crew_2.cc', 'read_write_lock_3.cc', 'read_write_lock_3.cc', 'lamport_true_unreach.cc', 'lamport_true_unreach.cc', 'lamport_true_unreach.cc', 'lamport_true_unreach.cc', 'crew_1.cc', 'crew_1.cc', 'fib_bench_true-unreach-call.cc', 'fib_bench_true-unreach-call.cc', 'read_write_lock_2.cc', 'read_write_lock_2.cc', 'fib_bench_true-longest-unreach-call.cc', 'fib_bench_true-longest-unreach-call.cc', 'fib_mod_false-unreach-call.cc', 'fib_mod_false-unreach-call.cc', 'fib_mod_true-unreach-call.cc', 'fib_mod_true-unreach-call.cc', 'dekker_false-unreach-call.cc', 'dekker_false-unreach-call.cc', 'dekker_false-unreach-call.cc', 'dekker_false-unreach-call.cc', 'read_write_lock_unreach_11.cc', 'read_write_lock_unreach_11.cc', 'mot_eg_4.cc', 'mot_eg_4.cc', 'mot_eg_2.cc', 'mot_eg_2.cc', 'mot_eg_3.cc', 'mot_eg_3.cc'],
+    'tracer_examples' : ['MOREDETOUR0685.cc', 'MOREDETOUR0685.cc', 'MOREDETOUR0687.cc', 'MOREDETOUR0687.cc', 'W+RWC+po+lwsync+po.cc', 'R0098.cc', 'MOREDETOUR0406.cc', 'MOREDETOUR0406.cc', 'DETOUR0895.cc', 'DETOUR0895.cc', 'WRW+2W+lwsync+po.cc', '3.2W+lwsync+lwsync+po.cc', '3.2W+lwsync+lwsync+po.cc', 'Z6.5+lwsync+rfi-data+rfi-addr.cc', 'SB0059.cc', 'DETOUR0958.cc', 'DETOUR0958.cc', 'R0119.cc', 'm5dl.cc', 'MOREDETOUR0874.cc', 'MOREDETOUR0874.cc', 'DETOUR0928.cc', 'MOREDETOUR0869.cc', 'MOREDETOUR0869.cc', 'Z6.4+po+lwsync+po.cc', 'R+po+isync.cc', 'ppc-cookbook6.1.partbarrier.cc', 'MOREDETOUR0398.cc', 'IRIW+isync+po.cc', 'Z6.0+po+addr+lwsync.cc', '2+2W0053.cc', 'Z6.4+po+po+sync.cc', 'R0102.cc', 'WRR+2W+addr+lwsync.cc'],
+    'rcmc_examples' : ['indexer0.cc']
+}
 
 directories = [
-    "benchmarks/cds_examples", "benchmarks/genmc_examples", "benchmarks/misc",
-    "benchmarks/rcmc_examples", "benchmarks/tracer_examples",
+    "benchmarks/cds_examples", 
+    "benchmarks/genmc_examples", 
+    "benchmarks/misc",
+    "benchmarks/rcmc_examples", 
+    "benchmarks/tracer_examples",
     "benchmarks/watts_examples",
-    "litmus", "litmus/weak_fensying"
+    "litmus", 
+    "litmus/weak_fensying"
 ]
-# directories = ["litmus", "litmus/weak_fensying"]
 t_flags = [0, 1, 2]
+result_dir = 'result'
 
 csv_header = 'Directory,Test Name,'
 for t in t_flags:
@@ -134,8 +155,13 @@ for t in t_flags:
     csv_header += (csv_header_t)
 csv_header = csv_header[:-1] + '\n'
 
-csv_rows = ''
-output_dump = ''
+if not os.path.exists(result_dir):
+    os.system('mkdir ' + result_dir)
+
+csv_file = open(result_dir + '/result.csv', 'w')
+csv_file.write(csv_header)
+
+dump_file = open(result_dir + '/result_dump', 'w')
 
 for dir_name in directories:
     print ('\n-------- Entering ', dir_name, ' -----------')
@@ -146,29 +172,24 @@ for dir_name in directories:
             continue
         if '_fixed' in filename:
             continue
+        if filename in rmw_tests[dir_name]:
+            continue
 
         print ('Running ', filename)
 
         csv_row = dir_name + ',' + filename + ','
-        output_dump += '\n=================== ' + filename + ' =================\n'
+        output_dump = '\n=================== ' + filename + ' =================\n'
         for t_flag in t_flags:
             (csv, dump) = run_file(dir_name, filename, t_flag)
             csv_row += csv
             output_dump += dump
 
-        csv_rows += csv_row[:-1] + '\n'
+        csv_row = csv_row[:-1] + '\n'
+
+        csv_file.write(csv_row)
+        dump_file.write(output_dump)
     
     print ('--------- Leaving ', dir_name, ' -----------')
 
-
-if not os.path.exists('result'):
-    os.system('mkdir result')
-
-csv_file = open('result/result.csv', 'w')
-csv_file.write(csv_header)
-csv_file.write(csv_rows)
 csv_file.close()
-
-dump_file = open('result/result_dump', 'w')
-dump_file.write(output_dump)
 dump_file.close()
