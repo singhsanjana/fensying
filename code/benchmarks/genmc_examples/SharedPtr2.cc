@@ -90,6 +90,10 @@ int user_main(int argc, char **argv) {
 
     atomic_init(&x, 3);
     atomic_init(&y, 4);
+    atomic_init(&z, 0);
+    atomic_init(&p, 0);
+    atomic_init(&t, 0);
+    atomic_init(&v, 0);
     
 	thrd_create(&t0, (thrd_start_t)&thread_0, NULL);
 	thrd_create(&t1, (thrd_start_t)&thread_1, NULL);
