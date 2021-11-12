@@ -47,7 +47,11 @@ int user_main(int argc, char **argv) {
     thrd_join(id1);
     thrd_join(id2);
 
-    MODEL_ASSERT ((a.load(__LINE__, memory_order_relaxed) != 0 || b.load(__LINE__, memory_order_relaxed) != 0) && ((b.load(__LINE__, memory_order_relaxed) != 1) || (c.load(__LINE__, memory_order_relaxed) == 1)));
+	int r1 = a.load(__LINE__, memory_order_relaxed);
+	int r2 = b.load(__LINE__, memory_order_relaxed);
+	int r3 = c.load(__LINE__, memory_order_relaxed);
+
+    MODEL_ASSERT ((r1 != 0 || r2 != 0) && ((r2 != 1) || (r3 == 1)));
 	// abc cannot be 000, 001, 011, 110
 
 	return 0;
