@@ -11,7 +11,7 @@ def pre_calculations(trace, buggy_trace_no):
 	mo_calc = mo(trace, so_edges, buggy_trace_no)
 	mo_edges, so_edges = mo_calc.get()
 
-	return hb_edges, mo_edges, rf_edges, rfinv_edges, so_edges, rs_edges
+	return hb_edges, mo_edges, rf_edges, rfinv_edges, so_edges
 
 def preprocessing(trace):
 	writes = []
