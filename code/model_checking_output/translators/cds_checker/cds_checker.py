@@ -63,7 +63,7 @@ class translate_cds:
 			# print("\n\nBuggy executions:\t",self.no_buggy_execs)
 
 			if self.no_buggy_execs != 0:
-				self.create_structure(filename)
+				self.create_structure()
 				# self.print_traces()
 		finally:
 			delete_copied_file(filename)
@@ -80,6 +80,7 @@ class translate_cds:
 
 	# to differentiate and obtain each trace from the std output in the terminal
 	def obtain_traces(self,p):
+		print(p)
 		f=0                                                         	# flag for finding execution trace
 		for line in p.split('\n'):
 			tmp_index = line.find('Execution trace ')					# find execution number for buggy traces
@@ -107,7 +108,7 @@ class translate_cds:
 				self.no_buggy_execs = line[28:len(line)]
 			
 	# to convert each trace into a structure
-	def create_structure(self,filename):
+	def create_structure(self):
 
 		# map the variable names from the source code to the memory address used by the variable as shown in the traces
 		for trace in self.traces_raw:

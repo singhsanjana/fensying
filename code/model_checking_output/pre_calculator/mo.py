@@ -7,7 +7,6 @@ class mo:
 		self.trace = trace
 		self.so_edges = so_edges
 		self.mo_edges = []                      		# list of mo edges
-		self.rs_edges = {}								# dict of rs paths
 
 		immediate_mo_edges = self.get_mo_from_dot(traceno)
 		# print("mo edges=",self.mo_edges)
@@ -17,7 +16,7 @@ class mo:
 
 
 	def get(self):
-		return self.mo_edges, self.so_edges, self.rs_edges
+		return self.mo_edges, self.so_edges
 	
 	def get_mo_from_dot(self, traceno):
 		mo_found = []
