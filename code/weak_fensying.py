@@ -1,125 +1,141 @@
-from cycle import Cycles
+from all_paths import all_path
 import time
 
 class weak_fensying:
-	def coherence_compositions(self):
-		rules = [ 
-			[self.hb_edges],
-			[self.mo_edges, self.hb_edges],
-			[self.rf_edges, self.hb_edges],
-			[self.mo_edges, self.rf_edges, self.hb_edges],
-			[self.mo_edges, self.hb_edges, self.rfinv_edges],
-			[self.mo_edges, self.rf_edges, self.hb_edges, self.rfinv_edges]
-		]
-
-		return rules
-
-
 	def __init__(self, hb_edges, mo_edges, rf_edges, rfinv_edges):
 		self.mo_hb_rf_rfinv_cycles = []
 		self.hb_edges    = hb_edges
 		self.mo_edges    = mo_edges
 		self.rf_edges    = rf_edges
 		self.rfinv_edges = rfinv_edges
-
-		self.coherence_rules = self.coherence_compositions()
+		
+		self.hb_paths    = {}
+		self.rf_hb_paths = {}
+		self.mo_hb_paths = {}
 
 		self.weak_cycles = []
 
-		has_cycles_in_union = self.compute_cycles_in_union()
-		if has_cycles_in_union:
-			self.detect_cycles_in_coherence_conditions()
-			self.weak_cycles = [list(item) for item in set(tuple(row) for row in self.weak_cycles)]
-			# [snj]:  TODO remove duplicates of kind [1,2] [2,1]
-			
-	def has_weak_cycles(self):
-		return (len(self.weak_cycles) > 0)
+		self.all_hb_paths()
+		print('hb_paths', self.hb_paths)
 
-	def compute_cycles_in_union(self):
-		rf_permutations = []
-		# given w --rf--> r a cycle can either contain w --rf--> r or r --rf_inv --> w
-		# thus, from rf_edges, pick 1 edge at a time and compute cycles with its inv
-		# considering all other rf, hb and mo edges
-		for i in range(len(self.rf_edges)):
-			temp_list = self.rf_edges[:] # to pass by value and not by reference/object-reference
-			del temp_list[i] # remove current rf edge
-			temp_list.append(self.rfinv_edges[i]) # append corresponding rfinv edge
-			# append list to list of permutations of rf where each entry is a list with inv of 1 rf edge
-			rf_permutations.append(temp_list)
-		
-		for p in rf_permutations:
-			self.mo_hb_rf_rfinv_cycles += Cycles(self.hb_edges + self.mo_edges + p)
-		
-		# remove duplicate cycles
-		self.mo_hb_rf_rfinv_cycles = [list(item) for item in set(tuple(row) for row in self.mo_hb_rf_rfinv_cycles)]
-		# print("mo_hb_rf_rfinv_cycles=",self.mo_hb_rf_rfinv_cycles)
+		self.weak_cycles += self.hb_cycles()
+		self.weak_cycles += self.rf_hb_cycles()
+		self.weak_cycles += self.mo_rf_hb_cycles()
+		self.weak_cycles += self.mo_hb_cycles()
+		self.weak_cycles += self.mo_hb_rfinv_cycles()
+		self.weak_cycles += self.mo_rf_hb_rfinv_cycles()
 
-		if len(self.mo_hb_rf_rfinv_cycles) == 0:
-			return False
-		return True
-
-	def detect_cycles_in_coherence_conditions(self):
-		for cycle in self.mo_hb_rf_rfinv_cycles:
-			current_relation = [0]    * len(self.coherence_rules)
-			active_rules     = [True] * len(self.coherence_rules)
-			active_count     = len(self.coherence_rules)
-			count_of_relations_in_cycle = [0] * len(self.coherence_rules)
-
-			first_edge = ( cycle[0], cycle[1] )
-			# for each coherence rule find the first relation that matches
-			# to start checking for cycle that relation onwards
-			for n in range(len(self.coherence_rules)):
-				has_match = False
-				for i in range(len(self.coherence_rules[n])):
-					if first_edge in self.coherence_rules[n][i]:
-						has_match = True
-						current_relation[n] = i
-						break
-				# if the first edge does not exist in the relations of
-				# coherence rule then the rule is not violated by this cycle
-				if not has_match:
-					active_rules[n] = False
-					active_count = active_count - 1
-					
-			# for each edge of the cycle (except the first edge)
-			for i in range(1, len(cycle)):
-				# no rule is violated
-				if active_count == 0:
-					break
-
-				next_edge = ( cycle[i], cycle[ (i+1) % len(cycle) ] ) 
-
-				# check for each coherence rule
-				for n in range(len(self.coherence_rules)):
-					if not active_rules[n]:
-						continue
-					
-					if next_edge in self.coherence_rules[n][current_relation[n]]:
-						# rule may be violated
-						continue
-
-					# change current relation to nect in rule
-					count_of_relations_in_cycle[n] = count_of_relations_in_cycle[n] + 1
-					current_relation[n] = (current_relation[n] + 1) % len(self.coherence_rules[n])
-					if next_edge in self.coherence_rules[n][current_relation[n]]:
-						continue
-
-					# rule not violated 
-					active_rules[n] = False
-					active_count = active_count - 1
+	def all_hb_paths(self):
+		for (e1,e1_) in self.hb_edges:
+			self.hb_paths[e1] = {}
+			for (e2_,e2) in self.hb_edges:
+				if e1 == e2:
+					continue
 				
-			if active_count == 0:
-				continue # no rule is active, not a candidate cycle
+				paths = all_path(self.hb_edges, e1, e2)
+				if len(paths) > 0: # has an hb path from e1 to e2
+					self.hb_paths[e1][e2] = paths
 
-			for n in range(len(self.coherence_rules)):
-				if not active_rules[n]:
+	def hb_cycles(self):
+		cycles = []
+
+		for e1 in self.hb_paths:              # for paths from e1
+			for e2 in self.hb_paths[e1]:      # exists path from e1 to e2
+				if not e2 in self.hb_paths:   # no paths from e2
+					continue
+				
+				if e1 in self.hb_paths[e2]:   # exists path from e2 to e1
+					for path_e1_e2 in self.hb_paths[e1][e2]:
+						for path_e2_e1 in self.hb_paths[e2][e1]:
+							# join path from e1 to e2 with path from e2 to e1, remove 1 copy of repeating e1 and e2
+							cycle = path_e1_e2[:-1] + path_e2_e1[:-1]
+							cycles += cycle
+		return cycles
+
+	def rf_hb_cycles(self):
+		cycles = []
+
+		for (e1,e2) in self.rf_edges:
+			if not e2 in self.hb_paths:
+				continue
+
+			# exist hb path(s) from e2 ==> exist rf.hb path(s) from e1
+			self.rf_hb_paths[e1] = {}
+
+			for e3 in self.hb_paths[e2]:
+				# exists rf.hb path from e1 to e3 (via e2 ie. e1 --rf--> e2 --hb--> e3) 
+				e1_paths = [ ([e1] + p) for p in self.hb_paths[e2][e3] ]
+				self.rf_hb_paths[e1][e3] = e1_paths
+
+				if e3 == e1: # exists rf.hb path from e1 to e1 (via e2 ie. e1 --rf--> e2 --hb--> e1)
+					cycles += self.hb_paths[e2][e1] 				
+
+		return cycles
+
+	def mo_rf_hb_cycles(self):
+		cycles = []
+
+		for (e1,e2) in self.mo_edges:
+			if not e2 in self.rf_hb_paths: # no rf.hb path from e2 ==> no mo.rf.hb path from e1 via e2
+				continue
+
+			if e1 in self.rf_hb_paths[e2]:
+				# exists mo.rf.hb path from e1 to e1 (via e2 ie. e1 --mo--> e2 --rf.hb--> e1)
+				cycles += self.rf_hb_paths[e2][e1]
+
+		return cycles
+
+	def mo_hb_cycles(self):
+		cycles = []
+
+		for (e1,e2) in self.mo_edges:
+			if not e2 in self.hb_paths:
+				continue
+
+			# exist hb path(s) from e2 ==> exist mo.hb path(s) from e1
+			self.mo_hb_paths[e1] = {}
+
+			for e3 in self.hb_paths[e2]:
+				# exists mo.hb path from e1 to e3 (via e2 ie. e1 --mo--> e2 --hb--> e3) 
+				e1_paths = [ ([e1] + p) for p in self.hb_paths[e2][e3] ]
+				self.mo_hb_paths[e1][e3] = e1_paths
+
+				if e3 == e1: # exists mo.hb path from e1 to e1 (via e2 ie. e1 --mo--> e2 --hb--> e1)
+					cycles += self.hb_paths[e2][e3]
+					
+		return cycles
+
+	def mo_hb_rfinv_cycles(self):
+		cycles = []
+
+		for (e1,e2) in self.rfinv_edges:
+			if not e2 in self.mo_hb_paths: # no mo.hb path from e2 ==> no mo.hb.rfinv cycle ends on e2
+				continue
+
+			if not e1 in self.mo_hb_paths[e2]: # no mo.hb path from e2 to e1 ==> no mo.hb.rfinv cycle on e2 via e1
+				continue
+
+			# exists mo.hb.rfinv path from e2 to e2 (via e1 ie. e2 --mo.hb--> e1 --rfinv--> e2)
+			cycles += self.mo_hb_paths[e2][e1]
+
+		return cycles
+
+	def mo_rf_hb_rfinv_cycles(self):
+		cycles = []
+
+		for (e1,e2) in self.mo_edges:
+			if not e2 in self.rf_hb_paths: # no rf.hb path from e2 ==> no mo.rf.hb path from e1 via e2
+				continue
+
+			# exists mo.rf.hb path from e1
+
+			for (e3,e4) in self.rfinv_edges:
+				if not e3 in self.rf_hb_paths[e2] or not e4 == e1:
 					continue
 
-				count = count_of_relations_in_cycle[n]
-				rule_size = len(self.coherence_rules[n])
-				if count == rule_size - 1  or count == rule_size:
-					self.weak_cycles.append(cycle)
-					break	
+				# exists mo.rf.hb.rfinv path from e1 to e1 (via e2,e3 ie. e1 --mo--> e2 --rf.hb--> e3 --rfinv--> e1)
+				e1_cycles = [ ([e1] + p) for p in self.rf_hb_paths[e2][e3] ]
+				cycles += e1_cycles
 	
 	def get(self):
 		return self.weak_cycles
