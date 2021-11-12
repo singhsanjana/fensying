@@ -15,6 +15,7 @@ import time
 import sys
 
 from constants import output_colours as oc
+from constants import file_info as fi
 from processing import Processing
 from z3run import z3run
 from allocate_fence_orders import allocate_fence_orders
@@ -102,7 +103,7 @@ def fn_main(filename):
 	mc_total += mc_time
 	z3_total += z3_time
 	if no_traces:
-		print("Time- CDS Checker:\t",round(mc_time, 2))
+		print("Time- CEG:\t\t",round(mc_time+pre_calc_total, 2)) # CDS time + relations cpmputation time
 		if no_buggy_execs and not error_string:
 			print("Time- Z3:\t\t",round(z3_time, 2))
 			print("Fences synthesized: \t",len(req_fences))
@@ -118,7 +119,7 @@ try:
 	fn_main(filename)
 	end = time.time()
 except RuntimeError:
-	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
+	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 30 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
 print(oc.OKBLUE + oc.BOLD + "\n\n================= RESULT SUMMARY =================" + oc.ENDC)
@@ -127,8 +128,7 @@ if not error_string:
 	print(oc.OKGREEN, oc.BOLD, "Total fences synthesized:  \t", fences_added, oc.ENDC)
 	print(oc.OKGREEN, oc.BOLD, "Total fences strengthened: \t", fences_modified, oc.ENDC)
 
-print("Time- CDS Checker:\t",round(mc_total, 2))
-print("Time- Cycle computation:",round(pre_calc_total, 2))
+print("Time- CEG:\t\t",round(mc_total+pre_calc_total, 2)) # CDS time + relations cpmputation time
 if z3_total > 0:
 	print("Time- Z3:\t\t",round(z3_total, 2))
 print("\nTime- Total:\t\t",round(end-start, 2))
@@ -137,5 +137,6 @@ if no_traces:
 	print("\nTotal iterations:\t",total_iter)
 	print("Time- avg per iter:\t",round((end-start)/total_iter, 2))
 
-fenced_filename = filename[:-3] + '_fenced.cc'
-print(oc.OKBLUE, oc.BOLD, "\n\nFixed program at:", fenced_filename, "\n", oc.ENDC)
+if z3_total > 0:
+	fenced_filename = filename[:-3] + fi.OUTPUT_FILE_APPEND_STRING
+	print(oc.OKBLUE, oc.BOLD, "\n\nFixed program at:", fenced_filename, "\n", oc.ENDC)

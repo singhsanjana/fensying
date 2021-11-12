@@ -23,9 +23,8 @@ class edges_computation:
 	
 	def get(self):
 		self.swdob_edges = list(set(self.swdob_edges))
-		self.fr_edges    = list(set(self.fr_edges))
 		self.so_edges    = list(set(self.so_edges))
-		return self.swdob_edges, self.fr_edges, self.so_edges
+		return self.swdob_edges, self.so_edges
 
 	def sw_fences(self, all_events_by_thread, fences_thread):
 		for wr2_index in range(len(self.reads)): # self.reads includes reads + the fence above and below the reads
@@ -117,7 +116,8 @@ class edges_computation:
 				read = self.reads[read_index]
 				if type(read) is list and read[RF] == w1[S_NO]:
 					# read --rf_inv--> w1 --mo--> w2 ==> read --fr--> w2
-					self.fr_edges.append((read[S_NO], w2[S_NO]))
+					if read[S_NO] != w2[S_NO]: # S_NO could be same in case of type(w2) = rmw
+						self.fr_edges.append((read[S_NO], w2[S_NO]))
 					if read[MO] == SEQ_CST and w2[MO] == SEQ_CST:
 						edge_EE = (read[S_NO], w2[S_NO])
 						self.so_edges.append(edge_EE)

@@ -23,7 +23,9 @@ static void t1(void *arg) {
 	turn.store(__LINE__, 2, memory_order_seq_cst);
 
 	for (int k = 0; k < LOOP; k++) {
-		if (not(flag2.load(__LINE__, memory_order_acquire) == 1 && turn.load(__LINE__, memory_order_relaxed) == 2)) {
+		int f2 = flag2.load(__LINE__, memory_order_acquire);
+		int t  = turn.load(__LINE__, memory_order_relaxed);
+		if (not(f2 == 1 && t == 2)) {
 			ok1 = 1;
 			break;
 		}
@@ -45,7 +47,9 @@ static void t2(void *arg) {
 	turn.store(__LINE__, 1, memory_order_seq_cst);
 
 	for (int k = 0; k < LOOP; k++) {
-		if (not(flag1.load(__LINE__, memory_order_acquire) == 1 && turn.load(__LINE__, memory_order_relaxed) == 1)) {
+		int f1 = flag1.load(__LINE__, memory_order_acquire);
+		int t  = turn.load(__LINE__, memory_order_relaxed);
+		if (not(f1 == 1 && t == 1)) {
 			ok1 = 1;
 			break;
 		}

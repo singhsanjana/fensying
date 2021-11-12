@@ -32,6 +32,10 @@ static void thread_2(void *arg) {
 }
 
 int user_main(int argc, char **argv) {
+	
+	atomic_init(&x, 0);
+	atomic_init(&y, 0);
+	atomic_init(&pid, 0);
 
     thrd_create(&t2, (thrd_start_t)&thread_2, NULL);
 	pid.store(__LINE__, 1, memory_order_relaxed);

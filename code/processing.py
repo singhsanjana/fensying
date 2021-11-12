@@ -49,7 +49,7 @@ class Processing:
 
 			pre_calc_start = time.time()
 			# [snj]: hb edges does not include sb, sb would be computed after inserting fences
-			hb_edges, mo_edges, rf_edges, rfinv_edges, self.so_edges, rs_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			hb_edges, mo_edges, rf_edges, rfinv_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
 			# hb_print = hb_edges
 			# hb_print.sort(key = lambda x:x[1])
 			# hb_print.sort(key = lambda x:x[0])
@@ -79,7 +79,7 @@ class Processing:
 
 			# CALC EDGES
 			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, self.so_edges)
-			swdob_edges, fr_edges, self.so_edges = calc_edges.get()
+			swdob_edges, self.so_edges = calc_edges.get()
 			hb_edges = hb_edges + swdob_edges
 			# print('done edge computation')
 			# print("swdob = ", swdob_edges)

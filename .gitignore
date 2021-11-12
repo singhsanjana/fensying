@@ -20,9 +20,10 @@ compute_fences
 *_store
 
 # testing files/folders
-*_fenced.cc
+*_fixed.cc
 *testing*
 code/benchmarks/test
+code/result
 
 # model checker files:
 # cds checker

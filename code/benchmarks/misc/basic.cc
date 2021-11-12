@@ -46,8 +46,10 @@ int user_main(int argc, char **argv) {
     thrd_join(id1);
     thrd_join(id2);
 
-    MODEL_ASSERT (a.load(__LINE__, memory_order_relaxed) != 0 ||
-					b.load(__LINE__, memory_order_relaxed) != 0);
+	int r1 = a.load(__LINE__, memory_order_relaxed);
+	int r2 = b.load(__LINE__, memory_order_relaxed);
+
+    MODEL_ASSERT (r1 != 0 || r2 != 0);
 
 	return 0;
 }

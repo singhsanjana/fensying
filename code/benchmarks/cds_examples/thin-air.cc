@@ -12,16 +12,17 @@ using namespace std;
 
 atomic<int> x;
 atomic<int> y;
+int a,b;
 
-static void a(void *obj) {
-	x.load(__LINE__, memory_order_relaxed);
+static void fn1(void *obj) {
+	a=x.load(__LINE__, memory_order_relaxed);
 	for (int i = 0; i < LOOP; i++) {
 		y.store(__LINE__, 1, memory_order_relaxed);
 	}
 }
 
-static void b(void *obj) {
-	y.load(__LINE__, memory_order_relaxed);
+static void fn2(void *obj) {
+	b=y.load(__LINE__, memory_order_relaxed);
 	for (int i = 0; i < LOOP; i++) {
 		x.store(__LINE__, 1, memory_order_relaxed);
 	}
@@ -32,14 +33,15 @@ int user_main(int argc, char **argv) {
 
 	atomic_init(&x, 0);
 	atomic_init(&y, 0);
+	a = b = 0;
 
-	thrd_create(&t1, (thrd_start_t)&a, NULL);
-	thrd_create(&t2, (thrd_start_t)&b, NULL);
+	thrd_create(&t1, (thrd_start_t)&fn1, NULL);
+	thrd_create(&t2, (thrd_start_t)&fn2, NULL);
 
 	thrd_join(t1);
 	thrd_join(t2);
 
-	MODEL_ASSERT(!(x.load(__LINE__, memory_order_relaxed) == 1 && y.load(__LINE__, memory_order_relaxed) == 1));
+	MODEL_ASSERT(!(a == 1 && b == 1));
 
 	return 0;
 }

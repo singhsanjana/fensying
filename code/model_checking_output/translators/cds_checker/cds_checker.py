@@ -43,7 +43,7 @@ class translate_cds:
 		os.system(make)													# make/compile into object file for CDS Checker
 
 		signal.signal(signal.SIGALRM, time_handler)
-		signal.alarm(300)												# set timer for 7 minutes for CDSChecker
+		signal.alarm(1800)												# set timer for 30 minutes for CDSChecker
 		try:
 			p = subprocess.check_output(cds_cmd,
 										cwd = fi.CDS_FOLDER_PATH,
@@ -54,16 +54,16 @@ class translate_cds:
 			self.cds_time = cds_end-cds_start
 			self.obtain_traces(p)
 		except RuntimeError:
-			self.error_string = "\nModel Checking time exceeded 5 minutes."
+			self.error_string = "\nModel Checking time exceeded 30 minutes."
 		except:
 			self.error_string = "\nError while model checking.\nPlease check and resolve the error."
 		else:
-			signal.alarm(900)											# set timer for 15 minutes for the rest of the tool
+			signal.alarm(1800)											# set timer for 30 minutes for the rest of the tool
 			self.no_buggy_execs = int(self.no_buggy_execs)
 			# print("\n\nBuggy executions:\t",self.no_buggy_execs)
 
 			if self.no_buggy_execs != 0:
-				self.create_structure(filename)
+				self.create_structure()
 				# self.print_traces()
 		finally:
 			delete_copied_file(filename)
@@ -80,6 +80,7 @@ class translate_cds:
 
 	# to differentiate and obtain each trace from the std output in the terminal
 	def obtain_traces(self,p):
+		print(p)
 		f=0                                                         	# flag for finding execution trace
 		for line in p.split('\n'):
 			tmp_index = line.find('Execution trace ')					# find execution number for buggy traces
@@ -107,7 +108,7 @@ class translate_cds:
 				self.no_buggy_execs = line[28:len(line)]
 			
 	# to convert each trace into a structure
-	def create_structure(self,filename):
+	def create_structure(self):
 
 		# map the variable names from the source code to the memory address used by the variable as shown in the traces
 		for trace in self.traces_raw:
