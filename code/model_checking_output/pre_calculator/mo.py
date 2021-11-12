@@ -29,7 +29,11 @@ class mo:
 				index = line.find('->')
 				if index != -1 and 'N0' not in line:
 					x = int(line[1:index-1])
-					y = int(line[index+4:-2])
+					isDotted = line.find('dotted') != -1
+					if isDotted:
+						y = int(line[index+4 : (line.find('[')-1)])
+					else:
+						y = int(line[index+4:-2])
 					mo_found.append((x, y))
 
 					if (self.get_mem_order(x) == SEQ_CST and self.get_mem_order(y)):
