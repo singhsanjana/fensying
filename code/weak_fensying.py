@@ -19,11 +19,17 @@ class weak_fensying:
 		print('hb_paths', self.hb_paths)
 
 		self.weak_cycles += self.hb_cycles()
+		print(self.weak_cycles)
 		self.weak_cycles += self.rf_hb_cycles()
+		print(self.weak_cycles)
 		self.weak_cycles += self.mo_rf_hb_cycles()
+		print(self.weak_cycles)
 		self.weak_cycles += self.mo_hb_cycles()
+		print(self.weak_cycles)
 		self.weak_cycles += self.mo_hb_rfinv_cycles()
+		print(self.weak_cycles)
 		self.weak_cycles += self.mo_rf_hb_rfinv_cycles()
+		print(self.weak_cycles)
 
 	def all_hb_paths(self):
 		for (e1,e1_) in self.hb_edges:
@@ -130,12 +136,19 @@ class weak_fensying:
 			# exists mo.rf.hb path from e1
 
 			for (e3,e4) in self.rfinv_edges:
-				if not e3 in self.rf_hb_paths[e2] or not e4 == e1:
+				if not e4 == e1 or not e3 in self.rf_hb_paths[e2]:
 					continue
 
 				# exists mo.rf.hb.rfinv path from e1 to e1 (via e2,e3 ie. e1 --mo--> e2 --rf.hb--> e3 --rfinv--> e1)
 				e1_cycles = [ ([e1] + p) for p in self.rf_hb_paths[e2][e3] ]
 				cycles += e1_cycles
+
+		return cycles
+
+	def has_weak_cycles(self):
+		if len(self.weak_cycles) > 0:
+			return True
+		return False
 	
 	def get(self):
 		return self.weak_cycles
