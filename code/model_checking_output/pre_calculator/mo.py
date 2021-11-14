@@ -12,7 +12,7 @@ class mo:
 		# print("mo edges=",self.mo_edges)
 		# self.get_rs_from_mo()
 		self.get_transitive_mo(immediate_mo_edges)
-		print('mo', self.mo_edges)
+		# print('mo', self.mo_edges)
 
 
 	def get(self):
@@ -46,11 +46,11 @@ class mo:
 
 	def get_transitive_mo(self, immediate_mo_edges):
 		# create a graph over mo_edges
-		print('immediate mo:', immediate_mo_edges)
+		# print('immediate mo:', immediate_mo_edges)
 		G=nx.DiGraph(immediate_mo_edges)
 		# compute all paths over mo_edges. the format is {from: {to: 1/0, ...}, ...}
 		paths = nx.all_pairs_node_connectivity(G)
-		print('paths',paths)
+		# print('paths',paths)
 		for fr,to_list in paths.items():
 			for to, has_path in to_list.items():
 				if has_path != 0:

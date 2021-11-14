@@ -86,11 +86,11 @@ class Processing:
 			hb_edges = hb_edges + swdob_edges
 			# print('done edge computation')
 			# print("swdob = ", swdob_edges)
-			print("hb = ", hb_edges)
-			print("mo = ", mo_edges)
-			print("rf = ", rf_edges)
+			# print("hb = ", hb_edges)
+			# print("mo = ", mo_edges)
+			# print("rf = ", rf_edges)
 			# print("fr = ", fr_edges)
-			print("rfinv = ", rfinv_edges)
+			# print("rfinv = ", rfinv_edges)
 			# print("so = ", so_edges)
 			
 			# WEAK FENSYING

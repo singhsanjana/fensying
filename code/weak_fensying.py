@@ -16,31 +16,38 @@ class weak_fensying:
 		self.weak_cycles = []
 
 		self.all_hb_paths()
-		print('hb_paths', self.hb_paths)
+		# print('hb_paths', self.hb_paths)
 
 		self.weak_cycles += self.hb_cycles()
-		print(self.weak_cycles)
+		# print(self.weak_cycles)
 		self.weak_cycles += self.rf_hb_cycles()
-		print(self.weak_cycles)
+		# print(self.weak_cycles)
 		self.weak_cycles += self.mo_rf_hb_cycles()
-		print(self.weak_cycles)
+		# print(self.weak_cycles)
 		self.weak_cycles += self.mo_hb_cycles()
-		print(self.weak_cycles)
+		# print(self.weak_cycles)
 		self.weak_cycles += self.mo_hb_rfinv_cycles()
-		print(self.weak_cycles)
+		# print(self.weak_cycles)
 		self.weak_cycles += self.mo_rf_hb_rfinv_cycles()
-		print(self.weak_cycles)
+		# print(self.weak_cycles)
 
 	def all_hb_paths(self):
+		target_nodes = [e for (e_,e) in self.hb_edges]
+		
 		for (e1,e1_) in self.hb_edges:
+			# target_nodes.remove(e1)
+			paths = all_path(self.hb_edges, e1, target_nodes)
+
 			self.hb_paths[e1] = {}
-			for (e2_,e2) in self.hb_edges:
+			for path in paths:
+				e2 = path[-1]
 				if e1 == e2:
 					continue
-				
-				paths = all_path(self.hb_edges, e1, e2)
-				if len(paths) > 0: # has an hb path from e1 to e2
-					self.hb_paths[e1][e2] = paths
+
+				if not e2 in self.hb_paths[e1]: # first path from e1 to e2
+					self.hb_paths[e1][e2] = []
+
+				self.hb_paths[e1][e2].append(path)
 
 	def hb_cycles(self):
 		cycles = []
