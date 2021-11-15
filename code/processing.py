@@ -89,8 +89,8 @@ class Processing:
 			# print("hb = ", hb_edges)
 			# print("mo = ", mo_edges)
 			# print("rf = ", rf_edges)
-			# print("fr = ", fr_edges)
 			# print("rfinv = ", rfinv_edges)
+			# print("fr = ", fr_edges)
 			# print("so = ", so_edges)
 			
 			# WEAK FENSYING
