@@ -16,21 +16,14 @@ class weak_fensying:
 		self.weak_cycles = []
 
 		self.all_hb_paths()
-		# print('hb_paths', self.hb_paths)
-
+		
 		self.weak_cycles.extend(self.hb_cycles())
-		# print(self.weak_cycles)
 		self.weak_cycles.extend(self.rf_hb_cycles())
-		# print(self.weak_cycles)
 		self.weak_cycles.extend(self.mo_rf_hb_cycles())
-		# print(self.weak_cycles)
 		self.weak_cycles.extend(self.mo_hb_cycles())
-		# print(self.weak_cycles)
 		self.weak_cycles.extend(self.mo_hb_rfinv_cycles())
-		# print(self.weak_cycles)
 		self.weak_cycles.extend(self.mo_rf_hb_rfinv_cycles())
-		# print(self.weak_cycles)
-
+	
 	def all_hb_paths(self):
 		source_nodes = set([e for (e,e_) in self.hb_edges])
 		target_nodes = set([e for (e_,e) in self.hb_edges])
