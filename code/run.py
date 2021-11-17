@@ -178,8 +178,8 @@ for dir_name in directories:
             continue
         if '_fixed' in filename:
             continue
-        if filename in rmw_tests[dir_name]:
-            continue
+#        if filename in rmw_tests[dir_name]:
+#            continue
 
         print ('Running ', filename)
 

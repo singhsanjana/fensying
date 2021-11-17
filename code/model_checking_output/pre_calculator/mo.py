@@ -12,7 +12,7 @@ class mo:
 		# print("mo edges=",self.mo_edges)
 		# self.get_rs_from_mo()
 		self.get_transitive_mo(immediate_mo_edges)
-		print('mo', self.mo_edges)
+		# print('mo', self.mo_edges)
 
 
 	def get(self):
@@ -27,16 +27,18 @@ class mo:
 			for line in lines:
 				index = line.find('->')
 				if index != -1 and 'N0' not in line:
-					x = int(line[1:index-1])
-					isDotted = line.find('dotted') != -1
-					if isDotted:
-						y = int(line[index+4 : (line.find('[')-1)])
-					else:
-						y = int(line[index+4:-2])
-					mo_found.append((x, y))
+ 					if line[0] == 'P' or line[index+3] == 'P': # node starts with P then skip (represents promise node, part pf cds logic)
+ 						continue
+ 					x = int(line[1:index-1])
+ 					isDotted = line.find('dotted') != -1
+ 					if isDotted:
+ 						y = int(line[index+4 : (line.find('[')-1)])
+ 					else:
+ 						y = int(line[index+4:-2])
+ 					mo_found.append((x, y))
 
-					if (self.get_mem_order(x) == SEQ_CST and self.get_mem_order(y)):
-						self.so_edges.append((x, y))
+ 					if (self.get_mem_order(x) == SEQ_CST and self.get_mem_order(y)):
+ 						self.so_edges.append((x, y))
 		return mo_found
 
 	def get_mem_order(self, s_no):
@@ -46,11 +48,11 @@ class mo:
 
 	def get_transitive_mo(self, immediate_mo_edges):
 		# create a graph over mo_edges
-		print('immediate mo:', immediate_mo_edges)
+		# print('immediate mo:', immediate_mo_edges)
 		G=nx.DiGraph(immediate_mo_edges)
 		# compute all paths over mo_edges. the format is {from: {to: 1/0, ...}, ...}
 		paths = nx.all_pairs_node_connectivity(G)
-		print('paths',paths)
+		# print('paths',paths)
 		for fr,to_list in paths.items():
 			for to, has_path in to_list.items():
 				if has_path != 0:

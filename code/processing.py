@@ -49,7 +49,7 @@ class Processing:
 
 			pre_calc_start = time.time()
 			# [snj]: hb edges does not include sb, sb would be computed after inserting fences
-			hb_edges, mo_edges, rf_edges, rfinv_edges, self.so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
+			hb_edges, mo_edges, rf_edges, rfinv_edges, so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
 			# hb_print = hb_edges
 			# hb_print.sort(key = lambda x:x[1])
 			# hb_print.sort(key = lambda x:x[0])
@@ -57,6 +57,7 @@ class Processing:
 			# print ('rf:', rf_edges)
 			# print ('rfinv:', rfinv_edges)
 			# print ('mo:', mo_edges)
+			# print ('so:', so_edges)
 
 			pre_calc_end = time.time()
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
@@ -68,9 +69,11 @@ class Processing:
 			# print("all_events_thread", self.all_events_by_thread)
 
 			# transitive SB calc, put into hb edges
-			hb_edges += self.sb()
+			sb_ret1, sb_ret2 = self.sb()
+			hb_edges += sb_ret1
+			so_edges += sb_ret2
 			# print("hb-post-fences=" + str(hb_edges))
-			# print("so-of-sb-post-fences=" + str(self.so_edges))
+			# print("so-of-sb-post-fences=" + str(so_edges))
 
 			# pre-process and obtain separately reads, writes with neighbouring fences
 			reads, writes = preprocessing(order)
@@ -78,33 +81,36 @@ class Processing:
 			# print ('writes:', writes)
 
 			# CALC EDGES
-			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, self.so_edges)
-			swdob_edges, self.so_edges = calc_edges.get()
+			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, so_edges)
+			swdob_edges, so_edges = calc_edges.get()
 			hb_edges = hb_edges + swdob_edges
 			# print('done edge computation')
 			# print("swdob = ", swdob_edges)
 			# print("hb = ", hb_edges)
 			# print("mo = ", mo_edges)
 			# print("rf = ", rf_edges)
-			# print("fr = ", fr_edges)
 			# print("rfinv = ", rfinv_edges)
-			# print("so = ", self.so_edges)
+			# print("fr = ", fr_edges)
+			# print("so = ", so_edges)
 			
+			# STRONG FENSYING
+			strong_cycles = Cycles(so_edges)
+			candidate_cycles = strong_cycles
+
+			if len(strong_cycles) == 0: # no cycles in sc ordered events
+				# if a behavior cannot be stopped by strong fences then 
+				# it cannot be stopped by wek fences either
+				self.error_string = '\nABORT: buggy trace #' + str(trace_no) + ' cannot be stopped by C11 fences\n'
+				return
+
 			# WEAK FENSYING
 			wf = weak_fensying(hb_edges, mo_edges, rf_edges, rfinv_edges)
-			# print('done weak fensying')
 			if wf.has_weak_cycles():
-				candidate_cycles = wf.get()
+				candidate_cycles += wf.get() # add to strong cycles
 				candidate_cycles_tags = compute_relaxed_tags(candidate_cycles, swdob_edges)
-			# print ('done weak fence tagging')
 				
-			# STRONG FENSYING
-			strong_cycles = Cycles(self.so_edges)
-			candidate_cycles += strong_cycles
-			# print('done strong fensying')
 			candidate_cycles_tags += compute_strong_tags(strong_cycles)
-			# print ('done strong fence tagging')
-
+			
 			# print('candidate cycles=', candidate_cycles)
 			if (len(candidate_cycles) > 0):
 				self.cycles_tags_by_trace.append(candidate_cycles_tags)
@@ -146,7 +152,7 @@ class Processing:
 				fences_in_thread.append(fence_name) 
 				continue
 
-			if trace[i][LINE_NO] != 'NA': # is a read or a write event
+			if trace[i][LINE_NO] != 'NA': # is a read or a write or an rmw event
 				order.append('F_before_' + str(trace[i][LINE_NO]))
 				events_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
 				fences_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
@@ -176,6 +182,7 @@ class Processing:
 	# computes non-transitive so between events of a thread
 	def sb(self):
 		sb_edges = []
+		so_edges = []
 		for thread_events in self.all_events_by_thread: # events of one thread at a time
 			last_sc_event = [] 
 
@@ -194,7 +201,7 @@ class Processing:
 				# if seq_cst ordered add so edge
 				if is_sc:
 					if last_sc_event != []: # some sc event has been found before this event
-						self.so_edges.append((last_sc_event, event))
+						so_edges.append((last_sc_event, event))
 					last_sc_event = event
 
 				# add sb edge with each event that occurs before in thread
@@ -204,7 +211,7 @@ class Processing:
 					else:
 						sb_edges.append((thread_events[j][S_NO], event))
 
-		return sb_edges
+		return sb_edges, so_edges
 
 	def get(self):
 		return self.z3vars, self.formula, self.error_string, self.pre_calc_total, self.cycles_tags_by_trace

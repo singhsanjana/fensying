@@ -80,7 +80,6 @@ class translate_cds:
 
 	# to differentiate and obtain each trace from the std output in the terminal
 	def obtain_traces(self,p):
-		print(p)
 		f=0                                                         	# flag for finding execution trace
 		for line in p.split('\n'):
 			tmp_index = line.find('Execution trace ')					# find execution number for buggy traces
