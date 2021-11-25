@@ -28,25 +28,8 @@ class weak_fensying:
 		source_nodes = set([e for (e,e_) in self.hb_edges])
 		target_nodes = set([e for (e_,e) in self.hb_edges])
 		
-		for e1 in source_nodes:
-			is_target = False
-			if e1 in target_nodes:
-				is_target = True
-				target_nodes.remove(e1) # note: all_paths fails if e1 is in the list of target nodes
-
-			paths = all_path(self.hb_edges, e1, target_nodes)
-			
-			if is_target:
-				target_nodes.add(e1) # add e1 back for next iteration
-
-			self.hb_paths[e1] = {}
-			for path in paths:
-				e2 = path[-1] # target event
-				if not e2 in self.hb_paths[e1]: # first path from e1 to e2
-					self.hb_paths[e1][e2] = []
-
-				self.hb_paths[e1][e2].append(path)
-
+		self.hb_paths = all_path(self.hb_edges, source_nodes, target_nodes)
+	
 	def hb_cycles(self):
 		cycles = []
 
