@@ -1,5 +1,5 @@
-from all_paths import all_path
-import time
+from all_paths import compute_paths
+from cycle import compute_cycles, make_graph
 
 class weak_fensying:
 	def __init__(self, hb_edges, mo_edges, rf_edges, rfinv_edges):
@@ -8,129 +8,140 @@ class weak_fensying:
 		self.mo_edges    = mo_edges
 		self.rf_edges    = rf_edges
 		self.rfinv_edges = rfinv_edges
-		
-		self.hb_paths    = {}
-		self.rf_hb_paths = {}
-		self.mo_hb_paths = {}
 
+		self.hb_graph = make_graph(self.hb_edges)
+		
+		self.has_hb_path = {}
+		self.hb_paths    = {}
+		
 		self.weak_cycles = []
 
-		self.all_hb_paths()
-		
 		self.weak_cycles.extend(self.hb_cycles())
 		self.weak_cycles.extend(self.rf_hb_cycles())
 		self.weak_cycles.extend(self.mo_rf_hb_cycles())
 		self.weak_cycles.extend(self.mo_hb_cycles())
 		self.weak_cycles.extend(self.mo_hb_rfinv_cycles())
 		self.weak_cycles.extend(self.mo_rf_hb_rfinv_cycles())
-	
-	def all_hb_paths(self):
-		source_nodes = set([e for (e,e_) in self.hb_edges])
-		target_nodes = set([e for (e_,e) in self.hb_edges])
-		
-		self.hb_paths = all_path(self.hb_edges, source_nodes, target_nodes)
+
+	def seen(self, e1, e2):
+		if not e1 in self.has_hb_path:
+			return False
+		if not e2 in self.has_hb_path[e1]:
+			return False
+		return True
+
+	def record(self, e1, e2, paths):
+		if not e1 in self.has_hb_path: # record true if has paths ie (len(paths) > 0)
+			self.has_hb_path[e1] = { e2 : (len(paths) > 0) }
+		else:
+			self.has_hb_path[e1][e2] = (len(paths) > 0)
+
+		if not self.has_hb_path[e1][e2]:
+			return 
+
+		if not e1 in self.hb_paths:
+			self.hb_paths[e1] = { e2 : paths }
+		else:
+			self.hb_paths[e1][e2] = paths
+
+	def has_path(self, e1, e2):
+		return self.has_hb_path[e1][e2]
+
+	def get_hb_path(self, e1, e2):
+		if self.seen(e1, e2):
+			if self.has_hb_path[e1][e2]: # paths from e1 to e2 previously computed
+				return self.hb_paths[e1][e2]
+			else:
+				return []
+
+		paths = compute_paths(self.hb_graph, e1, e2) # paths from e1 to e2 to be computed
+		self.record(e1, e2, paths)
+		return paths
 	
 	def hb_cycles(self):
-		cycles = []
-
-		for e1 in self.hb_paths:              # for paths from e1
-			for e2 in self.hb_paths[e1]:      # exists path from e1 to e2
-				if not e2 in self.hb_paths:   # no paths from e2
-					continue
-				
-				if e1 in self.hb_paths[e2]:   # exists path from e2 to e1
-					for path_e1_e2 in self.hb_paths[e1][e2]:
-						for path_e2_e1 in self.hb_paths[e2][e1]:
-							# join path from e1 to e2 with path from e2 to e1, remove 1 copy of repeating e1 and e2
-							cycle = path_e1_e2[:-1] + path_e2_e1[:-1]
-							cycles.append(cycle)
-		
-		return cycles
+		return compute_cycles(self.hb_graph)
 
 	def rf_hb_cycles(self):
 		cycles = []
+		hb_source_nodes = set([e for (e,e_) in self.hb_edges])
 
 		for (e1,e2) in self.rf_edges:
-			if not e2 in self.hb_paths:
+			if not e2 in hb_source_nodes: # no hb path from e2
 				continue
 
-			# exist hb path(s) from e2 ==> exist rf.hb path(s) from e1
-			self.rf_hb_paths[e1] = {}
-
-			for e3 in self.hb_paths[e2]:
-				# exists rf.hb path from e1 to e3 (via e2 ie. e1 --rf--> e2 --hb--> e3) 
-				e1_paths = [ ([e1] + p) for p in self.hb_paths[e2][e3] ]
-				self.rf_hb_paths[e1][e3] = e1_paths
-
-				if e3 == e1: # exists rf.hb path from e1 to e1 (via e2 ie. e1 --rf--> e2 --hb--> e1)
-					cycles.extend(self.hb_paths[e2][e1])
+			paths = self.get_hb_path(e2, e1)
+			if len(paths) > 0: # found e1 --rf--> e2 --hb--> e1
+				cycles.extend(self.hb_paths[e2][e1])
 
 		return cycles
 
 	def mo_rf_hb_cycles(self):
 		cycles = []
 
+		hb_source_nodes = set([e for (e,e_) in self.hb_edges])
+		rf_source_nodes = set([e for (e,e_) in self.rf_edges])
+
 		for (e1,e2) in self.mo_edges:
-			if not e2 in self.rf_hb_paths: # no rf.hb path from e2 ==> no mo.rf.hb path from e1 via e2
+			if not e2 in rf_source_nodes: # no rf.hb path from e2 ==> no mo.rf.hb path from e1 via e2
 				continue
 
-			if e1 in self.rf_hb_paths[e2]:
-				# exists mo.rf.hb path from e1 to e1 (via e2 ie. e1 --mo--> e2 --rf.hb--> e1)
-				cycles.extend(self.rf_hb_paths[e2][e1])
+			for e3 in [ e_ for (e,e_) in self.rf_edges if e==e2 ]:
+				if e3 not in hb_source_nodes: # no hb path from e3 ==> no mo.rf.hb path from e1.e2 via e3
+					continue
+
+				paths = self.get_hb_path(e3, e1)
+				if len(paths) > 0: # found e1 --mo--> e2 --rf--> e3 --hb--> e1
+					paths = [ ([e2]+path) for path in paths ] # add e2 to paths from e3 to e1
+					cycles.extend(paths)
 
 		return cycles
 
 	def mo_hb_cycles(self):
 		cycles = []
+		hb_source_nodes = set([e for (e,e_) in self.hb_edges])
 
 		for (e1,e2) in self.mo_edges:
-			if not e2 in self.hb_paths:
+			if not e2 in hb_source_nodes: # no hb path from e2
 				continue
 
-			# exist hb path(s) from e2 ==> exist mo.hb path(s) from e1
-			self.mo_hb_paths[e1] = {}
+			paths = self.get_hb_path(e2, e1)
+			if len(paths) > 0: # found e1 --mo--> e2 --hb--> e1
+				cycles.extend(self.hb_paths[e2][e1])
 
-			for e3 in self.hb_paths[e2]:
-				# exists mo.hb path from e1 to e3 (via e2 ie. e1 --mo--> e2 --hb--> e3) 
-				e1_paths = [ ([e1] + p) for p in self.hb_paths[e2][e3] ]
-				self.mo_hb_paths[e1][e3] = e1_paths
-
-				if e3 == e1: # exists mo.hb path from e1 to e1 (via e2 ie. e1 --mo--> e2 --hb--> e1)
-					cycles.extend(self.hb_paths[e2][e3])
-					
 		return cycles
 
 	def mo_hb_rfinv_cycles(self):
 		cycles = []
+		hb_source_nodes = set([e for (e,e_) in self.hb_edges])
 
-		for (e1,e2) in self.rfinv_edges:
-			if not e2 in self.mo_hb_paths: # no mo.hb path from e2 ==> no mo.hb.rfinv cycle ends on e2
-				continue
+		for (e1,e2) in self.mo_edges:
+			if not e2 in hb_source_nodes: # no hb path from e2
+					continue
 
-			if not e1 in self.mo_hb_paths[e2]: # no mo.hb path from e2 to e1 ==> no mo.hb.rfinv cycle on e2 via e1
-				continue
-
-			# exists mo.hb.rfinv path from e2 to e2 (via e1 ie. e2 --mo.hb--> e1 --rfinv--> e2)
-			cycles.extend(self.mo_hb_paths[e2][e1])
+			for e3 in [e for (e,e_) in self.rfinv_edges if e_==e1]:
+				paths = self.get_hb_path(e2, e3)
+				if len(paths) > 0: # found e1 --mo--> e2 --hb--> e3 --rfinv--> e1
+					paths = [ ([e1]+path) for path in paths ] # add e1 to paths from e2 to e3
+					cycles.extend(paths)
 
 		return cycles
 
 	def mo_rf_hb_rfinv_cycles(self):
 		cycles = []
+		cycles = []
 
+		hb_source_nodes = set([e for (e,e_) in self.hb_edges])
+		
 		for (e1,e2) in self.mo_edges:
-			if not e2 in self.rf_hb_paths: # no rf.hb path from e2 ==> no mo.rf.hb path from e1 via e2
-				continue
+			for e3 in [e_ for (e,e_) in self.rf_edges if e==e2]:
+				if not e3 in hb_source_nodes: # no hb path from e3
+						continue
 
-			# exists mo.rf.hb path from e1
-
-			for (e3,e4) in self.rfinv_edges:
-				if not e4 == e1 or not e3 in self.rf_hb_paths[e2]:
-					continue
-
-				# exists mo.rf.hb.rfinv path from e1 to e1 (via e2,e3 ie. e1 --mo--> e2 --rf.hb--> e3 --rfinv--> e1)
-				e1_cycles = [ ([e1] + p) for p in self.rf_hb_paths[e2][e3] ]
-				cycles.extend(e1_cycles)
+				for e4 in [e for (e,e_) in self.rfinv_edges if e_==e1]: # cycle only when rfinv edge ends in e1
+					paths = self.get_hb_path(e3, e4)
+					if len(paths) > 0: # found e1 --mo--> e2 --rf--> e3 --hb--> e4 --rfinv--> e1
+						paths = [ ([e1, e2]+path) for path in paths ] # add e1.e2 to paths from e3 to e4
+						cycles.extend(paths)
 
 		return cycles
 
