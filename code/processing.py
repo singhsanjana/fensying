@@ -1,15 +1,3 @@
-# --------------------------------------------------------
-# Processes the std:out data from the command line output
-# and curates lists of:
-#   1. Order of events including pseudo fences
-#   2. Happens-before relationships (HB)
-#   3. Modification Order relationships (MO)
-#   4. Sequenced-before relationships (SB)
-#   5. Total order relationships (TO)
-#
-# Then proceeds on to find out cycles from the TO graph.
-# --------------------------------------------------------
-
 from model_checking_output.pre_calculator.pre_calculations import pre_calculations
 from preprocessing import preprocessing
 from edges_computation import edges_computation
@@ -93,24 +81,21 @@ class Processing:
 			# print("fr = ", fr_edges)
 			# print("so = ", so_edges)
 			
-			# STRONG FENSYING
-			strong_cycles = Cycles(so_edges)
-			candidate_cycles = strong_cycles
-
-			if len(strong_cycles) == 0: # no cycles in sc ordered events
-				# if a behavior cannot be stopped by strong fences then 
-				# it cannot be stopped by wek fences either
-				self.error_string = '\nABORT: buggy trace #' + str(trace_no) + ' cannot be stopped by C11 fences\n'
-				return
-
 			# WEAK FENSYING
 			wf = weak_fensying(hb_edges, mo_edges, rf_edges, rfinv_edges)
+			# print('done weak fensying')
 			if wf.has_weak_cycles():
-				candidate_cycles += wf.get() # add to strong cycles
+				candidate_cycles = wf.get()
 				candidate_cycles_tags = compute_relaxed_tags(candidate_cycles, swdob_edges)
+			# print ('done weak fence tagging')
 				
+			# STRONG FENSYING
+			strong_cycles = Cycles(so_edges)
+			candidate_cycles += strong_cycles
+			# print('done strong fensying')
 			candidate_cycles_tags += compute_strong_tags(strong_cycles)
-			
+			# print ('done strong fence tagging')
+
 			# print('candidate cycles=', candidate_cycles)
 			if (len(candidate_cycles) > 0):
 				self.cycles_tags_by_trace.append(candidate_cycles_tags)
