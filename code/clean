@@ -1,0 +1,5 @@
+find . -name \*_fixed.cc -type f -delete
+
+cd ../model-checker/cds-checker/
+find . -name exec\*.dot -type f -delete
+find . -name graph\*.dot -type f -delete
