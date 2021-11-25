@@ -94,7 +94,7 @@ class Processing:
 			candidate_cycles += strong_cycles
 			# print('done strong fensying')
 			candidate_cycles_tags += compute_strong_tags(strong_cycles)
-			# print ('done strong fence tagging')
+			# print('done strong fence tagging')
 
 			# print('candidate cycles=', candidate_cycles)
 			if (len(candidate_cycles) > 0):
