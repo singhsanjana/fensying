@@ -38,6 +38,9 @@ def reduce(cycles_list):
 				continue
 
 			if cycles_list[i].keys() == cycles_list[j].keys(): # both cycle have same fences
+				if cycles_list[i] == cycles_list[j]:
+					reduced_list.remove(j)
+					continue
 				if cycle_score(cycles_list[i]) < cycle_score(cycles_list[j]):
 					reduced_list.remove(j)
 					continue
