@@ -100,6 +100,8 @@ def run_file(dir_name, filename, t=0):
             continue
 
         if 'Time-Z3' in line:
+            if aborted:
+                total_attributes = 4
             time_z3 = val
             attributes_collected+=1
             continue
