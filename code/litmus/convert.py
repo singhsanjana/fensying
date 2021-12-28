@@ -14,6 +14,20 @@ def convert_store(line):
 
     return line[:l+1] + '__LINE__, ' + line[l+1:]
 
+def convert_fetch_add(line):
+    l = line.find('atomic_fetch_add_explicit') + len('atomic_fetch_add_explicit')
+    while line[l] != '(':
+        l += 1
+
+    return line[:l+1] + '__LINE__, ' + line[l+1:]
+
+def convert_fetch_sub(line):
+    l = line.find('atomic_fetch_sub_explicit') + len('atomic_fetch_sub_explicit')
+    while line[l] != '(':
+        l += 1
+
+    return line[:l+1] + '__LINE__, ' + line[l+1:]
+
 def convert_main(line):
     start = line.find('main')
     end   = start + len('main')
@@ -122,20 +136,27 @@ def convert_assert(line):
     end   = start + len('assert')
     return (line[:start] + 'MODEL_ASSERT' + line[end:])
 
-base_dir = '' # TODO: DIR WITH ORIGINAL TESTS (don't add / at the end)
-mod_dir  = '' # TODO: DIR WHERE MODIFIED TESTS WITLL BE STORED (don't add / at the end)
+base_dir = './tracer_litmus' # TODO: DIR WITH ORIGINAL TESTS (don't add / at the end)
+mod_dir  = './tracer_litmus_mod' # TODO: DIR WHERE MODIFIED TESTS WITLL BE STORED (don't add / at the end)
 files = [f for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f))]
 
+print('files:', files)
 filecount = 0
 fileModcount = 0
 
 for filename in files:
-    if not (filename[-2:] == '.c' or filename[-3:] == '.cc'):
+    if not (filename[-2:] == '.c' or filename[-3:] == '.cc' or filename[-4:] == '.cpp'):
         continue
     
     if filename[-2:] == ".c":
         os.system('mv ' + filename + ' ' + filename[:-1] + 'cc')
         filename = filename[:-1] + 'cc'
+        filecount += 1
+    
+    if filename[-4:] == '.cpp':
+        cmd = 'mv ' + base_dir + '/' + filename + ' ' + base_dir + '/' + filename[:-3] + 'cc'
+        os.system(cmd)
+        filename = filename[:-3] + 'cc'
         filecount += 1
 
     print('converting ' + filename)
@@ -156,18 +177,25 @@ for filename in files:
             line = convert_load(line)
         elif 'atomic_store_explicit' in line:
             line = convert_store(line)
+        elif 'atomic_fetch_add_explicit' in line:
+            line = convert_fetch_add(line)
+        elif 'atomic_fetch_sub_explicit' in line:
+            line = convert_fetch_sub(line)
         # elif 'atomic_int' in line:
         #     line = convert_declaration(line)
-        elif 'main(' in line_without_spaces:
-            line = convert_main(line)
+
+        # not required for Tracer benchmarks. 
+        # elif 'main(' in line_without_spaces:
+        #     line = convert_main(line)
         elif 'pthread_t' in line:
             line = convert_thread_declaration(line)
         elif 'pthread_create' in line:
             line = convert_thread_create(line)
         elif 'pthread_join' in line:
             line = convert_thread_join(line)
-        elif 'assert' in line:
-            line = convert_assert(line) # NOTE THIS NEGATES ASSERT CONDITIONS TOO
+        # not required for Tracer benchmarks.
+        # elif 'assert' in line:
+        #     line = convert_assert(line) # NOTE THIS NEGATES ASSERT CONDITIONS TOO
 
         newlines += line
 
