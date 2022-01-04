@@ -58,7 +58,7 @@ class translate_cds:
 		except:
 			self.error_string = "\nError while model checking.\nPlease check and resolve the error."
 		else:
-			signal.alarm(1800)											# set timer for 30 minutes for the rest of the tool
+			signal.alarm(900)											# set timer for 15 minutes for the rest of the tool
 			self.no_buggy_execs = int(self.no_buggy_execs)
 			# print("\n\nBuggy executions:\t",self.no_buggy_execs)
 
