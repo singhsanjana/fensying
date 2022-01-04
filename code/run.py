@@ -1,12 +1,15 @@
-import os
 import subprocess
-import shlex
-import argparse
-import time
-import signal
+import os
+import sys
 
-from os import listdir
-from os.path import isfile, join
+sys.path.append('test_scripts')
+
+#### TO CHANGE #######
+from list_tracer_litmus1 import tracer_litmus as files
+output_filename = '/result_' + 'litmus_tracer1' + '.csv'
+dir_name = 'litmus/tracer_litmus_mod/'
+#####################
+
 
 def clean(str):
     str = str.replace('\n', '')
@@ -14,7 +17,8 @@ def clean(str):
     str = str.replace(' ' , '')
     return str
 
-def run_file(dir_name, filename, t=0):
+def run_file(filename, t=0):
+    global dir_name
     f = dir_name + "/" + filename
 
     process_command = ['python3', 'main.py', '-f', f]
@@ -22,140 +26,149 @@ def run_file(dir_name, filename, t=0):
         process_command.append('-t')
         process_command.append(str(t))
 
-    process = subprocess.Popen(process_command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
-    lines = process.stdout.readlines()
-    
-    aborted   = False
-    timed_out = False
-    result_generated = False
-    time_out_msg = ''
+    _synthesized   = ''
+    _strengthened  = ''
+    _time_ceg      = ''
+    _time_z3       = ''
+    _time_fensying = ''
+    _time_total    = ''
 
-    for i in range(len(lines)):
-        if 'ABORT' in lines[i]:
-            aborted = True
+    _aborted = False
+    _result_generated = False
 
-        if 'Model Checking time exceeded' in lines[i]:
-            time_limit = lines[i][len('Model Checking time exceeded '):]
-            time_limit = time_limit.split('minutes')[0]
-            time_limit = time_limit.replace(' ', '')
+    for run_id in range(3): # take avg of 3 runs
+        process = subprocess.Popen(process_command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+        lines = process.stdout.readlines()
+        
+        aborted   = False
+        result_generated = False
+        
+        for i in range(len(lines)):
+            if 'ABORT' in lines[i]:
+                aborted = True
 
-            timed_out = True
-            time_out_msg = 'CDS TO (' + time_limit + ')'
+            if 'Model Checking time exceeded' in lines[i]:
+                time_limit = lines[i][len('Model Checking time exceeded '):]
+                time_limit = time_limit.split('minutes')[0]
+                time_limit = time_limit.replace(' ', '')
 
-        if 'Tool time exceeded' in lines[i]:
-            time_limit = lines[i][len('Tool time exceeded '):]
-            time_limit = time_limit.split('minutes')[0]
-            time_limit = time_limit.replace(' ', '')
+                csv_out = 'CDS TO (' + time_limit + ')' + ',,,,,,'
+                return (csv_out, 'TO')
 
-            timed_out = True
-            time_out_msg = 'Fensying TO (' + time_limit + ')'
+            if 'Tool time exceeded' in lines[i]:
+                time_limit = lines[i][len('Tool time exceeded '):]
+                time_limit = time_limit.split('minutes')[0]
+                time_limit = time_limit.replace(' ', '')
 
-        if 'RESULT SUMMARY' in lines[i]:
-            result_generated = True
-            break
+                csv_out = 'Fensying TO (' + time_limit + ')' + ',,,,,,'
+                return (csv_out, 'TO')
 
-    synthesized   = ''
-    strengthened  = ''
-    time_ceg      = ''
-    time_z3       = ''
-    time_fensying = ''
-    time_total    = ''
-    attributes_collected = 0
-    total_attributes     = 0
-    
-    if result_generated:
-        total_attributes = 6
-    
-    if aborted:
-        total_attributes = 3
-    
-    if timed_out:
-        total_attributes = 0
+            if 'RESULT SUMMARY' in lines[i]:
+                result_generated = True
+                break
 
-    if not (result_generated or aborted or timed_out):
-        csv_out = 'run not completed' + ',,,,,,'
-        output = ''
-        output = output.join(map(str, lines)) # list to string
-        return (csv_out, output)
+        synthesized   = ''
+        strengthened  = ''
+        time_ceg      = ''
+        time_z3       = ''
+        time_fensying = ''
+        time_total    = ''
+        attributes_collected = 0
+        total_attributes     = 0
+        
+        if result_generated:
+            total_attributes = 6
+        
+        if aborted:
+            total_attributes = 3
+        
+        if not (result_generated or aborted):
+            csv_out = 'run not completed' + ',,,,,,'
+            return (csv_out, 'FAIL')
 
-    for j in range(i,len(lines)):
-        line = clean(lines[j])
-        val = ''
-        if ':' in line:
-            val = line.split(':')[1]
+        for j in range(i,len(lines)):
+            line = clean(lines[j])
+            val = ''
+            if ':' in line:
+                val = line.split(':')[1]
 
-        if 'Totalfencessynthesized' in line:
-            synthesized = val[:-3]
-            attributes_collected+=1
-            continue
+            if 'Totalfencessynthesized' in line:
+                synthesized = val[:-3]
+                attributes_collected+=1
+                continue
 
-        if 'Totalfencesstrengthened' in line:
-            strengthened = val[:-3]
-            attributes_collected+=1
-            continue
+            if 'Totalfencesstrengthened' in line:
+                strengthened = val[:-3]
+                attributes_collected+=1
+                continue
 
-        if 'Time-CEG' in line:
-            time_ceg = val
-            attributes_collected+=1
-            continue
+            if 'Time-CEG' in line:
+                time_ceg = val
+                attributes_collected+=1
+                continue
 
-        if 'Time-Z3' in line:
-            if aborted:
-                total_attributes = 4
-            time_z3 = val
-            attributes_collected+=1
-            continue
+            if 'Time-Z3' in line:
+                if aborted:
+                    total_attributes = 4
+                time_z3 = val
+                attributes_collected+=1
+                continue
 
-        if 'Time-Fensying' in line:
-            time_fensying = val
-            attributes_collected+=1
-            continue
+            if 'Time-Fensying' in line:
+                time_fensying = val
+                attributes_collected+=1
+                continue
 
-        if 'Time-Total' in line:
-            time_total = val
-            attributes_collected+=1
-            continue
+            if 'Time-Total' in line:
+                time_total = val
+                attributes_collected+=1
+                continue
 
-    if timed_out:
-        csv_out = time_out_msg + ',,,,,,'
-    elif aborted:
-        csv_out = 'ABORT,,' + time_ceg + ',,' + time_fensying + ',' + time_total + ','
+        if run_id == 0:
+            if float(time_fensying) == 0.0:
+                csv_out = 'NO-BUGGY-TRACES' + ',,,,,,'
+                return (csv_out, 'NOBUG')
+
+            _synthesized = synthesized
+            _strengthened = strengthened
+            _time_ceg = time_ceg
+            _time_z3 = time_z3
+            _time_fensying = time_fensying
+            _time_total = time_total
+            _aborted = aborted
+            _result_generated = result_generated
+
+        if run_id > 0:
+            _time_ceg = str(float(time_ceg) + float(_time_ceg))
+            _time_fensying = str(float(time_fensying) + float(_time_fensying))
+            _time_total = str(float(time_total) + float(_time_total))
+
+            if (_synthesized != synthesized) or (_strengthened != strengthened) or (_aborted != aborted):
+                csv_out = 'result-mismatch-accross-runs' + ',,,,,,'
+                return (csv_out, 'NONDET')
+
+            if not aborted: # run completed
+                _time_z3 = str(float(_time_z3) + float(time_z3))
+
+
+    _time_ceg = str(float(_time_ceg) / 3)
+    _time_fensying = str(float(_time_fensying) / 3)
+    _time_total = str(float(_time_total) / 3)
+    if _aborted:
+        csv_out = 'ABORT,,' + _time_ceg + ',,' + _time_fensying + ',' + _time_total + ','
     else:
-        csv_out = synthesized + ',' + strengthened + ',' + time_ceg + ',' + time_z3 + ',' + time_fensying + ',' + time_total + ','
+        _time_z3 = str(float(_time_z3) / 3)
+        csv_out = _synthesized + ',' + _strengthened + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
 
-    output = ''
     if attributes_collected != total_attributes:
-        output = 'ATRIBUTES MISMATCH collected=' + str(attributes_collected) + ' total=' + str(total_attributes) + '\n'
-    output = output.join(map(str, lines)) # list to string
-    return (csv_out, output)
+        print('ATRIBUTES MISMATCH collected=' + str(attributes_collected) + ' total=' + str(total_attributes) + '\n')
+    return (csv_out, 'OK')
 
 
-
-rmw_tests = {
-    'benchmarks/cds_examples' : ['crew_3.cc', 'fib_bench_false-unreach-call.cc', 'fib_bench_false-unreach-call.cc', 'read_write_lock_unreach_13.cc', 'read_write_lock_unreach_13.cc', 'read_write_lock_unreach_12.cc', 'read_write_lock_unreach_12.cc', 'crew_2.cc', 'crew_2.cc', 'read_write_lock_3.cc', 'read_write_lock_3.cc', 'lamport_true_unreach.cc', 'lamport_true_unreach.cc', 'lamport_true_unreach.cc', 'lamport_true_unreach.cc', 'crew_1.cc', 'crew_1.cc', 'fib_bench_true-unreach-call.cc', 'fib_bench_true-unreach-call.cc', 'read_write_lock_2.cc', 'read_write_lock_2.cc', 'fib_bench_true-longest-unreach-call.cc', 'fib_bench_true-longest-unreach-call.cc', 'fib_mod_false-unreach-call.cc', 'fib_mod_false-unreach-call.cc', 'fib_mod_true-unreach-call.cc', 'fib_mod_true-unreach-call.cc', 'dekker_false-unreach-call.cc', 'dekker_false-unreach-call.cc', 'dekker_false-unreach-call.cc', 'dekker_false-unreach-call.cc', 'read_write_lock_unreach_11.cc', 'read_write_lock_unreach_11.cc', 'mot_eg_4.cc', 'mot_eg_4.cc', 'mot_eg_2.cc', 'mot_eg_2.cc', 'mot_eg_3.cc', 'mot_eg_3.cc'],
-    'benchmarks/genmc_examples' : ['hwqueue-ra0.cc', 'hwqueue-ra0.cc', 'hwqueue-ra0.cc', 'hwqueue-ra0.cc', 'inc+inc+rr+w+rr0.cc', 'inc+inc+rr+w+rr0.cc'],
-    'benchmarks/misc' : [],
-    'benchmarks/rcmc_examples' : ['indexer0.cc'],
-    'benchmarks/tracer_examples' : ['MOREDETOUR0685.cc', 'MOREDETOUR0685.cc', 'MOREDETOUR0687.cc', 'MOREDETOUR0687.cc', 'W+RWC+po+lwsync+po.cc', 'R0098.cc', 'MOREDETOUR0406.cc', 'MOREDETOUR0406.cc', 'DETOUR0895.cc', 'DETOUR0895.cc', 'WRW+2W+lwsync+po.cc', '3.2W+lwsync+lwsync+po.cc', '3.2W+lwsync+lwsync+po.cc', 'Z6.5+lwsync+rfi-data+rfi-addr.cc', 'SB0059.cc', 'DETOUR0958.cc', 'DETOUR0958.cc', 'R0119.cc', 'm5dl.cc', 'MOREDETOUR0874.cc', 'MOREDETOUR0874.cc', 'DETOUR0928.cc', 'MOREDETOUR0869.cc', 'MOREDETOUR0869.cc', 'Z6.4+po+lwsync+po.cc', 'R+po+isync.cc', 'ppc-cookbook6.1.partbarrier.cc', 'MOREDETOUR0398.cc', 'IRIW+isync+po.cc', 'Z6.0+po+addr+lwsync.cc', '2+2W0053.cc', 'Z6.4+po+po+sync.cc', 'R0102.cc', 'WRR+2W+addr+lwsync.cc'],
-    'benchmarks/watts_examples' : [],
-    'litmus' : [],
-    'litmus/weak_fensying' : []
-}
-
-directories = [
-    "benchmarks/cds_examples", 
-    "benchmarks/genmc_examples", 
-    "benchmarks/misc",
-    "benchmarks/rcmc_examples", 
-    "benchmarks/tracer_examples",
-    "benchmarks/watts_examples",
-    "litmus", 
-    "litmus/weak_fensying"
-]
 t_flags = [0, 1, 2]
 result_dir = 'result'
 
-csv_header = 'Directory,Test Name,'
+csv_header = 'Test Name,'
 for t in t_flags:
     csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
     if t > 0:
@@ -166,38 +179,28 @@ csv_header = csv_header[:-1] + '\n'
 if not os.path.exists(result_dir):
     os.system('mkdir ' + result_dir)
 
-csv_file = open(result_dir + '/result.csv', 'w')
+csv_file = open(result_dir + output_filename, 'w')
 csv_file.write(csv_header)
 
-dump_file = open(result_dir + '/result_dump', 'w')
+for filename in files:
+    if filename[-3:] != '.cc':
+        continue
+    if '_fixed' in filename:
+        continue
 
-for dir_name in directories:
-    print ('\n-------- Entering ', dir_name, ' -----------')
+    print ('Running ', filename)
+
+    csv_row = filename + ','
+    output_dump = '\n=================== ' + filename + ' =================\n'
+    for t_flag in t_flags:
+        (csv, status) = run_file(filename, t_flag)
+        csv_row += csv
+        if status != 'OK':
+            csv_row += '\n'
+            break
+
+    csv_row = csv_row[:-1] + '\n'
+
+    csv_file.write(csv_row)
     
-    files = [f for f in listdir(dir_name) if isfile(join(dir_name, f))]
-    for filename in files:
-        if filename[-3:] != '.cc':
-            continue
-        if '_fixed' in filename:
-            continue
-#        if filename in rmw_tests[dir_name]:
-#            continue
-
-        print ('Running ', filename)
-
-        csv_row = dir_name + ',' + filename + ','
-        output_dump = '\n=================== ' + filename + ' =================\n'
-        for t_flag in t_flags:
-            (csv, dump) = run_file(dir_name, filename, t_flag)
-            csv_row += csv
-            output_dump += dump
-
-        csv_row = csv_row[:-1] + '\n'
-
-        csv_file.write(csv_row)
-        dump_file.write(output_dump)
-    
-    print ('--------- Leaving ', dir_name, ' -----------')
-
 csv_file.close()
-dump_file.close()
