@@ -10,6 +10,17 @@ output_filename = '/result_' + 'litmus_tracer1' + '.csv'
 dir_name = 'litmus/tracer_litmus_mod/'
 #####################
 
+def add(val1, val2):
+    if val1 == '':
+        return val2
+    if val2 == '':
+        return val1
+    return str(float(val1) + float(val2))
+
+def avg(val):
+    if val == '':
+        return '0'
+    return str(float(val) / 3)
 
 def clean(str):
     str = str.replace('\n', '')
@@ -139,25 +150,25 @@ def run_file(filename, t=0):
             _result_generated = result_generated
 
         if run_id > 0:
-            _time_ceg = str(float(time_ceg) + float(_time_ceg))
-            _time_fensying = str(float(time_fensying) + float(_time_fensying))
-            _time_total = str(float(time_total) + float(_time_total))
+            _time_ceg = add(_time_ceg, time_ceg)
+            _time_fensying = add(_time_fensying, time_fensying)
+            _time_total = add(_time_total, time_total)
 
             if (_synthesized != synthesized) or (_strengthened != strengthened) or (_aborted != aborted):
                 csv_out = 'result-mismatch-accross-runs' + ',,,,,,'
                 return (csv_out, 'NONDET')
 
             if not aborted: # run completed
-                _time_z3 = str(float(_time_z3) + float(time_z3))
+                _time_z3 = add(_time_z3, time_z3)
 
 
-    _time_ceg = str(float(_time_ceg) / 3)
-    _time_fensying = str(float(_time_fensying) / 3)
-    _time_total = str(float(_time_total) / 3)
+    _time_ceg = avg(_time_ceg)
+    _time_fensying = avg(_time_fensying)
+    _time_total = avg(_time_total)
     if _aborted:
         csv_out = 'ABORT,,' + _time_ceg + ',,' + _time_fensying + ',' + _time_total + ','
     else:
-        _time_z3 = str(float(_time_z3) / 3)
+        _time_z3 = avg(_time_z3)
         csv_out = _synthesized + ',' + _strengthened + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
 
     if attributes_collected != total_attributes:
