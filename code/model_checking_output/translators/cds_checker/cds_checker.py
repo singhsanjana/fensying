@@ -29,10 +29,10 @@ class translate_cds:
 		change_dir = 'cd ' + fi.CDS_FOLDER_PATH
 		make = 'make'
 
-		input_file = filename.split('/')[-1]
-		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + input_file[:-3] + '.o'
+		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filename[3:-3] + '.o' # ../path_name.cc -> path_name.o
 
 		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
+		print(cds_cmd)
 		if traces_batch_size:
 			cds_cmd += ' -c ' + str(traces_batch_size)
 		cds_cmd = shlex.split(cds_cmd)

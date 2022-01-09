@@ -1,5 +1,7 @@
 BASE := ../model-checker/cds-checker
 
+SUBDIRS := $(wildcard */.)
+
 OBJECTS := $(patsubst %.c, %.o, $(wildcard *.c))
 OBJECTS += $(patsubst %.cc, %.o, $(wildcard *.cc))
 
@@ -10,6 +12,9 @@ DEPS := $(join $(addsuffix ., $(dir $(OBJECTS))), $(addsuffix .d, $(notdir $(OBJ
 CPPFLAGS += -I$(BASE) -I$(BASE)/include
 
 all: $(OBJECTS)
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir; \
+	done
 
 -include $(DEPS)
 
@@ -19,5 +24,8 @@ all: $(OBJECTS)
 %.o: %.cc
 	$(CXX) -MMD -MF $(@D)/.$(@F).d -o $@ $< $(CPPFLAGS) -L$(BASE) -l$(LIB_NAME)
 
-clean::
-	rm -f $(OBJECTS) $(DEPS)
+clean:
+	rm -f *.o *_fixed.cc 
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done

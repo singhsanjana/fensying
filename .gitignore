@@ -24,6 +24,8 @@ compute_fences
 *testing*
 code/benchmarks/test
 code/result
+test/*
+!test/Makefile
 
 # model checker files:
 # cds checker
