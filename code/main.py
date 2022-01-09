@@ -25,25 +25,29 @@ from model_checking_output.translators.cds_checker.delete_file import delete_gen
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", "-f", type=str, required=True, 
-					help="Enter file path and name")
+					help="File path of object file.")
 parser.add_argument("--traces", "-t", type=int, required=False, dest="no_traces",
-					help="For a faster but less optimized output, enter an int value with this flag to check only this number of traces at once")
+					help="Batch buggy traces (non-optimal).")
 parser.add_argument("--max-iter", "-m", type=int, required=False, dest="max_iter",
-					help="After entering traces, you can enter a maximum number of iterations as well to avoid going in an infinite loop for programs. You can only enter this after entering the number of traces")
+					help="Max number of batches. Used with -t flag.")
+parser.add_argument("--no-outfile", "-n", required=False, action='store_true', dest="no_outfile",
+					help="If used, fences location are printed and transformed file is not generated.")
 
 args = parser.parse_args()
 filename = args.file											# gets the input file name
 no_traces = args.no_traces										# gets the input number of traces to be checked
 max_iter = args.max_iter										# gets the input maximum number of iterations
+no_outfile = args.no_outfile                                    # if set then output file not generated
+
 
 if not os.path.exists(filename):
-	print(oc.BOLD + oc.FAIL + "\nFile does not exist at provided location.\nPlease check the input file path.\n" + oc.ENDC)
+	print(oc.BOLD + oc.FAIL + "\nInput file not found.\n" + oc.ENDC)
 	sys.exit(0)
 if max_iter is not None and no_traces is None:
-	print(oc.BOLD + oc.FAIL + "\nPlease specify number of traces to be checked as well using flag -t.\n" + oc.ENDC)
+	print(oc.BOLD + oc.FAIL + "\nPlease specify the batch size of traces (-t).\n" + oc.ENDC)
 	sys.exit(0)
 elif no_traces == 0 or max_iter == 0:
-	print(oc.BOLD + oc.FAIL + "\nFlag values cannot be 0.\n" + oc.ENDC)
+	print(oc.BOLD + oc.FAIL + "\nFlag values cannot be 0. (-t or -m)\n" + oc.ENDC)
 	sys.exit(0)
 
 mc_total = 0
@@ -74,7 +78,7 @@ def fn_main(filename):
 	if no_traces:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
-	traces, mc_time, no_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, no_traces)
+	traces, mc_time, no_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, no_traces, total_iter)
 	# print('after model_checking_output, buggy_trace_no:', buggy_trace_no)
 
 	if mc_error_string is not None:

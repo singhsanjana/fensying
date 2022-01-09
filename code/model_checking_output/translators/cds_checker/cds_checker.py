@@ -14,10 +14,10 @@ from operator import itemgetter
 from .create_list import create_list
 from constants import file_info as fi
 from constants import time_handler
-from .delete_file import delete_copied_file
+from constants import output_colours as oc
 
 class translate_cds:
-	def __init__(self, filename, no_traces):
+	def __init__(self, filename, traces_batch_size, current_iteration):
 
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
@@ -26,21 +26,22 @@ class translate_cds:
 		self.cds_time = 0
 		self.buggy_trace_no = []										# no of buggy traces, required for mo file name
 
-		copy = "cp " + filename + " " + fi.CDS_TEST_FOLDER_PATH
-		make = "cd "+ fi.CDS_FOLDER_PATH + " && make"
+		change_dir = 'cd ' + fi.CDS_FOLDER_PATH
+		make = 'make'
 
-		input_file = filename.split('/')
-		input_file = input_file[-1]
+		input_file = filename.split('/')[-1]
+		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + input_file[:-3] + '.o'
 
-		input_file = "test/"+input_file[:-2]+'o'
-		cds_cmd = './run.sh '+input_file								# cmd to run cds checker
-		if no_traces:
-			cds_cmd += " -c "+str(no_traces)
+		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
+		if traces_batch_size:
+			cds_cmd += ' -c ' + str(traces_batch_size)
 		cds_cmd = shlex.split(cds_cmd)
+		
+		os.system(change_dir)
 
-		os.system(copy)													# copy input file to cds checker directory
+		if current_iteration > 1:
+			os.system(make)												# make/compile into object file for CDS Checker
 		cds_start = time.time()
-		os.system(make)													# make/compile into object file for CDS Checker
 
 		signal.signal(signal.SIGALRM, time_handler)
 		signal.alarm(900)												# set timer for 15 minutes for CDSChecker
@@ -60,13 +61,15 @@ class translate_cds:
 		else:
 			signal.alarm(900)											# set timer for 15 minutes for the rest of the tool
 			self.no_buggy_execs = int(self.no_buggy_execs)
+			if self.no_buggy_execs == 0:
+				print(oc.OKGREEN, oc.BOLD, 'No buggy traces. Nothing to do.', oc.ENDC)
+				exit(0)
 			# print("\n\nBuggy executions:\t",self.no_buggy_execs)
 
 			if self.no_buggy_execs != 0:
 				self.create_structure()
 				# self.print_traces()
-		finally:
-			delete_copied_file(filename)
+		# finally:
 			#return
 
 

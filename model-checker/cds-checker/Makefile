@@ -18,7 +18,7 @@ LDFLAGS := -ldl
 SHARED := -Wl,-undefined,dynamic_lookup -dynamiclib
 endif
 
-TESTS_DIR := test
+TESTS_DIR := ../../test
 
 MARKDOWN := doc/Markdown/Markdown.pl
 

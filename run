@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "Input file not specified."
+    exit 0
+fi
+
+IFS=. read -r filename ext <<< "$1"
+obj_file="$filename.o"
+
+if [ ! -f $obj_file ]; then
+    echo "Object file not found. (try make)"
+    exit 0
+fi
+
+f="\.\.\/$filename.cc"
+
+cd code
+python3 main.py -f $f ${@:2}

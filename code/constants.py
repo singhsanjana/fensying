@@ -51,7 +51,8 @@ class file_info:
 		f_tags.ar	:	"atomic_thread_fence(__LINE__, memory_order_acq_rel);\n"
 	}
 	CDS_FOLDER_PATH = "../model-checker/cds-checker"
-	CDS_TEST_FOLDER_PATH = CDS_FOLDER_PATH+"/test"
+	TEST_FOLDER_PATH = "test"
+	TEST_FOLDER_PATH_FROM_CDS = "../../" + TEST_FOLDER_PATH
 
 class output_colours:
 	HEADER = '\033[95m'
