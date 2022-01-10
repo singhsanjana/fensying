@@ -52,7 +52,7 @@ class file_info:
 	}
 	CDS_FOLDER_PATH = "../model-checker/cds-checker"
 	TEST_FOLDER_PATH = "test"
-	TEST_FOLDER_PATH_FROM_CDS = "../../"
+	TEST_FOLDER_PATH_FROM_CDS = "../.."
 
 class output_colours:
 	HEADER = '\033[95m'

@@ -27,20 +27,17 @@ class translate_cds:
 		self.buggy_trace_no = []										# no of buggy traces, required for mo file name
 
 		change_dir = 'cd ' + fi.CDS_FOLDER_PATH
-		make = 'make'
+		make = change_dir + ' && ' + 'make'
 
 		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filename[3:-3] + '.o' # ../path_name.cc -> path_name.o
 
 		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
-		print(cds_cmd)
 		if traces_batch_size:
 			cds_cmd += ' -c ' + str(traces_batch_size)
 		cds_cmd = shlex.split(cds_cmd)
 		
-		os.system(change_dir)
-
 		if current_iteration > 1:
-			os.system(make)												# make/compile into object file for CDS Checker
+			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
 		cds_start = time.time()
 
 		signal.signal(signal.SIGALRM, time_handler)
@@ -62,8 +59,11 @@ class translate_cds:
 			signal.alarm(900)											# set timer for 15 minutes for the rest of the tool
 			self.no_buggy_execs = int(self.no_buggy_execs)
 			if self.no_buggy_execs == 0:
-				print(oc.OKGREEN, oc.BOLD, 'No buggy traces. Nothing to do.', oc.ENDC)
-				exit(0)
+				if current_iteration == 1: 
+					print(oc.OKGREEN, oc.BOLD, 'No buggy traces. Nothing to do.', oc.ENDC)
+					exit(0)
+				else:
+					print('No buggy traces. Nothing to do.')
 			# print("\n\nBuggy executions:\t",self.no_buggy_execs)
 
 			if self.no_buggy_execs != 0:
