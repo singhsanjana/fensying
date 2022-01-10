@@ -7,7 +7,7 @@ fi
 
 IFS=. read -r filename ext <<< "$1"
 obj_file="$filename.o"
-echo "$obj_file"
+
 if [ ! -f $obj_file ]; then
     echo "Object file not found. (try make)"
     exit 0
