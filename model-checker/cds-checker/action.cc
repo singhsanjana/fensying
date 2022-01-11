@@ -53,7 +53,7 @@ ModelAction::ModelAction(action_type_t type, memory_order order, void *loc,
 	this->tid = t->get_id();
 }
 
-ModelAction::ModelAction(const char* filename, int line_no, action_type_t type, memory_order order, void *loc,
+ModelAction::ModelAction(const char* file, int line_no, action_type_t type, memory_order order, void *loc,
 		uint64_t value, Thread *thread) :
 	type(type),
 	order(order),
@@ -62,7 +62,7 @@ ModelAction::ModelAction(const char* filename, int line_no, action_type_t type, 
 	value(value),
 	reads_from(NULL),
 	line_no(line_no),
-	filename(filename),
+	filename(file),
 	reads_from_promise(NULL),
 	last_fence_release(NULL),
 	node(NULL),
@@ -620,13 +620,13 @@ void ModelAction::print() const
 	}
 	else if (line_no) {
 		model_print("       %10s",filename);
-		model_print("       %d",line_no);
+		model_print("  %d",line_no);
 	}
 	if (cv) {
 		if (line_no)
 			model_print("   ");
 		else
-			model_print("                          ");
+			model_print("                        ");
 		cv->print();
 	} else
 		model_print("\n");
