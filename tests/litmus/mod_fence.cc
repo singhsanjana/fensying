@@ -21,7 +21,7 @@ static void t1(void *arg) {
 
 static void t2(void *arg) {
   b = x.load(__LINE__, memory_order_relaxed);
-  atomic_thread_fence(__LINE__, memory_order_release);
+  atomic_thread_fence(__FILE__, __LINE__, memory_order_release);
   y.store(__LINE__, 1, memory_order_relaxed);
 }
 

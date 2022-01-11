@@ -23,7 +23,7 @@ static void fn1(void* arg) {
 		b1.store(__LINE__, 1, memory_order_seq_cst);
 		x.store(__LINE__, 1, memory_order_seq_cst);	 //DIV: need higher mem order?
 
-		//atomic_fetch_add_explicit(__LINE__, &__fence_var, 0, memory_order_acq_rel);
+		//atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
 
 		if (y.load(__LINE__, memory_order_acquire) != 0) {
 			b1.store(__LINE__, 0, memory_order_seq_cst);
@@ -39,7 +39,7 @@ static void fn1(void* arg) {
 
 		y.store(__LINE__, 1, memory_order_seq_cst);
 
-		//atomic_fetch_add_explicit(__LINE__, &__fence_var, 0, memory_order_acq_rel);
+		//atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
 
 		if (x.load(__LINE__, memory_order_relaxed) != 1) {
 			b1.store(__LINE__, 0, memory_order_seq_cst);
@@ -87,7 +87,7 @@ static void fn2(void* arg) {
 		b2.store(__LINE__, 1, memory_order_seq_cst);
 		x.store(__LINE__, 2, memory_order_seq_cst);	 //DIV: need higher mem order?
 
-		//atomic_fetch_add_explicit(__LINE__, &__fence_var, 0, memory_order_acq_rel);
+		//atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
 
 		if (y.load(__LINE__, memory_order_acquire) != 0) {
 			b2.store(__LINE__, 0, memory_order_seq_cst);
@@ -103,7 +103,7 @@ static void fn2(void* arg) {
 
 		y.store(__LINE__, 2, memory_order_seq_cst);
 
-		//atomic_fetch_add_explicit(__LINE__, &__fence_var, 0, memory_order_acq_rel);
+		//atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
 
 		if (x.load(__LINE__, memory_order_relaxed) != 2) {
 			b2.store(__LINE__, 0, memory_order_seq_cst);

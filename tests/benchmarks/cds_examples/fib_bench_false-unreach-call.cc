@@ -19,7 +19,7 @@ static void fn1(void* arg) {
 
 	for (k = 0; k < LOOP; k++) {
 		int temp = j.load(__LINE__, memory_order_acquire);
-		atomic_fetch_add_explicit(__LINE__, &i, temp, memory_order_relaxed);
+		atomic_fetch_add_explicit(__FILE__, __LINE__, &i, temp, memory_order_relaxed);
 	}
 }
 
@@ -27,7 +27,7 @@ static void fn2(void* arg) {
 	int k = 0;
 	for (k = 0; k < LOOP; k++) {
 		int temp = i.load(__LINE__, memory_order_acquire);
-		atomic_fetch_add_explicit(__LINE__, &j, temp, memory_order_relaxed);
+		atomic_fetch_add_explicit(__FILE__, __LINE__, &j, temp, memory_order_relaxed);
 	}
 }
 

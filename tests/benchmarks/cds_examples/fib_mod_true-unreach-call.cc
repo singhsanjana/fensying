@@ -25,7 +25,7 @@ static void fn1(void* arg) {
 		int temp_i = i.load(__LINE__, memory_order_relaxed);
 		i.store(__LINE__, temp_i + temp_j, memory_order_relaxed);
 		if (temp_j > temp_i) {
-			atomic_fetch_add_explicit(__LINE__, &count_j, 1, memory_order_acq_rel);
+			atomic_fetch_add_explicit(__FILE__, __LINE__, &count_j, 1, memory_order_acq_rel);
 		}
 	}
 }
@@ -37,7 +37,7 @@ static void fn2(void* arg) {
 		int temp_j = j.load(__LINE__, memory_order_relaxed);
 		j.store(__LINE__, temp_j + temp_i, memory_order_relaxed);
 		if (temp_i > temp_j) {
-			atomic_fetch_add_explicit(__LINE__, &count_i, 1, memory_order_acq_rel);
+			atomic_fetch_add_explicit(__FILE__, __LINE__, &count_i, 1, memory_order_acq_rel);
 		}
 	}
 }

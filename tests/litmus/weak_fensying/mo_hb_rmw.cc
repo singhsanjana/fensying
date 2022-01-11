@@ -14,15 +14,15 @@ int a,b;
 
 static void fn1(void *obj)
 {
-	atomic_fetch_add_explicit(__LINE__, &x, 1, memory_order_relaxed);
-	atomic_fetch_add_explicit(__LINE__, &y, 1, memory_order_relaxed);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &y, 1, memory_order_relaxed);
 }
 
 static void fn2(void *obj)
 {
-	a=atomic_load_explicit(__LINE__, &y, memory_order_acquire);
-	atomic_store_explicit(__LINE__, &x, 2, memory_order_relaxed);
-    b=atomic_load_explicit(__LINE__, &x, memory_order_acquire);
+	a=atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_acquire);
+	atomic_store_explicit(__FILE__, __LINE__, &x, 2, memory_order_relaxed);
+    b=atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_acquire);
 }
 
 int user_main(int argc, char **argv)

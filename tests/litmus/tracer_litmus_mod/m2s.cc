@@ -11,29 +11,29 @@ atomic_int __fence_var;
 
 void t0(void *arg){
 label_1:;
-  atomic_store_explicit(__LINE__, &vars[0], 1, memory_order_release);
-  atomic_fetch_add_explicit(__LINE__, &__fence_var, 0, memory_order_acq_rel);
-  atomic_store_explicit(__LINE__, &vars[1], 2, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 1, memory_order_release);
+  atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1], 2, memory_order_release);
 
 }
 
 void t1(void *arg){
 label_2:;
-  atomic_store_explicit(__LINE__, &vars[1], 1, memory_order_release);
-  atomic_fetch_add_explicit(__LINE__, &__fence_var, 0, memory_order_acq_rel);
-  atomic_store_explicit(__LINE__, &vars[0], 2, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1], 1, memory_order_release);
+  atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 2, memory_order_release);
 
 }
 
 void t2(void *arg){
 label_3:;
-  int v2_r1 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
+  int v2_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
 
 }
 
 void t3(void *arg){
 label_4:;
-  int v4_r1 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
+  int v4_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
 
 }
 
@@ -57,9 +57,9 @@ int user_main(int argc, char **argv){
   thrd_join(thr2);
   thrd_join(thr3);
 
-  int v5 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
+  int v5 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
   int v6 = (v5 == 1);
-  int v7 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
+  int v7 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
   int v8 = (v7 == 1);
   int v9_conj = v6 & v8;
   if (v9_conj == 1) MODEL_ASSERT(0);

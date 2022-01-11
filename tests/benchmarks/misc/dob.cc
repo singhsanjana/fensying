@@ -10,15 +10,15 @@ atomic_int y;
 
 static void a(void *obj)
 {
-	atomic_store_explicit(__LINE__, &y, 1, memory_order_relaxed);
-	atomic_store_explicit(__LINE__, &x, 1, memory_order_release);
-	atomic_store_explicit(__LINE__, &x, 2, memory_order_relaxed);
+	atomic_store_explicit(__FILE__, __LINE__, &y, 1, memory_order_relaxed);
+	atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_release);
+	atomic_store_explicit(__FILE__, __LINE__, &x, 2, memory_order_relaxed);
 }
 
 static void b(void *obj)
 {
-	int r1=atomic_load_explicit(__LINE__, &x, memory_order_relaxed);
-	int r2=atomic_load_explicit(__LINE__, &y, memory_order_relaxed);
+	int r1=atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
+	int r2=atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_relaxed);
 	MODEL_ASSERT(!(r1 == 2 && r2 == 0));
 }
 

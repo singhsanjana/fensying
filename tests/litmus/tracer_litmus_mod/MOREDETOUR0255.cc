@@ -14,32 +14,32 @@ atomic_int __fence_var;
 
 void t0(void *arg){
 label_1:;
-  int v2_r1 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
+  int v2_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
   int v3_r3 = v2_r1 ^ v2_r1;
   int v4_r3 = v3_r3 + 1;
-  atomic_store_explicit(__LINE__, &vars[1], v4_r3, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1], v4_r3, memory_order_release);
   int v17 = (v2_r1 == 4);
-  atomic_store_explicit(__LINE__, &atom_0_r1_4, v17, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_0_r1_4, v17, memory_order_release);
 
 }
 
 void t1(void *arg){
 label_2:;
-  int v6_r1 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
-  atomic_store_explicit(__LINE__, &vars[0], 1, memory_order_release);
-  atomic_store_explicit(__LINE__, &vars[0], 2, memory_order_release);
-  atomic_store_explicit(__LINE__, &vars[0], 4, memory_order_release);
+  int v6_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 1, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 2, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 4, memory_order_release);
   int v18 = (v6_r1 == 1);
-  atomic_store_explicit(__LINE__, &atom_1_r1_1, v18, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r1_1, v18, memory_order_release);
 
 }
 
 void t2(void *arg){
 label_3:;
-  int v8_r1 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
-  atomic_store_explicit(__LINE__, &vars[0], 3, memory_order_release);
+  int v8_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 3, memory_order_release);
   int v19 = (v8_r1 == 2);
-  atomic_store_explicit(__LINE__, &atom_2_r1_2, v19, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_2_r1_2, v19, memory_order_release);
 
 }
 
@@ -63,11 +63,11 @@ int user_main(int argc, char **argv){
   thrd_join(thr1);
   thrd_join(thr2);
 
-  int v9 = atomic_load_explicit(__LINE__, &atom_0_r1_4, memory_order_acquire);
-  int v10 = atomic_load_explicit(__LINE__, &atom_1_r1_1, memory_order_acquire);
-  int v11 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
+  int v9 = atomic_load_explicit(__FILE__, __LINE__, &atom_0_r1_4, memory_order_acquire);
+  int v10 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r1_1, memory_order_acquire);
+  int v11 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
   int v12 = (v11 == 4);
-  int v13 = atomic_load_explicit(__LINE__, &atom_2_r1_2, memory_order_acquire);
+  int v13 = atomic_load_explicit(__FILE__, __LINE__, &atom_2_r1_2, memory_order_acquire);
   int v14_conj = v12 & v13;
   int v15_conj = v10 & v14_conj;
   int v16_conj = v9 & v15_conj;

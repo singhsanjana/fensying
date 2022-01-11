@@ -14,7 +14,7 @@ atomic<int> y ;
 
 static void t1(void *arg) {
 	y.store(__LINE__, 1, memory_order_relaxed);
-  atomic_thread_fence(__LINE__, memory_order_acq_rel);
+  atomic_thread_fence(__FILE__, __LINE__, memory_order_acq_rel);
 	x.store(__LINE__, 1, memory_order_relaxed);
 }
 

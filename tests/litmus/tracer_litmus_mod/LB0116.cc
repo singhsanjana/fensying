@@ -13,22 +13,22 @@ atomic_int __fence_var;
 
 void t0(void *arg){
 label_1:;
-  int v2_r1 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
+  int v2_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
   int v3_r3 = v2_r1 ^ v2_r1;
   int v4_r3 = v3_r3 + 1;
-  atomic_store_explicit(__LINE__, &vars[1], v4_r3, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1], v4_r3, memory_order_release);
   int v13 = (v2_r1 == 1);
-  atomic_store_explicit(__LINE__, &atom_0_r1_1, v13, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_0_r1_1, v13, memory_order_release);
 
 }
 
 void t1(void *arg){
 label_2:;
-  int v6_r1 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
-  atomic_store_explicit(__LINE__, &vars[1], 2, memory_order_release);
-  atomic_store_explicit(__LINE__, &vars[0], 1, memory_order_release);
+  int v6_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1], 2, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 1, memory_order_release);
   int v14 = (v6_r1 == 1);
-  atomic_store_explicit(__LINE__, &atom_1_r1_1, v14, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r1_1, v14, memory_order_release);
 
 }
 
@@ -48,10 +48,10 @@ int user_main(int argc, char **argv){
   thrd_join(thr0);
   thrd_join(thr1);
 
-  int v7 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
+  int v7 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
   int v8 = (v7 == 2);
-  int v9 = atomic_load_explicit(__LINE__, &atom_0_r1_1, memory_order_acquire);
-  int v10 = atomic_load_explicit(__LINE__, &atom_1_r1_1, memory_order_acquire);
+  int v9 = atomic_load_explicit(__FILE__, __LINE__, &atom_0_r1_1, memory_order_acquire);
+  int v10 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r1_1, memory_order_acquire);
   int v11_conj = v9 & v10;
   int v12_conj = v8 & v11_conj;
   if (v12_conj == 1) MODEL_ASSERT(0);

@@ -20,7 +20,7 @@ atomic<int> fence;
 static void fn1(void* arg) {
 	int ok1, ok2;
 	flag1.store(__LINE__, 1, memory_order_release);
-	atomic_fetch_add_explicit(__LINE__, &fence, 0, memory_order_acq_rel);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &fence, 0, memory_order_acq_rel);
 
 	ok1 = 0;
 	for (int i = 0; i < LOOP; i++) {
@@ -36,7 +36,7 @@ static void fn1(void* arg) {
 				}
 				if (ok2 == 0) return;
 				flag1.store(__LINE__, 1, memory_order_release);
-				atomic_fetch_add_explicit(__LINE__, &fence, 0, memory_order_acq_rel);
+				atomic_fetch_add_explicit(__FILE__, __LINE__, &fence, 0, memory_order_acq_rel);
 			}
 		} else {
 			ok1 = 1;
@@ -56,7 +56,7 @@ static void fn1(void* arg) {
 static void fn2(void* arg) {
 	int ok1, ok2;
 	flag2.store(__LINE__, 1, memory_order_release);
-	atomic_fetch_add_explicit(__LINE__, &fence, 0, memory_order_acq_rel);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &fence, 0, memory_order_acq_rel);
 
 	ok1 = 0;
 	for (int i = 0; i < LOOP; i++) {
@@ -72,7 +72,7 @@ static void fn2(void* arg) {
 				}
 				if (ok2 == 0) return;
 				flag2.store(__LINE__, 1, memory_order_release);
-				atomic_fetch_add_explicit(__LINE__, &fence, 0, memory_order_acq_rel);
+				atomic_fetch_add_explicit(__FILE__, __LINE__, &fence, 0, memory_order_acq_rel);
 			}
 		} else {
 			ok1 = 1;

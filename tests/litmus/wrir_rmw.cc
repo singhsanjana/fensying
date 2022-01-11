@@ -14,7 +14,7 @@ atomic<int> y ;
 int a,b,c;
 
 static void t1(void *arg) {
-	atomic_fetch_add_explicit(__LINE__, &x, 1, memory_order_relaxed);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
 }
 
 static void t2(void *arg) {

@@ -27,6 +27,7 @@ code/result
 tests/**/*.o
 tests/**/*.o.d
 tests/**/*_fixed.cc
+tests_backup
 
 # model checker files:
 # cds checker

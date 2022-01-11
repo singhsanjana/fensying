@@ -23,7 +23,7 @@ static void writer1(void* arg) {
 	if (flag_w1.load(__LINE__, memory_order_relaxed)) {
 		if (not(flag_w2.load(__LINE__, memory_order_relaxed))) {
 			x = 1;
-			atomic_fetch_add_explicit(__LINE__, &notify, 1, memory_order_acq_rel);
+			atomic_fetch_add_explicit(__FILE__, __LINE__, &notify, 1, memory_order_acq_rel);
 		}
 	}
 }
@@ -34,7 +34,7 @@ static void writer2(void* arg) {
 	if (flag_w2.load(__LINE__, memory_order_relaxed)) {
 		if (not(flag_w1.load(__LINE__, memory_order_relaxed))) {
 			x = 1;
-			atomic_fetch_add_explicit(__LINE__, &notify, 1, memory_order_acq_rel);
+			atomic_fetch_add_explicit(__FILE__, __LINE__, &notify, 1, memory_order_acq_rel);
 		}
 	}
 }

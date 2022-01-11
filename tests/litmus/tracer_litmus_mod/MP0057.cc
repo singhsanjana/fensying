@@ -13,23 +13,23 @@ atomic_int __fence_var;
 
 void t0(void *arg){
 label_1:;
-  atomic_store_explicit(__LINE__, &vars[0], 1, memory_order_release);
-  int v2_r3 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 1, memory_order_release);
+  int v2_r3 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
   int v3_r4 = v2_r3 ^ v2_r3;
-  atomic_store_explicit(__LINE__, &vars[1+v3_r4], 1, memory_order_release);
-  atomic_store_explicit(__LINE__, &vars[2], 1, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1+v3_r4], 1, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[2], 1, memory_order_release);
 
 }
 
 void t1(void *arg){
 label_2:;
-  int v5_r1 = atomic_load_explicit(__LINE__, &vars[2], memory_order_acquire);
+  int v5_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[2], memory_order_acquire);
   int v6_r3 = v5_r1 ^ v5_r1;
-  int v9_r4 = atomic_load_explicit(__LINE__, &vars[0+v6_r3], memory_order_acquire);
+  int v9_r4 = atomic_load_explicit(__FILE__, __LINE__, &vars[0+v6_r3], memory_order_acquire);
   int v13 = (v5_r1 == 1);
-  atomic_store_explicit(__LINE__, &atom_1_r1_1, v13, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r1_1, v13, memory_order_release);
   int v14 = (v9_r4 == 0);
-  atomic_store_explicit(__LINE__, &atom_1_r4_0, v14, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r4_0, v14, memory_order_release);
 
 }
 
@@ -50,8 +50,8 @@ int user_main(int argc, char **argv){
   thrd_join(thr0);
   thrd_join(thr1);
 
-  int v10 = atomic_load_explicit(__LINE__, &atom_1_r1_1, memory_order_acquire);
-  int v11 = atomic_load_explicit(__LINE__, &atom_1_r4_0, memory_order_acquire);
+  int v10 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r1_1, memory_order_acquire);
+  int v11 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r4_0, memory_order_acquire);
   int v12_conj = v10 & v11;
   if (v12_conj == 1) MODEL_ASSERT(0);
   return 0;

@@ -13,24 +13,24 @@ atomic_int __fence_var;
 
 void t0(void *arg){
 label_1:;
-  atomic_store_explicit(__LINE__, &vars[0], 1, memory_order_release);
-  int v2_r3 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
-  int v4_r4 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 1, memory_order_release);
+  int v2_r3 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
+  int v4_r4 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
   int v5_r6 = v4_r4 ^ v4_r4;
   int v6_r6 = v5_r6 + 1;
-  atomic_store_explicit(__LINE__, &vars[2], v6_r6, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[2], v6_r6, memory_order_release);
 
 }
 
 void t1(void *arg){
 label_2:;
-  int v8_r1 = atomic_load_explicit(__LINE__, &vars[2], memory_order_acquire);
+  int v8_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[2], memory_order_acquire);
   int v9_r3 = v8_r1 ^ v8_r1;
-  int v12_r4 = atomic_load_explicit(__LINE__, &vars[0+v9_r3], memory_order_acquire);
+  int v12_r4 = atomic_load_explicit(__FILE__, __LINE__, &vars[0+v9_r3], memory_order_acquire);
   int v16 = (v8_r1 == 1);
-  atomic_store_explicit(__LINE__, &atom_1_r1_1, v16, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r1_1, v16, memory_order_release);
   int v17 = (v12_r4 == 0);
-  atomic_store_explicit(__LINE__, &atom_1_r4_0, v17, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r4_0, v17, memory_order_release);
 
 }
 
@@ -51,8 +51,8 @@ int user_main(int argc, char **argv){
   thrd_join(thr0);
   thrd_join(thr1);
 
-  int v13 = atomic_load_explicit(__LINE__, &atom_1_r1_1, memory_order_acquire);
-  int v14 = atomic_load_explicit(__LINE__, &atom_1_r4_0, memory_order_acquire);
+  int v13 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r1_1, memory_order_acquire);
+  int v14 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r4_0, memory_order_acquire);
   int v15_conj = v13 & v14;
   if (v15_conj == 1) MODEL_ASSERT(0);
   return 0;

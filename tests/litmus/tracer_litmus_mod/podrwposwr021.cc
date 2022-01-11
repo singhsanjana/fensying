@@ -15,43 +15,43 @@ atomic_int __fence_var;
 
 void t0(void *arg){
 label_1:;
-  atomic_store_explicit(__LINE__, &vars[0], 1, memory_order_release);
-  atomic_fetch_add_explicit(__LINE__, &__fence_var, 0, memory_order_acq_rel);
-  atomic_store_explicit(__LINE__, &vars[1], 1, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0], 1, memory_order_release);
+  atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1], 1, memory_order_release);
 
 }
 
 void t1(void *arg){
 label_2:;
-  int v2_r1 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
-  atomic_store_explicit(__LINE__, &vars[2], 1, memory_order_release);
-  int v4_r5 = atomic_load_explicit(__LINE__, &vars[2], memory_order_acquire);
+  int v2_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[2], 1, memory_order_release);
+  int v4_r5 = atomic_load_explicit(__FILE__, __LINE__, &vars[2], memory_order_acquire);
   int v23 = (v2_r1 == 1);
-  atomic_store_explicit(__LINE__, &atom_1_r1_1, v23, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r1_1, v23, memory_order_release);
   int v24 = (v4_r5 == 1);
-  atomic_store_explicit(__LINE__, &atom_1_r5_1, v24, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r5_1, v24, memory_order_release);
 
 }
 
 void t2(void *arg){
 label_3:;
-  atomic_store_explicit(__LINE__, &vars[2], 2, memory_order_release);
-  atomic_fetch_add_explicit(__LINE__, &__fence_var, 0, memory_order_acq_rel);
-  atomic_store_explicit(__LINE__, &vars[3], 1, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[2], 2, memory_order_release);
+  atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[3], 1, memory_order_release);
 
 }
 
 void t3(void *arg){
 label_4:;
-  int v6_r1 = atomic_load_explicit(__LINE__, &vars[3], memory_order_acquire);
-  atomic_store_explicit(__LINE__, &vars[4], 1, memory_order_release);
-  int v8_r5 = atomic_load_explicit(__LINE__, &vars[4], memory_order_acquire);
+  int v6_r1 = atomic_load_explicit(__FILE__, __LINE__, &vars[3], memory_order_acquire);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[4], 1, memory_order_release);
+  int v8_r5 = atomic_load_explicit(__FILE__, __LINE__, &vars[4], memory_order_acquire);
   int v9_r6 = v8_r5 ^ v8_r5;
-  int v12_r7 = atomic_load_explicit(__LINE__, &vars[0+v9_r6], memory_order_acquire);
+  int v12_r7 = atomic_load_explicit(__FILE__, __LINE__, &vars[0+v9_r6], memory_order_acquire);
   int v25 = (v6_r1 == 1);
-  atomic_store_explicit(__LINE__, &atom_3_r1_1, v25, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_3_r1_1, v25, memory_order_release);
   int v26 = (v12_r7 == 0);
-  atomic_store_explicit(__LINE__, &atom_3_r7_0, v26, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_3_r7_0, v26, memory_order_release);
 
 }
 
@@ -82,12 +82,12 @@ int user_main(int argc, char **argv){
   thrd_join(thr2);
   thrd_join(thr3);
 
-  int v13 = atomic_load_explicit(__LINE__, &vars[2], memory_order_acquire);
+  int v13 = atomic_load_explicit(__FILE__, __LINE__, &vars[2], memory_order_acquire);
   int v14 = (v13 == 2);
-  int v15 = atomic_load_explicit(__LINE__, &atom_1_r1_1, memory_order_acquire);
-  int v16 = atomic_load_explicit(__LINE__, &atom_1_r5_1, memory_order_acquire);
-  int v17 = atomic_load_explicit(__LINE__, &atom_3_r1_1, memory_order_acquire);
-  int v18 = atomic_load_explicit(__LINE__, &atom_3_r7_0, memory_order_acquire);
+  int v15 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r1_1, memory_order_acquire);
+  int v16 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r5_1, memory_order_acquire);
+  int v17 = atomic_load_explicit(__FILE__, __LINE__, &atom_3_r1_1, memory_order_acquire);
+  int v18 = atomic_load_explicit(__FILE__, __LINE__, &atom_3_r7_0, memory_order_acquire);
   int v19_conj = v17 & v18;
   int v20_conj = v16 & v19_conj;
   int v21_conj = v15 & v20_conj;

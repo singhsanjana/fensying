@@ -13,27 +13,27 @@ atomic_int __fence_var;
 
 void t0(void *arg){
 label_1:;
-  int v2_r2 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
+  int v2_r2 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
   int v3_r9 = v2_r2 ^ v2_r2;
-  atomic_store_explicit(__LINE__, &vars[0+v3_r9], 1, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[0+v3_r9], 1, memory_order_release);
   int v13 = (v2_r2 == 2);
-  atomic_store_explicit(__LINE__, &atom_0_r2_2, v13, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_0_r2_2, v13, memory_order_release);
 
 }
 
 void t1(void *arg){
 label_2:;
-  int v5_r2 = atomic_load_explicit(__LINE__, &vars[0], memory_order_acquire);
+  int v5_r2 = atomic_load_explicit(__FILE__, __LINE__, &vars[0], memory_order_acquire);
   int v6_r9 = v5_r2 ^ v5_r2;
-  atomic_store_explicit(__LINE__, &vars[1+v6_r9], 1, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1+v6_r9], 1, memory_order_release);
   int v14 = (v5_r2 == 1);
-  atomic_store_explicit(__LINE__, &atom_1_r2_1, v14, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &atom_1_r2_1, v14, memory_order_release);
 
 }
 
 void t2(void *arg){
 label_3:;
-  atomic_store_explicit(__LINE__, &vars[1], 2, memory_order_release);
+  atomic_store_explicit(__FILE__, __LINE__, &vars[1], 2, memory_order_release);
 
 }
 
@@ -56,9 +56,9 @@ int user_main(int argc, char **argv){
   thrd_join(thr1);
   thrd_join(thr2);
 
-  int v7 = atomic_load_explicit(__LINE__, &atom_0_r2_2, memory_order_acquire);
-  int v8 = atomic_load_explicit(__LINE__, &atom_1_r2_1, memory_order_acquire);
-  int v9 = atomic_load_explicit(__LINE__, &vars[1], memory_order_acquire);
+  int v7 = atomic_load_explicit(__FILE__, __LINE__, &atom_0_r2_2, memory_order_acquire);
+  int v8 = atomic_load_explicit(__FILE__, __LINE__, &atom_1_r2_1, memory_order_acquire);
+  int v9 = atomic_load_explicit(__FILE__, __LINE__, &vars[1], memory_order_acquire);
   int v10 = (v9 == 2);
   int v11_conj = v8 & v10;
   int v12_conj = v7 & v11_conj;

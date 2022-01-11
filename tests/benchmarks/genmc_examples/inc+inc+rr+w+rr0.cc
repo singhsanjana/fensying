@@ -14,11 +14,11 @@ atomic<int> x ;
 int a, b, c, d;
 
 static void thread_1(void *arg) {
-	atomic_fetch_add_explicit(__LINE__, &x, 1, memory_order_relaxed);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
 }
 
 static void thread_2(void *arg) {
-	atomic_fetch_add_explicit(__LINE__, &x, 1, memory_order_relaxed);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
 }
 
 static void thread_3(void *arg) {

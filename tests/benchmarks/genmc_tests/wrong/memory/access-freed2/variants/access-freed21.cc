@@ -1,0 +1,19 @@
+#include <stdlib.h>
+#include <threads.h>#include <stdatomic.h>
+
+#include "../access-freed2.c"
+
+int main()
+{
+	thrd_t t1, t2;
+
+	p = malloc(sizeof(atomic_int));
+	atomic_init(p, 0);
+
+	if (pthread_create(&t2, NULL, thread2, NULL))
+		abort();
+	if (pthread_create(&t1, NULL, thread1, NULL))
+		abort();
+
+	return 0;
+}

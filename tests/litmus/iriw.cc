@@ -11,29 +11,29 @@ int a,b,c,d;
 
 static void fn1(void *obj)
 {
-	atomic_store_explicit(__LINE__, &x, 1, memory_order_release);
+	atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_release);
 }
 
 static void fn2(void *obj)
 {
-	int r1 = atomic_load_explicit(__LINE__, &x, memory_order_acquire);
+	int r1 = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_acquire);
     a = r1;
     if (r1 == 1) {
-        b = atomic_load_explicit(__LINE__, &y, memory_order_acquire);
+        b = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_acquire);
     }
 }
 
 static void fn3(void *obj)
 {
-	atomic_store_explicit(__LINE__, &y, 1, memory_order_release);
+	atomic_store_explicit(__FILE__, __LINE__, &y, 1, memory_order_release);
 }
 
 static void fn4(void *obj)
 {
-	int r1 = atomic_load_explicit(__LINE__, &y, memory_order_acquire);
+	int r1 = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_acquire);
     c = r1;
     if (r1 == 1) {
-        d = atomic_load_explicit(__LINE__, &x, memory_order_acquire);
+        d = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_acquire);
     }
 }
 

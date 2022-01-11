@@ -19,11 +19,11 @@ int r_1, r_2, r_3, r_4;
 
 static void t1(void *arg) {
 	// enqueue 1
-	int k = atomic_fetch_add_explicit(__LINE__, &back, 1, memory_order_acq_rel);
+	int k = atomic_fetch_add_explicit(__FILE__, __LINE__, &back, 1, memory_order_acq_rel);
 	AR[k].store(__LINE__, 1, memory_order_release);
 	
 	// dequeue
-	int lback = atomic_load_explicit(__LINE__, &back, memory_order_acquire);
+	int lback = atomic_load_explicit(__FILE__, __LINE__, &back, memory_order_acquire);
 	int lan, f;
 
 	for (lan = f = 0; lan == 0; ++f) {
@@ -42,17 +42,17 @@ static void t1(void *arg) {
 
 static void t2(void *arg) {
 	// enqueue 2
-	int k = atomic_fetch_add_explicit(__LINE__, &back, 1, memory_order_acq_rel);
-	atomic_store_explicit(__LINE__, &AR[k], 2, memory_order_release);
+	int k = atomic_fetch_add_explicit(__FILE__, __LINE__, &back, 1, memory_order_acq_rel);
+	atomic_store_explicit(__FILE__, __LINE__, &AR[k], 2, memory_order_release);
 
 	// enqueue 3
-	k = atomic_fetch_add_explicit(__LINE__, &back, 1, memory_order_acq_rel);
-	atomic_store_explicit(__LINE__, &AR[k], 3, memory_order_release);
+	k = atomic_fetch_add_explicit(__FILE__, __LINE__, &back, 1, memory_order_acq_rel);
+	atomic_store_explicit(__FILE__, __LINE__, &AR[k], 3, memory_order_release);
 }
 
 static void t3(void *arg) {
 	// dequeue 
-	int lback = atomic_load_explicit(__LINE__, &back, memory_order_acquire);
+	int lback = atomic_load_explicit(__FILE__, __LINE__, &back, memory_order_acquire);
 	int lan, k;
 
 	for (lan = k = 0; lan == 0; ++k) {
@@ -69,13 +69,13 @@ static void t3(void *arg) {
 	r_3 = lan;
 
 	// enqueue 4
-	k = atomic_fetch_add_explicit(__LINE__, &back, 1, memory_order_acq_rel);
-	atomic_store_explicit(__LINE__, &AR[k], 4, memory_order_release);
+	k = atomic_fetch_add_explicit(__FILE__, __LINE__, &back, 1, memory_order_acq_rel);
+	atomic_store_explicit(__FILE__, __LINE__, &AR[k], 4, memory_order_release);
 }
 
 static void t4(void *arg) {
 	// dequeue 
-	int lback = atomic_load_explicit(__LINE__, &back, memory_order_acquire);
+	int lback = atomic_load_explicit(__FILE__, __LINE__, &back, memory_order_acquire);
 	int lan, k;
 
 	for (lan = k = 0; lan == 0; ++k) {
@@ -92,7 +92,7 @@ static void t4(void *arg) {
 	r_4 = lan;
 
 	// dequeue 
-	lback = atomic_load_explicit(__LINE__, &back, memory_order_acquire);
+	lback = atomic_load_explicit(__FILE__, __LINE__, &back, memory_order_acquire);
 	
 	for (lan = k = 0; lan == 0; ++k) {
 		int ok1 = 0;

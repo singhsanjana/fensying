@@ -11,22 +11,22 @@ atomic_int x;
 
 static void fn1(void *obj)
 {
-	atomic_store_explicit(__LINE__, &flag1, 1, memory_order_seq_cst);
-    int r = atomic_load_explicit(__LINE__, &flag2, memory_order_relaxed);
+	atomic_store_explicit(__FILE__, __LINE__, &flag1, 1, memory_order_seq_cst);
+    int r = atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_relaxed);
     if (r == 0) {
-        atomic_store_explicit(__LINE__, &x, 1, memory_order_relaxed);
-        int rx = atomic_load_explicit(__LINE__, &x, memory_order_relaxed);
+        atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
+        int rx = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
         MODEL_ASSERT(rx == 1);
     }
 }
 
 static void fn2(void *obj)
 {
-	atomic_store_explicit(__LINE__, &flag2, 1, memory_order_seq_cst);
-    int r = atomic_load_explicit(__LINE__, &flag1, memory_order_relaxed);
+	atomic_store_explicit(__FILE__, __LINE__, &flag2, 1, memory_order_seq_cst);
+    int r = atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_relaxed);
     if (r == 0) {
-        atomic_store_explicit(__LINE__, &x, 2, memory_order_relaxed);
-        int rx = atomic_load_explicit(__LINE__, &x, memory_order_relaxed);
+        atomic_store_explicit(__FILE__, __LINE__, &x, 2, memory_order_relaxed);
+        int rx = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
         MODEL_ASSERT(rx == 2);
     }
 }

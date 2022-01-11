@@ -66,7 +66,7 @@ static void reader(void *arg) {
 	if (ok == 0)
 		check = 0;
 	else {
-		atomic_fetch_add_explicit(__LINE__, &r, 1, memory_order_acq_rel);
+		atomic_fetch_add_explicit(__FILE__, __LINE__, &r, 1, memory_order_acq_rel);
 		flagr.store(__LINE__, 0, memory_order_release);
 		check = 1;
 	}
@@ -77,7 +77,7 @@ static void reader(void *arg) {
 		int temp1 = x.load(__LINE__, memory_order_relaxed);
 		int temp2 = y.load(__LINE__, memory_order_relaxed);
 		MODEL_ASSERT(temp1 == temp2);
-		atomic_fetch_sub_explicit(__LINE__, &r, 1, memory_order_acq_rel);
+		atomic_fetch_sub_explicit(__FILE__, __LINE__, &r, 1, memory_order_acq_rel);
 	}
 }
 
