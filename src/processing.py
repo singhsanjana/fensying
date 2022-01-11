@@ -131,25 +131,27 @@ class Processing:
 
 			if trace[i][TYPE] == FENCE:
 				# note: no candidate-fences before and after program fences  
-				fence_name = 'F_at_' + str(trace[i][LINE_NO])
+				fence_name = 'F_at_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
 				order.append(fence_name)
 				events_in_thread.append(fence_name)
 				fences_in_thread.append(fence_name) 
 				continue
 
 			if trace[i][LINE_NO] != 'NA': # is a read or a write or an rmw event
-				order.append('F_before_' + str(trace[i][LINE_NO]))
-				events_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
-				fences_in_thread.append('F_before_' + str(trace[i][LINE_NO]))
+				fence_name = 'F_before_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				order.append(fence_name)
+				events_in_thread.append(fence_name)
+				fences_in_thread.append(fence_name)
 				
 				# add event itself
 				order.append(trace[i])
 				events_in_thread.append(trace[i])
 
 				# add fence after the read/write event
-				order.append('F_after_' + str(trace[i][LINE_NO]))
-				events_in_thread.append('F_after_' + str(trace[i][LINE_NO]))
-				fences_in_thread.append('F_after_' + str(trace[i][LINE_NO]))
+				fence_name = 'F_after_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				order.append(fence_name)
+				events_in_thread.append(fence_name)
+				fences_in_thread.append(fence_name)
 
 				continue
 
@@ -160,7 +162,7 @@ class Processing:
 		# add last thread lists
 		self.all_events_by_thread.append(events_in_thread)
 		self.fences_by_thread.append(fences_in_thread)
-		
+
 		return order
 
 	# computes transitive sb

@@ -23,19 +23,7 @@ def pretty_pos(pos):
     return attr[1] + ' line no. ' + attr[2]
     
 
-def synthesis_summary(fences_and_tags):
-    fences_and_tags_by_files = {}
-    
-    for fence in fences_and_tags:
-        # filename = fence.split('@')[1]
-        filename = '??' # snj: TODO add filename to fences
-        fence_pos = pretty_pos(fence.split('@')[0])
-        
-        if filename in fences_and_tags_by_files:
-            fences_and_tags_by_files[filename].append( (fence_pos, fences_and_tags[fence]) )
-        else:
-            fences_and_tags_by_files[filename] = [ (fence_pos, fences_and_tags[fence]) ]
-
+def synthesis_summary(fences_and_tags_by_files):
     pt = PrettyTable()
     print (oc.OKBLUE + oc.BOLD + "\n\n================= SYNTHESIS SUMMARY =================" + oc.ENDC)
     pt.field_names = ['FILENAME', 'POSITION', 'M.O.', 'TYPE']
@@ -48,14 +36,14 @@ def synthesis_summary(fences_and_tags):
                 mod_list.append( (fence_pos, mo) )
                 continue
 
-            pt.add_row([file, fence_pos, pretty_mo(mo), 'synthesized'])
+            pt.add_row([file, pretty_pos(fence_pos), pretty_mo(mo), 'synthesized'])
 
         for (fence_pos, mo) in mod_list:
-            pt.add_row([file, fence_pos, pretty_mo(mo), 'strengthened'])
+            pt.add_row([file, pretty_pos(fence_pos), pretty_mo(mo), 'strengthened'])
 
     print(pt)
 
-def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count_modified_fences, 
+def final_result_summary(total_time, mc_time, mc_make_time, z3_time, count_added_fences, count_modified_fences, 
                         batching, total_iterations, filename, print_synthesis_summary, fences_and_tags):
     print(oc.OKBLUE + oc.BOLD + "\n\n================= RESULT SUMMARY =================" + oc.ENDC)
     
@@ -65,7 +53,7 @@ def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count
     print("Time- CEG:\t\t",round(mc_time, 2)) # CDS time + relations cpmputation time
     print("Time- Z3:\t\t",round(z3_time, 2))
     print("\nTime- Total:\t\t",round(total_time, 2))
-    print("Time- Fensying:\t\t",round(total_time - (mc_time + z3_time), 2))
+    print("Time- Fensying:\t\t",round(total_time - (mc_time + z3_time + mc_make_time), 2))
     if batching:
         print("\nTotal iterations:\t",total_iterations)
         print("Time- avg per iter:\t",round(total_time/total_iterations, 2))

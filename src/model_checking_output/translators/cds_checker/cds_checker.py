@@ -24,6 +24,7 @@ class translate_cds:
 		self.no_buggy_execs = 0											# number of buggy executions for this run
 		self.error_string = None										# handle error in CDS Checker
 		self.cds_time = 0
+		self.make_time = 0
 		self.buggy_trace_no = []										# no of buggy traces, required for mo file name
 
 		change_dir = 'cd ' + fi.CDS_FOLDER_PATH
@@ -36,14 +37,13 @@ class translate_cds:
 			cds_cmd += ' -c ' + str(traces_batch_size)
 		cds_cmd = shlex.split(cds_cmd)
 		
-		cds_start = time.time()
-		make_time = 0
 		if current_iteration > 1:
 			make_time_start = time.time()
 			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
-			make_time = time.time() - make_time_start
-			print('time of model checker MAKE = ', make_time)
+			self.make_time = time.time() - make_time_start
+			print('time of model checker MAKE = ', round(self.make_time, 2))
 
+		cds_start = time.time()
 		signal.signal(signal.SIGALRM, time_handler)
 		signal.alarm(900)												# set timer for 15 minutes for CDSChecker
 		try:
@@ -53,7 +53,7 @@ class translate_cds:
 			cds_end = time.time()
 			p = p.decode('utf-8')										# convert to string
 
-			self.cds_time = cds_end - cds_start - make_time
+			self.cds_time = cds_end - cds_start
 			self.obtain_traces(p)
 		except RuntimeError:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
@@ -83,7 +83,7 @@ class translate_cds:
 		# print('no_buggy_execs: ', self.no_buggy_execs)
 		# print('error_string: ', self.error_string)
 		# print('buggy_trace_no', self.buggy_trace_no)
-		return self.traces, self.cds_time, self.no_buggy_execs, self.error_string, self.buggy_trace_no
+		return self.traces, self.cds_time, self.make_time, self.no_buggy_execs, self.error_string, self.buggy_trace_no
 
 	# to differentiate and obtain each trace from the std output in the terminal
 	def obtain_traces(self,p):

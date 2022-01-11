@@ -69,6 +69,19 @@ def get_min_cycles_of_trace(min_model, trace_cycles):
 
 	return min_cycles
 
+def solution_by_files(solution): # solution dict: fence -> mo
+	solution_files = {}
+	for fence in solution:
+		filename = fence.split('@')[1]
+		fence_pos = fence.split('@')[0]
+        
+		if filename in solution_files:
+			solution_files[filename].append( (fence_pos, solution[fence]) )
+		else:
+			solution_files[filename] = [ (fence_pos, solution[fence]) ]
+	
+	return solution_files
+
 def allocate_fence_orders(min_model, cycles_tags_by_trace):
 	# initialize candidate_solutions to min_cycle of trace 0
 	candidate_solutions = get_min_cycles_of_trace(min_model, cycles_tags_by_trace[0]) 
@@ -97,4 +110,4 @@ def allocate_fence_orders(min_model, cycles_tags_by_trace):
 
 		candidate_solutions = reduce(new_candidate_solutions)
 
-	return candidate_solutions[0] # if there are >1 solutions return any 1
+	return solution_by_files(candidate_solutions[0]) # if there are >1 solutions return any 1

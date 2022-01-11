@@ -4,35 +4,44 @@ from constants import file_info as fi
 from constants import f_tags as ft
 from constants import *
 
-def insert(fence_tags, filename):
-	with open(filename) as f:
-		lines = f.readlines()
+def insert(fence_tags_by_file, input_filename):
+	path = input_filename[:-1*len(input_filename.split('/')[-1])]
 	
-	if fi.OUTPUT_FILE_APPEND_STRING in filename:
-		filename_new = filename
-	else:
-		extension_length = -1*len(fi.FILE_EXTENSION)
-		filename_new = filename[:extension_length]+fi.OUTPUT_FILE_APPEND_STRING
-
-	output_file = open(filename_new,'w')
-	
-	count_modified_fences = 0
-	for f, order_req in fence_tags.items():
-		already_has_fence, fen_index, order = get_fence_to_insert(f, order_req, lines)
-
-		# insert the fence
-		if not already_has_fence:
-			# Synthesize fence
-			lines[fen_index] += fi.FENCE_INSTRUCTIONS[order]
+	for filename in fence_tags_by_file:
+		filepath = filename
+		if not filename.startswith(path):
+			filepath = path + filename
+		with open(filepath) as f:
+			lines = f.readlines()
+		
+		if fi.OUTPUT_FILE_APPEND_STRING in filename:
+			filepath_new = filepath
 		else:
-			# Strengthen order of existing fence
-			count_modified_fences += 1
-			lines[fen_index] = fi.FENCE_INSTRUCTIONS[order]
+			extension_length = -1*len(fi.FILE_EXTENSION)
+			filepath_new = filepath[:extension_length]+fi.OUTPUT_FILE_APPEND_STRING
 
-	for w in lines:
-		output_file.writelines(w)
+		if filepath == input_filename: # current file is the input file, not a file input file is dependent on
+			input_filename = filepath_new
 
-	return (filename_new, count_modified_fences)
+		output_file = open(filepath_new,'w')
+		
+		count_modified_fences = 0
+		for f, order_req in fence_tags_by_file[filename]:
+			already_has_fence, fen_index, order = get_fence_to_insert(f, order_req, lines)
+
+			# insert the fence
+			if not already_has_fence:
+				# Synthesize fence
+				lines[fen_index] += fi.FENCE_INSTRUCTIONS[order]
+			else:
+				# Strengthen order of existing fence
+				count_modified_fences += 1
+				lines[fen_index] = fi.FENCE_INSTRUCTIONS[order]
+
+		for w in lines:
+			output_file.writelines(w)
+
+	return (input_filename, count_modified_fences)
 
 def get_fence_to_insert(f, order_req, lines):
 	line_no = int(f[f.rfind('_')+1:])

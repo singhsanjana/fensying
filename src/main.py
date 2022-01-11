@@ -52,6 +52,7 @@ elif no_traces == 0 or max_iter == 0:
 	sys.exit(0)
 
 mc_total = 0
+mc_make_total = 0
 z3_total = 0
 fences_added = 0
 fences_modified = 0
@@ -62,6 +63,7 @@ synthesis_summary = ""
 
 def fn_main(filename):
 	global mc_total
+	global mc_make_total
 	global pre_calc_total
 	global z3_total
 	global fences_added
@@ -80,7 +82,7 @@ def fn_main(filename):
 	if no_traces:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
-	traces, mc_time, no_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, no_traces, total_iter)
+	traces, mc_time, mc_make_time, no_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, no_traces, total_iter)
 	# print('after model_checking_output, buggy_trace_no:', buggy_trace_no)
 
 	if mc_error_string is not None:
@@ -108,6 +110,7 @@ def fn_main(filename):
 				fence_tags_final.update(fence_tags)
 
 	mc_total += mc_time
+	mc_make_total += mc_make_time
 	z3_total += z3_time
 	if no_traces:
 		if no_buggy_execs and not error_string:
@@ -126,4 +129,4 @@ except RuntimeError:
 	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
-res.final_result_summary((end-start), (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, no_traces, total_iter, filename, print_synthesis_summary, fence_tags_final)
+res.final_result_summary((end-start), (mc_total+pre_calc_total), mc_make_total, z3_total, fences_added, fences_modified, no_traces, total_iter, filename, print_synthesis_summary, fence_tags_final)

@@ -3,6 +3,6 @@ from model_checking_output.pre_calculator.pre_calculations import pre_calculatio
 
 def model_checking_output(filename, traces_batch_size, total_iter):
 	cds = translate_cds(filename, traces_batch_size, total_iter)								# translates CDS Checker output & returns a structure containing the traces
-	traces, mc_time, no_buggy_execs, mc_error_string, buggy_trace_no = cds.get()
+	traces, mc_time, mc_make_time, no_buggy_execs, mc_error_string, buggy_trace_no = cds.get()
 
-	return traces, mc_time, no_buggy_execs, mc_error_string, buggy_trace_no
+	return traces, mc_time, mc_make_time, no_buggy_execs, mc_error_string, buggy_trace_no
