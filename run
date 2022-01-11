@@ -15,5 +15,5 @@ fi
 
 f="\.\.\/$filename.cc"
 
-cd code
+cd src
 python3 main.py -f $f ${@:2}

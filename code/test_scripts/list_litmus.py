@@ -1,2 +1,0 @@
-path = 'litmus/'
-litmus = ['wrir_fixed.cc', 'mod_fence.cc', 'wrir_rmw_fixed.cc', 'wrir.cc', 'mod_fence_fixed.cc', 'mutex_fixed.cc', 'wrir_rmw.cc', 'mutex.cc', 'iriw.cc', 'weak_fensying/hb_fixed.cc', 'weak_fensying/mo_hb_rmw.cc', 'weak_fensying/mo_hb_rmw_fixed.cc', 'weak_fensying/rf_hb_fixed.cc', 'weak_fensying/mo_hb_fixed.cc', 'weak_fensying/mo_rf_hb_rfinv_fixed.cc', 'weak_fensying/mo_rf_hb_fixed.cc', 'weak_fensying/mo_hb.cc', 'weak_fensying/mo_rf_hb.cc', 'weak_fensying/hb.cc', 'weak_fensying/mo_rf_hb_rfinv.cc', 'weak_fensying/rf_hb.cc']
