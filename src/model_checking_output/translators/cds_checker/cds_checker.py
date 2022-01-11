@@ -36,9 +36,13 @@ class translate_cds:
 			cds_cmd += ' -c ' + str(traces_batch_size)
 		cds_cmd = shlex.split(cds_cmd)
 		
-		if current_iteration > 1:
-			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
 		cds_start = time.time()
+		make_time = 0
+		if current_iteration > 1:
+			make_time_start = time.time()
+			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
+			make_time = time.time() - make_time_start
+			print('time of model checker MAKE = ', make_time)
 
 		signal.signal(signal.SIGALRM, time_handler)
 		signal.alarm(900)												# set timer for 15 minutes for CDSChecker
@@ -49,7 +53,7 @@ class translate_cds:
 			cds_end = time.time()
 			p = p.decode('utf-8')										# convert to string
 
-			self.cds_time = cds_end-cds_start
+			self.cds_time = cds_end - cds_start - make_time
 			self.obtain_traces(p)
 		except RuntimeError:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."

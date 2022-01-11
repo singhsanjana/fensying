@@ -24,8 +24,9 @@ MO	= 3						# memory order
 ADDR = 4					# memory address that instr is accessing
 VALUE = 5					# value of variable/thread in the instruction
 RF = 6						# S_NO of source write
-LINE_NO = 7					# line number in source code
-CV = 8						# clock vector representing hb relation
+FILENAME = 7				# name of the source file
+LINE_NO = 8					# line number in source code
+CV = 9						# clock vector representing hb relation
 
 # models
 strong_write_models = [REL, ACQ_REL, SEQ_CST]

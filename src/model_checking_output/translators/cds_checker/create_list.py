@@ -4,14 +4,7 @@
 
 def read_cv(instr):
 	cv = []
-	cv_str = ''
-
-	if instr[3] == 'read' or instr[3] == 'rmw':
-		cv_str = instr[9]
-	elif instr[3] == 'write':
-		cv_str = instr[8]
-	else:
-		cv_str = instr[7]
+	cv_str = instr[-1]
 
 	cv_str = cv_str[3:len(cv_str)-1] # removing ( and )
 	cv = []
@@ -49,12 +42,19 @@ def create_list(instr):
 		line.append("NA")								# 6: rf value = NA in case of non-read operation
 
 	if instr[3] == "read" or instr[3] == "rmw":
-		line.append(int(instr[8]))						# 7: line number
+		line.append(instr[8])							# 7: filename
 	elif  instr[3] == "write" or instr[3] == "fence":
-		line.append(int(instr[7]))						# 7: line number
+		line.append(instr[7])							# 7: filename
 	else:
-		line.append("NA")								# 7: line number = NA in case of non-read/write/rmw operation
+		line.append("NA")								# 7: filename = NA in case of non-read/write/rmw operation
 
-	line.append(read_cv(instr))
+	if instr[3] == "read" or instr[3] == "rmw":
+		line.append(int(instr[9]))						# 8: line number
+	elif  instr[3] == "write" or instr[3] == "fence":
+		line.append(int(instr[8]))						# 8: line number
+	else:
+		line.append("NA")								# 8: line number = NA in case of non-read/write/rmw operation
 
+	line.append(read_cv(instr))							# 9: HB before this event
+	
 	return line
