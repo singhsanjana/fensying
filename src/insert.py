@@ -4,6 +4,16 @@ from constants import file_info as fi
 from constants import f_tags as ft
 from constants import *
 
+def fix_includes(lines, modified_files):
+	for i in range(len(lines)):
+		if '#include' in lines[i] and '"' in lines[i] and not '_fixed' in lines[i]:
+			line = lines[i][lines[i].find('"')+1:]
+			filename = line[:line.find('"')]
+			if filename in modified_files:
+				filename = filename[:filename.rfind('.')] + '_fixed' + filename[filename.rfind('.'):]
+				lines[i] = '#include "' + filename + '"\n'
+	return lines
+
 def insert(fence_tags_by_file, input_filename):
 	path = input_filename[:-1*len(input_filename.split('/')[-1])]
 	
@@ -13,6 +23,8 @@ def insert(fence_tags_by_file, input_filename):
 			filepath = path + filename
 		with open(filepath) as f:
 			lines = f.readlines()
+
+		lines = fix_includes(lines, fence_tags_by_file.keys())
 		
 		if fi.OUTPUT_FILE_APPEND_STRING in filename:
 			filepath_new = filepath

@@ -43,7 +43,7 @@ def synthesis_summary(fences_and_tags_by_files):
 
     print(pt)
 
-def final_result_summary(total_time, mc_time, mc_make_time, z3_time, count_added_fences, count_modified_fences, 
+def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count_modified_fences, 
                         batching, total_iterations, filename, print_synthesis_summary, fences_and_tags):
     print(oc.OKBLUE + oc.BOLD + "\n\n================= RESULT SUMMARY =================" + oc.ENDC)
     
@@ -52,8 +52,8 @@ def final_result_summary(total_time, mc_time, mc_make_time, z3_time, count_added
 
     print("Time- CEG:\t\t",round(mc_time, 2)) # CDS time + relations cpmputation time
     print("Time- Z3:\t\t",round(z3_time, 2))
-    print("\nTime- Total:\t\t",round(total_time, 2))
-    print("Time- Fensying:\t\t",round(total_time - (mc_time + z3_time + mc_make_time), 2))
+    # print("\nTime- Total:\t\t",round(total_time, 2))
+    print("Time- Fensying:\t\t",round(total_time - (mc_time + z3_time), 2))
     if batching:
         print("\nTotal iterations:\t",total_iterations)
         print("Time- avg per iter:\t",round(total_time/total_iterations, 2))
