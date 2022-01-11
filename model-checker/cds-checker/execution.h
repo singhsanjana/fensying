@@ -118,6 +118,9 @@ public:
 
 	CycleGraph * const get_mo_graph() { return mo_graph; }
 
+	// [snj]: book-keeping of input files
+	void add_file(const char* filename);
+
 	SNAPSHOTALLOC
 private:
 	int get_execution_number() const;

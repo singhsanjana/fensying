@@ -89,7 +89,7 @@ class ClockVector;
  */
 class ModelAction {
 public:
-	ModelAction(int line_no, action_type_t type, memory_order order, void *loc, uint64_t value = VALUE_NONE, Thread *thread = NULL);
+	ModelAction(const char* filename, int line_no, action_type_t type, memory_order order, void *loc, uint64_t value = VALUE_NONE, Thread *thread = NULL);
 	ModelAction(action_type_t type, memory_order order, void *loc, uint64_t value = VALUE_NONE, Thread *thread = NULL);
 	~ModelAction();
 	void print() const;
@@ -107,6 +107,7 @@ public:
 	uint64_t get_return_value() const;
 	const ModelAction * get_reads_from() const { return reads_from; }
 	int get_line_no() const { return line_no; }
+	const char* get_filename() const { return filename; }
 	Promise * get_reads_from_promise() const { return reads_from_promise; }
 	std::mutex * get_mutex() const;
 
@@ -254,6 +255,9 @@ private:
 
 	/** @brief The line number of this operation (if provided) */
 	int line_no;
+
+	/** @brief The input file of this operation (if provided) */
+	const char* filename;
 
 	bool sleep_flag;
 };

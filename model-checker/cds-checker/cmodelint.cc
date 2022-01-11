@@ -4,13 +4,13 @@
 #include "threads-model.h"
 
 /** Performs a read action.*/
-uint64_t model_read_action(void * obj, memory_order ord, int line_no) {
-	return model->switch_to_master(new ModelAction(line_no, ATOMIC_READ, ord, obj));
+uint64_t model_read_action(void * obj, memory_order ord, const char* filename, int line_no) {
+	return model->switch_to_master(new ModelAction(filename, line_no, ATOMIC_READ, ord, obj));
 }
 
 /** Performs a write action.*/
-void model_write_action(void * obj, memory_order ord, uint64_t val, int line_no) {
-	model->switch_to_master(new ModelAction(line_no, ATOMIC_WRITE, ord, obj, val));
+void model_write_action(void * obj, memory_order ord, uint64_t val, const char* filename, int line_no) {
+	model->switch_to_master(new ModelAction(filename, line_no, ATOMIC_WRITE, ord, obj, val));
 }
 
 /** Performs an init action. */
@@ -23,8 +23,8 @@ void model_init_action(void * obj, uint64_t val) {
  * write part of the RMW action or an explicit close out of the RMW action w/o
  * a write.
  */
-uint64_t model_rmwr_action(void *obj, memory_order ord, int line_no) {
-	return model->switch_to_master(new ModelAction(line_no, ATOMIC_RMWR, ord, obj));
+uint64_t model_rmwr_action(void *obj, memory_order ord, const char* filename, int line_no) {
+	return model->switch_to_master(new ModelAction(filename, line_no, ATOMIC_RMWR, ord, obj));
 }
 
 /** Performs the write part of a RMW action. */
@@ -38,6 +38,6 @@ void model_rmwc_action(void *obj, memory_order ord) {
 }
 
 /** Issues a fence operation. */
-void model_fence_action(memory_order ord, int line_no) {
-	model->switch_to_master(new ModelAction(line_no, ATOMIC_FENCE, ord, FENCE_LOCATION));
+void model_fence_action(memory_order ord, const char* filename, int line_no) {
+	model->switch_to_master(new ModelAction(filename, line_no, ATOMIC_FENCE, ord, FENCE_LOCATION));
 }

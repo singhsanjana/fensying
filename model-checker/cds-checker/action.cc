@@ -53,7 +53,7 @@ ModelAction::ModelAction(action_type_t type, memory_order order, void *loc,
 	this->tid = t->get_id();
 }
 
-ModelAction::ModelAction(int line_no, action_type_t type, memory_order order, void *loc,
+ModelAction::ModelAction(const char* filename, int line_no, action_type_t type, memory_order order, void *loc,
 		uint64_t value, Thread *thread) :
 	type(type),
 	order(order),
@@ -62,6 +62,7 @@ ModelAction::ModelAction(int line_no, action_type_t type, memory_order order, vo
 	value(value),
 	reads_from(NULL),
 	line_no(line_no),
+	filename(filename),
 	reads_from_promise(NULL),
 	last_fence_release(NULL),
 	node(NULL),
@@ -600,7 +601,7 @@ void ModelAction::print() const
 {
 	const char *type_str = get_type_str(), *mo_str = get_mo_str();
 	int line_no = get_line_no();
-
+	
 	model_print("%-4d %-2d   %-13s   %7s  %14p   %-#18" PRIx64,
 			seq_number, id_to_int(tid), type_str, mo_str, location, get_return_value());
 	if (is_read()) {
@@ -614,15 +615,18 @@ void ModelAction::print() const
 				model_print("  P? ");
 		} else
 			model_print("  ?  ");
+		model_print("  %10s",filename);
 		model_print("  %d",line_no);
 	}
-	else if (line_no)
+	else if (line_no) {
+		model_print("       %10s",filename);
 		model_print("       %d",line_no);
+	}
 	if (cv) {
 		if (line_no)
 			model_print("   ");
 		else
-			model_print("            ");
+			model_print("                          ");
 		cv->print();
 	} else
 		model_print("\n");
