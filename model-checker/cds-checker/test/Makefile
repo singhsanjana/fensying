@@ -5,7 +5,7 @@ OBJECTS += $(patsubst %.cc, %.o, $(wildcard *.cc))
 
 include $(BASE)/common.mk
 
-DIR := litmus
+DIR := sv-comp
 include $(DIR)/Makefile
 
 DEPS := $(join $(addsuffix ., $(dir $(OBJECTS))), $(addsuffix .d, $(notdir $(OBJECTS))))
