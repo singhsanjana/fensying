@@ -7,28 +7,28 @@ def convert_load(line):
     while line[l] != '(':
         l += 1
 
-    return line[:l+1] + '__LINE__, ' + line[l+1:]
+    return line[:l+1] + '__FILE__, __LINE__, ' + line[l+1:]
 
 def convert_store(line):
     l = line.find('atomic_store_explicit') + len('atomic_store_explicit')
     while line[l] != '(':
         l += 1
 
-    return line[:l+1] + '__LINE__, ' + line[l+1:]
+    return line[:l+1] + '__FILE__, __LINE__, ' + line[l+1:]
 
 def convert_fetch_add(line):
     l = line.find('atomic_fetch_add_explicit') + len('atomic_fetch_add_explicit')
     while line[l] != '(':
         l += 1
 
-    return line[:l+1] + '__LINE__, ' + line[l+1:]
+    return line[:l+1] + '__FILE__, __LINE__, ' + line[l+1:]
 
 def convert_fetch_sub(line):
     l = line.find('atomic_fetch_sub_explicit') + len('atomic_fetch_sub_explicit')
     while line[l] != '(':
         l += 1
 
-    return line[:l+1] + '__LINE__, ' + line[l+1:]
+    return line[:l+1] + '__FILE__, __LINE__, ' + line[l+1:]
 
 def convert_main(line):
     start = line.find('main')

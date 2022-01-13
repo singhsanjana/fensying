@@ -9,7 +9,6 @@ OBJECTS := $(patsubst $(INDIR)/%.cpp, $(OUTDIR)/%.cc, $(wildcard $(INDIR)/*/*.cp
 all: $(OBJECTS)
 
 $(filter %.cc,$(OBJECTS)): $(OUTDIR)/%.cc: $(INDIR)/%.cpp
-	echo "target: $@ prereq: $<"
 	./convert.py $< -o $@
 
 
