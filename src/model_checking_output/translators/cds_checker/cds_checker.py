@@ -68,7 +68,7 @@ class translate_cds:
 					print(oc.OKGREEN, oc.BOLD, 'No buggy traces. Nothing to do.', oc.ENDC)
 					exit(0)
 				else:
-					print('No buggy traces. Nothing to do.')
+					print('No more buggy traces.')
 			# print("\n\nBuggy executions:\t",self.no_buggy_execs)
 
 			if self.no_buggy_execs != 0:

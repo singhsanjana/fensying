@@ -1,6 +1,7 @@
-from constants import output_colours as oc
+from constants import ADDR, MO, RF, S_NO, T_NO, TYPE, VALUE, output_colours as oc
 from constants import file_info as fi
 from prettytable import PrettyTable
+from tabulate import tabulate
 
 
 def iteration_result_summary(mc_time, z3_time, count_added_fences, count_modified_fences):
@@ -44,7 +45,7 @@ def synthesis_summary(fences_and_tags_by_files):
     print(pt)
 
 def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count_modified_fences, 
-                        batching, total_iterations, filename, print_synthesis_summary, fences_and_tags):
+                        batching, total_iterations, print_synthesis_summary, fences_and_tags):
     print(oc.OKBLUE + oc.BOLD + "\n\n================= RESULT SUMMARY =================" + oc.ENDC)
     
     print(oc.OKGREEN, oc.BOLD, "Total fences synthesized:  \t", count_added_fences, oc.ENDC)
@@ -53,14 +54,38 @@ def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count
     print("Time- CEG:\t\t",round(mc_time, 2)) # CDS time + relations cpmputation time
     print("Time- Z3:\t\t",round(z3_time, 2))
     # print("\nTime- Total:\t\t",round(total_time, 2))
-    print("Time- Fensying:\t\t",round(total_time - (mc_time + z3_time), 2))
+    print("Time- Fensying:\t\t",round(total_time - (mc_time + z3_time), 2), '\n\n')
     if batching:
-        print("\nTotal iterations:\t",total_iterations)
-        print("Time- avg per iter:\t",round(total_time/total_iterations, 2))
+        print("Total iterations:\t",total_iterations)
+        print("Time- avg per iter:\t",round(total_time/total_iterations, 2), '\n\n')
 
     if print_synthesis_summary:
         synthesis_summary(fences_and_tags)
 
     if z3_time > 0:
-        fenced_filename = filename[:-3] + fi.OUTPUT_FILE_APPEND_STRING
-        print(oc.OKBLUE, oc.BOLD, "\n\nFixed program at:", fenced_filename[3:], "\n", oc.ENDC)
+        modified_files = list(fences_and_tags.keys())
+        fixed_files = []
+
+        for i in range(len(modified_files)):
+            filename = modified_files[i]
+            fenced_filename = filename[:filename.rfind('.')] + fi.OUTPUT_FILE_APPEND_STRING
+            fixed_files.append(fenced_filename)
+
+        if len(fixed_files) == 1:
+            print(oc.OKBLUE, oc.BOLD, 'Fixed input file(s) at:', fixed_files[0], '\n', oc.ENDC)
+            return
+        print(oc.OKBLUE, oc.BOLD, 'Fixed input file(s) at:', str(fixed_files).replace("'", ""), '\n', oc.ENDC)
+
+def print_trace(trace):
+    for i in range(len(trace)):
+        event = trace[i]
+        if event[TYPE] == 'read' or event[TYPE] == 'rmw':
+            trace[i] = event[:7]
+        elif event[TYPE] == 'write':
+            trace[i] = event[:6] + ['']
+        else:
+            trace[i] = event[:5] + ['', '']
+        trace[i].append(event[9])
+
+    header_values = ['#', 'Thread', 'Type', 'MO', 'Location', 'Value', 'RF', 'HB']
+    print(tabulate(trace, headers=header_values))
