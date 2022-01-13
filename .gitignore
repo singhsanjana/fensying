@@ -1,33 +1,19 @@
-# Byte-compiled / optimized / DLL / LaTeX files
+# Byte-compiled / optimized / DLL
 __pycache__/
 *.py[cod]
 .vscode/
-*.aux
-*.bbl
-*.blg
-*.log
-*.out
-*.pdf
-*.gz
-*.fls
-*.dvi
-*.fdb_latexmk
-*.soc
-*.loc
+
 
 # generated files from the tool
 compute_fences
 *_store
 
 # testing files/folders
-*_fixed.cc
-*testing*
-code/benchmarks/test
-code/result
 tests/**/*.o
 tests/**/*.o.d
 tests/**/*_fixed.cc
-tests_backup
+tests/test_scripts/result
+backup
 
 # model checker files:
 # cds checker

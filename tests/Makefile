@@ -1,6 +1,6 @@
 BASE := ../model-checker/cds-checker
 
-SUBDIRS := $(wildcard */.)
+SUBDIRS := litmus litmus/weak_fensying # $(wildcard */.)
 
 OBJECTS := $(patsubst %.c, %.o, $(wildcard *.c))
 OBJECTS += $(patsubst %.cc, %.o, $(wildcard *.cc))
@@ -12,9 +12,9 @@ DEPS := $(join $(addsuffix ., $(dir $(OBJECTS))), $(addsuffix .d, $(notdir $(OBJ
 CPPFLAGS += -I$(BASE) -I$(BASE)/include
 
 all: $(OBJECTS)
-	# for dir in $(SUBDIRS); do \
-	# 	$(MAKE) -C $$dir; \
-	# done
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir; \
+	done
 
 -include $(DEPS)
 

@@ -15,6 +15,7 @@ def convert_action(line, pattern):
         l = line.find(pattern) + len(pattern)
         while line[l] != '(':
             l += 1
+        print('new line ' + line[:l+1] + '__FILE__, ' + line[l+1:])
         return line[:l+1] + '__FILE__, ' + line[l+1:]
     if has_file:
         l = line.find('__FILE__') + len('__FILE__,')
@@ -26,16 +27,24 @@ def convert_action(line, pattern):
     return line[:l+1] + '__FILE__, __LINE__, ' + line[l+1:]
 
 def convert_load(line):
-    return convert_action(line, 'atomic_load_explicit')
+    if 'atomic_load_explicit' in line:
+        return convert_action(line, 'atomic_load_explicit')
+    return convert_action(line, '.load')
 
 def convert_store(line):
-    return convert_action(line, 'atomic_store_explicit') 
+    if 'atomic_load_explicit' in line:
+        return convert_action(line, 'atomic_store_explicit')
+    return convert_action(line, '.store')
 
 def convert_fetch_add(line):
-    return convert_action(line, 'atomic_fetch_add_explicit') 
+    if 'atomic_load_explicit' in line:
+        return convert_action(line, 'atomic_fetch_add_explicit')
+    return convert_action(line, '.fetch_add')
 
 def convert_fetch_sub(line):
-    return convert_action(line, 'atomic_fetch_sub_explicit') 
+    if 'atomic_load_explicit' in line:
+        return convert_action(line, 'atomic_fetch_sub_explicit')
+    return convert_action(line, '.fetch_sub')
 
 def convert_fence(line):
     return convert_action(line, 'atomic_thread_fence') 
@@ -167,7 +176,7 @@ def convert_assert(line):
     end   = start + len('assert')
     return (line[:start] + 'MODEL_ASSERT' + line[end:])
 
-base_dir = 'tests'
+base_dir = 'tests/litmus'
 
 filecount = 0
 fileModcount = 0
@@ -204,13 +213,13 @@ for root, subdirs, files in os.walk(base_dir):
                 line = '#include <threads.h>'
             elif '#include <assert.h>' in line:
                 line = '#include "librace.h" \n#include "model-assert.h"\n'
-            elif 'atomic_load_explicit' in line:
+            elif 'atomic_load_explicit' in line or '.load' in line:
                 line = convert_load(line)
-            elif 'atomic_store_explicit' in line:
+            elif 'atomic_store_explicit' in line or '.store' in line:
                 line = convert_store(line)
-            elif 'atomic_fetch_add_explicit' in line:
+            elif 'atomic_fetch_add_explicit' in line or '.fetch_add' in line:
                 line = convert_fetch_add(line)
-            elif 'atomic_fetch_sub_explicit' in line:
+            elif 'atomic_fetch_sub_explicit' in line or '.fetch_sub' in line:
                 line = convert_fetch_sub(line)
             elif 'atomic_thread_fence' in line:
                 line = convert_fence(line)
