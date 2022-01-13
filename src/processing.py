@@ -1,8 +1,8 @@
 from model_checking_output.pre_calculator.pre_calculations import pre_calculations
 from preprocessing import preprocessing
 from edges_computation import edges_computation
-# from to import to
 from cycle import Cycles
+from publish_result import print_trace
 from weak_fensying import weak_fensying
 from compute_cycles_tags import compute_relaxed_tags, compute_strong_tags
 from z3translate import z3translate
@@ -22,7 +22,6 @@ class Processing:
 		self.cycles_tags_by_trace = []
 
 		trace_no = 0
-		# print("traces=",traces)
 
 		for trace in traces:									# run for each trace
 			self.all_events_by_thread = []						# list of all events separated by threads
@@ -110,8 +109,9 @@ class Processing:
 				self.z3vars = list(set(self.z3vars + formula_variables)) # add to list of unique fences
 				self.formula.append(formula) # add to disjuctions
 
-			else: # len(candidate_cycles) = 0
-				self.error_string = '\nABORT: buggy trace #' + str(trace_no) + ' cannot be stopped by C11 fences\n'
+			else:
+				self.error_string = '\nABORT: C11 fences cannot stop the buggy trace\n'
+				print_trace(trace)
 				return
 
 	def fence(self, trace):

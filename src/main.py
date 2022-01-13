@@ -106,8 +106,7 @@ def fn_main(filename):
 
 			fences_added += len(req_fences)
 			fences_modified += count_modified_fences
-			if print_synthesis_summary:
-				fence_tags_final.update(fence_tags)
+			fence_tags_final.update(fence_tags)
 
 	mc_total += mc_time
 	mc_make_total += mc_make_time
@@ -129,4 +128,4 @@ except RuntimeError:
 	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
-res.final_result_summary((end-start-mc_make_total), (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, no_traces, total_iter, filename, print_synthesis_summary, fence_tags_final)
+res.final_result_summary((end-start-mc_make_total), (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, no_traces, total_iter, print_synthesis_summary, fence_tags_final)
