@@ -18,13 +18,13 @@ static void t1(void *arg) {
 }
 
 static void t2(void *arg) {
-  a = x.load(__LINE__, memory_order_relaxed);
-  y.store(__LINE__, 1, memory_order_relaxed);
+  a = x.load(__FILE__, __LINE__, memory_order_relaxed);
+  y.store(__FILE__, __LINE__, 1, memory_order_relaxed);
 }
 
 static void t3(void *arg) {
-  b = y.load(__LINE__, memory_order_relaxed);
-  c = x.load(__LINE__, memory_order_relaxed);
+  b = y.load(__FILE__, __LINE__, memory_order_relaxed);
+  c = x.load(__FILE__, __LINE__, memory_order_relaxed);
 }
 
 int user_main(int argc, char **argv) {
