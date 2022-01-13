@@ -1,19 +1,25 @@
 #!/bin/bash
 
+NOTE='\033[0;36m'
+END_NOTE='\033[0m' # No Color
+
 if [ $# -eq 0 ]; then
     echo "Input file not specified."
     exit 0
 fi
 
 IFS=. read -r filename ext <<< "$1"
-obj_file="$filename.o"
+if [[ "$ext" != "o" ]]; then
+    echo -e "${NOTE}Modifying filename: $1 --> $filename.o ${END_NOTE}"
+fi
+obj="$filename.o"
 
-if [ ! -f $obj_file ]; then
+if [ ! -f $obj ]; then
     echo "Object file not found. (try make)"
     exit 0
 fi
 
-f="\.\.\/$filename.cc"
+f="\.\.\/$obj"
 
 cd src
 python3 main.py -f $f ${@:2}

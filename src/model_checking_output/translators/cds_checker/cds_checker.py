@@ -30,8 +30,7 @@ class translate_cds:
 		change_dir = 'cd ' + fi.CDS_FOLDER_PATH
 		make = change_dir + ' && ' + 'make'
 
-		# ../path_name.ext -> path_name.o
-		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filename[3:filename.rfind('.')] + '.o'
+		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filename[3:]
 
 		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
 		if traces_batch_size:

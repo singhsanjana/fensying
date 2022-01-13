@@ -32,8 +32,8 @@ def insert(fence_tags_by_file, input_filename):
 			extension_length = -1*len(fi.FILE_EXTENSION)
 			filepath_new = filepath[:extension_length]+fi.OUTPUT_FILE_APPEND_STRING
 
-		if filepath == input_filename: # current file is the input file, not a file input file is dependent on
-			input_filename = filepath_new
+		if filepath[:-3] == input_filename[:-2]: # input file (.o) is object of current file (.cc)
+			input_filename = filepath_new[:-3] + '.o'
 
 		output_file = open(filepath_new,'w')
 		
