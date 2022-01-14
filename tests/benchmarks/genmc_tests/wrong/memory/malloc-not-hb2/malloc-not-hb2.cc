@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 // also for acq
 #define mo_rlx memory_order_relaxed
 
@@ -8,7 +10,7 @@ void *thread1(void *unused)
 	p = malloc(sizeof(int));
 	//*p = 17;
 	/* free(p); */
-	return NULL;
+	;
 }
 
 void *thread2(void *unused)
@@ -17,5 +19,5 @@ void *thread2(void *unused)
 	if (r) {
 		*r = 18;
 	}
-	return NULL;
+	;
 }

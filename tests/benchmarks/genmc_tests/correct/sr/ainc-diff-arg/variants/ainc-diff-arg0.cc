@@ -1,5 +1,8 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
 /*
  * Horrible test case, but shows that we have to take the argument
@@ -18,17 +21,17 @@ int a[N];
 void *thread_n(void *arg)
 {
 	atomic_fetch_add_explicit(__FILE__, __LINE__, &x, (int) arg, memory_order_relaxed);
-	return NULL;
+	;
 }
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t[N];
 
 	for (int i = 0; i < N; i++) {
 		a[i] = i;
-		if (pthread_create(&t[i], NULL, thread_n, &a[i]))
-			abort();
+		if (thrd_create(&t[i], (thrd_start_t)& thread_n, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	return 0;

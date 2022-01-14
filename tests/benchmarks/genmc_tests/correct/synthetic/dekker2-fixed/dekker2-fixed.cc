@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int x;
 atomic_int y;
 atomic_int z1;
@@ -9,7 +11,7 @@ void *thread_1(void *unused)
 	if (!atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_seq_cst)) {
 		atomic_store_explicit(__FILE__, __LINE__, &z1, 1, memory_order_relaxed);
 	}
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -18,7 +20,7 @@ void *thread_2(void *unused)
 	if (!atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_seq_cst)) {
 		atomic_store_explicit(__FILE__, __LINE__, &z2, 1, memory_order_relaxed);
 	}
-	return NULL;
+	;
 }
 
 void *thread_3(void *unused)
@@ -29,7 +31,7 @@ void *thread_3(void *unused)
 			atomic_store_explicit(__FILE__, __LINE__, &x, i, memory_order_relaxed);
 		}
 	}
-	return NULL;
+	;
 }
 
 void *thread_4(void *unused)
@@ -40,5 +42,5 @@ void *thread_4(void *unused)
 			atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
 		}
 	}
-	return NULL;
+	;
 }

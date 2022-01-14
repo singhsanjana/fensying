@@ -1,8 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <threads.h>
-#include "../lastzero-sc.c"
 
-int main()
+#include "../lastzero-sc.cc"
+
+int user_main()
 {
 	thrd_t t[N+1];
 
@@ -12,11 +15,11 @@ int main()
 	for (int i = 0; i <= N; i++) {
 		idx[i] = i;
 		if (i == 0) {
-			if (pthread_create(&t[i], NULL, thread_reader, &idx[i]))
-				abort();
+			if (thrd_create(&t[i], (thrd_start_t)& thread_reader, NULL))
+				MODEL_ASSERT(0);
 		} else {
-			if (pthread_create(&t[i], NULL, thread_writer, &idx[i]))
-				abort();
+			if (thrd_create(&t[i], (thrd_start_t)& thread_writer, NULL))
+				MODEL_ASSERT(0);
 		}
 	}
 

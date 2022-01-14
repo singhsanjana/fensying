@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* Simple implementation of a lock */
 
 typedef atomic_int lock_t;
@@ -5,7 +7,7 @@ typedef atomic_int lock_t;
 void lock(lock_t *lock)
 {
 	int r = 0;
-	while (!atomic_compare_exchange_strong_explicit(lock, &r, 1, memory_order_acquire,
+	while (!atomic_compare_exchange_strong_explicit(__FILE__, __LINE__lock, &r, 1, memory_order_acquire,
 							memory_order_acquire))
 		r = 0;
 	return;
@@ -32,7 +34,7 @@ void *thread_1(void *unused)
 
 	unlock(&lock_b);
 	unlock(&lock_a);
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -44,5 +46,5 @@ void *thread_2(void *unused)
 
 	unlock(&lock_a);
 	unlock(&lock_b);
-	return NULL;
+	;
 }

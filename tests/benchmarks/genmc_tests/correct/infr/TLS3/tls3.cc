@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * Thread-Local-Storage Test 3
  *
@@ -15,7 +17,7 @@ void *thread_1(void *unused)
 {
 	if (atomic_load(&x) == 1)
 		v = 17;
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -23,5 +25,5 @@ void *thread_2(void *unused)
 	atomic_store(&x, 1);
 	if (v == 17)
 		atomic_store(&x, 42);
-	return NULL;
+	;
 }

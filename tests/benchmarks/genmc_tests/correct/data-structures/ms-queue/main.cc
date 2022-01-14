@@ -1,4 +1,6 @@
-#include "my_queue.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "my_queue.cc"
 
 #define MAXREADERS 3
 #define MAXWRITERS 3
@@ -58,7 +60,7 @@ void *threadW(void *param)
 	enqueue(queue, input[pid]);
 //	succ[pid] = dequeue(queue, &output[pid]);
 	//printf("Dequeue: %d\n", output[0]);
-	return NULL;
+	;
 }
 
 void *threadR(void *param)
@@ -72,7 +74,7 @@ void *threadR(void *param)
 //	enqueue(queue, input[pid]);
 	succ[pid] = dequeue(queue, &output[pid]);
 	//printf("Dequeue: %d\n", output[0]);
-	return NULL;
+	;
 }
 
 void *threadRW(void *param)
@@ -86,5 +88,5 @@ void *threadRW(void *param)
 	enqueue(queue, input[pid]);
 	succ[pid] = dequeue(queue, &output[pid]);
 	//printf("Dequeue: %d\n", output[0]);
-	return NULL;
+	;
 }

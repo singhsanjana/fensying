@@ -1,13 +1,14 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
-#include "../main.c"
+#include "../main.cc"
 
-int main(int argc, char **argv)
+int user_main(int argc, char **argv)
 {
 	struct combiner cmb;
 
@@ -16,7 +17,7 @@ int main(int argc, char **argv)
 	init_combiner(&cmb);
 
 	for (int i = 1; i < num_threads; i++)
-		pthread_create(&threads[i], NULL, thread_n, &cmb);
+		thrd_create(&threads[i], (thrd_start_t)& thread_n, NULL);
 	for (int i = 1; i < num_threads; i++)
 		pthread_join(threads[i], NULL);
 

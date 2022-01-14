@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "mpmc-queue.h"
 
 #define MAXREADERS 3
@@ -31,7 +33,7 @@ void *threadW(void *unused)
 	int32_t *bin = write_prepare(&queue);
 	*bin = 1;
 	write_publish(&queue);
-	return NULL;
+	;
 }
 
 void *threadR(void *unused)
@@ -41,7 +43,7 @@ void *threadR(void *unused)
 		// printf("Read: %d\n", load_32(bin));
 		read_consume(&queue);
 	}
-	return NULL;
+	;
 }
 
 void *threadRW(void *unused)
@@ -54,5 +56,5 @@ void *threadRW(void *unused)
 //		printf("Read: %d\n", load_32(bin));
 		read_consume(&queue);
 	}
-	return NULL;
+	;
 }

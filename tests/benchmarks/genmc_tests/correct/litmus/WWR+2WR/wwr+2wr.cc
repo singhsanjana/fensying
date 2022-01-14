@@ -1,4 +1,6 @@
-void __VERIFIER_assume(int);
+#include "librace.h" 
+#include "model-assert.h"
+void assume(int);
 
 atomic_int x;
 atomic_int y;
@@ -8,20 +10,20 @@ void *thread1(void *unused)
 {
 	x = 1;
 	y = 1;
-	__VERIFIER_assume(z == 0);
-	return NULL;
+	assume(z == 0);
+	;
 }
 
 void *thread2(void *unused)
 {
 	z = 1;
-	__VERIFIER_assume(y == 2);
-	return NULL;
+	assume(y == 2);
+	;
 }
 
 void *thread3(void *unused)
 {
 	y = 2;
-	__VERIFIER_assume(x == 0);
-	return NULL;
+	assume(x == 0);
+	;
 }

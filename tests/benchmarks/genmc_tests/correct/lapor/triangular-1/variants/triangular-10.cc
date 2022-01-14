@@ -1,17 +1,18 @@
-#include <stdlib.h>
-#include <threads.h>#include "librace.h" 
+#include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <threads.h>
 
-#include "../triangular-1.c"
+#include "../triangular-1.cc"
 
-int main()
+int user_user_user_main()
 {
 	thrd_t id1, id2;
 
-	if (pthread_create(&id1, NULL, t1, NULL))
-		abort();
-	if (pthread_create(&id2, NULL, t2, NULL))
-		abort();
+	if (thrd_create(&id1, (thrd_start_t)& t1, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&id2, (thrd_start_t)& t2, NULL))
+		MODEL_ASSERT(0);
 
 	__VERIFIER_atomic_begin();
 	int condI = i > LIMIT;

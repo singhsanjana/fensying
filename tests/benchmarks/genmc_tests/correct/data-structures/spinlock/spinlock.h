@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef __SPINLOCK_H__
 #define __SPINLOCK_H__
 

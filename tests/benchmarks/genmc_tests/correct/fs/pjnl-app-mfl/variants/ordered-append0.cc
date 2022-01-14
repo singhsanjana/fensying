@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -17,17 +18,17 @@ void __VERIFIER_recovery_routine(void)
 
 	int fdf = open("foo", O_RDONLY, 0666);
 	int fdb = open("bar", O_RDONLY, 0666);
-	assert(fdf != -1 && fdb != -1);
+	MODEL_ASSERT(fdf != -1 && fdb != -1);
 
 	int nrf = pread(fdf, buff, 2, 2);
 	int nrb = pread(fdb, bufb, 2, 2);
 
 	/* Is is possible to see the append in BAR but not in FOO? */
-	assert(!(nrb == 2 && nrf == 0));
+	MODEL_ASSERT(!(nrb == 2 && nrf == 0));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf[8];
 

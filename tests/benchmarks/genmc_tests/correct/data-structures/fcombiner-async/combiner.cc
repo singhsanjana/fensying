@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * Adapted from: https://github.com/schets/c_flat_combining
  */
@@ -148,7 +150,7 @@ static void notify_waiters(struct combiner *cmb,
 		if (cur) {
 			__atomic_store_n(&cur->is_done, next, mo_rel); // Michalis: mo_rlx triggers race
 		} else {
-			__atomic_store_n(&cmb->takeover, next, mo_rlx); // Michalis: mo_rlx triggers assertion
+			__atomic_store_n(&cmb->takeover, next, mo_rlx); // Michalis: mo_rlx triggers MODEL_ASSERTion
 		}
 	}
 }
@@ -165,7 +167,7 @@ static struct message_metadata *enter_combiner(struct combiner *cmb,
 	msg->prev = prev;
 	if (prev != NULL) {
 		__atomic_store_n(&prev->next, msg, mo_rel);
-		return NULL;
+		;
 	}
 	return msg;
 }
@@ -214,12 +216,12 @@ static struct message_metadata *advance(struct message_metadata **queue,
 	__atomic_thread_fence(__FILE__, __LINE__, mo_acq_rel);
 	if (next == NULL) {
 		struct message_metadata *tmp_head = head;
-		if (__atomic_compare_exchange_n(queue, &tmp_head, NULL, 0,
+		if (__atomic_compare_exchange_n(__FILE__, __LINE__queue, &tmp_head, NULL, 0,
 						mo_rlx, mo_rlx)) {
 			next = NULL;
 		} else {
 			next = next_list(head);
-			__VERIFIER_assume(next);
+			assume(next);
 			/* while (!(next = next_list(head))) */
 			/* 	; */
 		}
@@ -245,7 +247,7 @@ static void remove_from_queue(struct message_metadata **queue,
 	} else {
 		struct message_metadata *next;
 		next = next_list(find);
-		__VERIFIER_assume(next);
+		assume(next);
 		/* while (!(next = next_list(find))) */
 		/* 	; */
 		if (next) {
@@ -268,11 +270,11 @@ static void remove_from_queue(struct message_metadata **queue,
 			 * If the cas succeeds, all is well. If it fails, we must
 			 * wait for the next ptr of find to get set and then set prev accordingly
 			 */
-			if (!__atomic_compare_exchange_n(queue, &tmp_find, prev, 1,
+			if (!__atomic_compare_exchange_n(__FILE__, __LINE__queue, &tmp_find, prev, 1,
 							 mo_rel, mo_rlx)) {
 				/* CAS failed, wait for find->next and then go bananas */
 				next = next_list(find);
-				__VERIFIER_assume(next);
+				assume(next);
 				/* while (!(next = next_list(find))) */
 				/* 	; */
 				prev->next = next;

@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 
 atomic_int naturals[N];
 
@@ -22,11 +24,11 @@ void sieve()
 void *thread_1(void *arg)
 {
 	sieve();
-	return NULL;
+	;
 }
 
 void *thread_2(void *arg)
 {
 	sieve();
-	return NULL;
+	;
 }

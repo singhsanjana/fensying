@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 #include <stdbool.h>
-#include "librace.h" 
-#include "model-assert.h"
 #include <genmc.h>
 
 /* Different threads concurrently writing to the same file in a
@@ -28,7 +29,7 @@ struct thread_info_struct {
 	int data;
 };
 
-atomic_bool condition[NUM_WRITERS];
+bool condition[NUM_WRITERS];
 struct thread_info_struct threads[NUM_WRITERS];
 
 void *thread_n(void *arg)
@@ -36,7 +37,7 @@ void *thread_n(void *arg)
 	struct thread_info_struct *thr = arg;
 
 	int fd = open("thefile", O_WRONLY, 0640);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	for (int i = thr->thrid; i < NUM_BATCHES * WRITER_BATCH_SIZE; i += thr->thrcnt) {
 		/* Model a (supposedly intense) computation taking place */
@@ -50,31 +51,31 @@ void *thread_n(void *arg)
 		/* Append to the file */
 		int npos = lseek(fd, 0, SEEK_END);
 		int nw = write(fd, buf, WRITER_BATCH_SIZE);
-		assert(nw == WRITER_BATCH_SIZE);
+		MODEL_ASSERT(nw == WRITER_BATCH_SIZE);
 
 		/* Reset condition and signal successor */
 		atomic_store_explicit(__FILE__, __LINE__, &condition[thr->thrid], 0, memory_order_release);
 		atomic_store_explicit(__FILE__, __LINE__, &condition[(thr->thrid + 1) % (thr->thrcnt)], 1, memory_order_release);
 	}
-	return NULL;
+	;
 }
 
 void __VERIFIER_recovery_routine(void)
 {
 	/* Observe the outcome of the serialization */
 	int fd = open("thefile", O_RDONLY, S_IRWXU);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	char buf[NUM_BATCHES * WRITER_BATCH_SIZE];
 	int nr = read(fd, buf, NUM_BATCHES * WRITER_BATCH_SIZE);
 
 	for (int i = 0; i < nr - 1; i++)
 		if (i % NUM_WRITERS <= (i + 1) % NUM_WRITERS)
-			assert(buf[i] <= buf[i + 1]);
+			MODEL_ASSERT(buf[i] <= buf[i + 1]);
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t[NUM_WRITERS];
 
@@ -89,8 +90,8 @@ int main()
 		threads[i].thrid = i;
 		threads[i].data = i;
 		threads[i].thrcnt = NUM_WRITERS;
-		if (pthread_create(&threads[i].tid, NULL, thread_n, &threads[i]))
-			abort();
+		if (thrd_create(&threads[i].tid, (thrd_start_t)& thread_n, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	return 0;

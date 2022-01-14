@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int x;
 
 void *thread_1(void *unused)
@@ -12,12 +14,12 @@ void *thread_1(void *unused)
 		if (b == 42)
 			break;
 	}
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
 {
 	for (int i = 0u; i < 42; i++)
 		x = i;
-	return NULL;
+	;
 }

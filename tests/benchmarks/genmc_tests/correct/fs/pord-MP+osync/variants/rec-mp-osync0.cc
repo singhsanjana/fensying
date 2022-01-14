@@ -1,17 +1,18 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
+#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include "../rec-mp-osync.c"
+#include "../rec-mp-osync.cc"
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1;
 	char buf[8];
@@ -26,10 +27,10 @@ int main()
 
 	__VERIFIER_pbarrier();
 
-	if (pthread_create(&t1, NULL, thread_1, NULL))
-		abort();
-	if (pthread_join(t1, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_join(t1))
+		MODEL_ASSERT(0);
 
 	return 0;
 }

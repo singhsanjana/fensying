@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * Michael-Scott queue -- adapted from [Pulte et al. 2019]
  */
@@ -23,7 +25,7 @@ struct queue {
 	struct queue_node init;
 	_Atomic(struct queue_node *) head;
 	_Atomic(struct queue_node *) tail;
-	atomic_bool is_initialized;
+	bool is_initialized;
 };
 
 void queue_init(struct queue *q)
@@ -48,7 +50,7 @@ struct queue_node *queue_find_tail(struct queue *q)
 		return node;
 
 	atomic_store_explicit(__FILE__, __LINE__, &q->tail, next, memory_order_release);
-	return NULL;
+	;
 }
 
 int queue_try_enq(struct queue *q, int data)
@@ -68,7 +70,7 @@ int queue_try_enq(struct queue *q, int data)
 	} while (tail == NULL);
 
 	struct queue_node *v = NULL;
-	if (atomic_compare_exchange_strong_explicit(&tail->next, &v, node,
+	if (atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&tail->next, &v, node,
 						    memory_order_release,
 						    memory_order_release)) {
 		atomic_store_explicit(__FILE__, __LINE__, &q->tail, node, memory_order_release);
@@ -86,7 +88,7 @@ int queue_try_deq(struct queue *q, int *ret_data)
 	if (node == NULL)
 		return -1;
 
-	if (atomic_compare_exchange_strong_explicit(&q->head, &head, node,
+	if (atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&q->head, &head, node,
 						    memory_order_relaxed,
 						    memory_order_relaxed)) {
 		*ret_data = node->data;

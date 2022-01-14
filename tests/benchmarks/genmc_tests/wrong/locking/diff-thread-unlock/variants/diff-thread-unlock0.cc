@@ -1,25 +1,26 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 
-#include "../diff-thread-unlock.c"
+#include "../diff-thread-unlock.cc"
 
-int main()
+int user_main()
 {
 	thrd_t t[N];
 
         /* pthread_mutex_init(&lock, NULL); */
-        pthread_mutex_lock(&lock);
+        lock.lock();
         {
 		int i= 0;
-		pthread_create(&t[i], NULL, runLock, NULL);
+		thrd_create(&t[i], (thrd_start_t)& runLock, NULL);
 		i++;
-		pthread_create(&t[i], NULL, runUnlock, NULL);
+		thrd_create(&t[i], (thrd_start_t)& runUnlock, NULL);
 		i++;
-		assert (N == i);
+		MODEL_ASSERT (N == i);
 	}
 	for (intptr_t i = 0; i < N; i++)
 		pthread_join(t[i], NULL);

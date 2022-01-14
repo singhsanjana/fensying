@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* Taken from GNU nano -- git commit 94f49e20 */
 
 /**************************************************************************

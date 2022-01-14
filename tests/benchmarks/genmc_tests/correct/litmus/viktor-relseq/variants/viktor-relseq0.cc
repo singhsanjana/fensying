@@ -1,8 +1,11 @@
-#include <threads.h>#include <stdatomic.h>
+#include "librace.h" 
+#include "model-assert.h"
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../viktor-relseq.c"
+#include "../viktor-relseq.cc"
 
-int main()
+int user_user_user_main()
 {
         thrd_t R0, R1, R2, R3;
 

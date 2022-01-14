@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -18,11 +19,11 @@ void __VERIFIER_recovery_routine(void)
 	pread(fd, &buf[0], 2, 0);
 
 	/* Are overwrites atomic? */
-	assert(!(buf[0] == '1' && buf[1] == '0'));
+	MODEL_ASSERT(!(buf[0] == '1' && buf[1] == '0'));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf[4] = "0011";
 

@@ -1,5 +1,7 @@
-#include "combiner.c"
-#include "set.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "combiner.cc"
+#include "set.cc"
 
 /* Client code */
 #ifndef MAX_THREADS
@@ -37,7 +39,7 @@ struct set_node *new_node(int key, int elem)
 {
 	int t = get_thread_num();
 
-	assert(free_index[t] < MAX_FREELIST);
+	MODEL_ASSERT(free_index[t] < MAX_FREELIST);
 	free_lists[t][free_index[t]].key = key;
 	free_lists[t][free_index[t]].val = elem;
 	return &free_lists[t][free_index[t]++];
@@ -86,9 +88,9 @@ void *thread_n(void *data)
 		m.to_add = tid;
 		m.msg.operation = &add_set;
 		message_combiner(cmb, &m.msg);
-		assert(m.was_called == 1);
+		MODEL_ASSERT(m.was_called == 1);
 	}
 
 	/* printf("Exiting %d\n", mtid); */
-	return NULL;
+	;
 }

@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -23,11 +24,11 @@ void __VERIFIER_recovery_routine(void)
 	/* Read the first block */
 	int nr = pread(fd, buf, 1, 0);
 	if (nr > 0)
-		assert(buf[0] == '0' || buf[0] == '1');
+		MODEL_ASSERT(buf[0] == '0' || buf[0] == '1');
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf0[12] = "000000000000";
 	char buf[4] = "1111";

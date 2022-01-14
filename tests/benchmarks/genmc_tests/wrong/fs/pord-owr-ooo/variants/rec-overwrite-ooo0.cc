@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
+#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -22,11 +23,11 @@ void __VERIFIER_recovery_routine(void)
 	pread(fd, &buf[1], 1, 3);
 
 	/* Is is possible for the writes to persist out of order? */
-	assert(!(buf[0] == 0 && buf[1] == 42));
+	MODEL_ASSERT(!(buf[0] == 0 && buf[1] == 42));
 	return;
 }
 
-int main()
+int user_main()
 {
 	char buf_a[8], buf_b[8];
 

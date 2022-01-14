@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #define THREAD_NUM 2
 
 atomic_int n = ATOMIC_VAR_INIT(N);
@@ -17,5 +19,5 @@ void *thread_n(void *arg)
 		if (atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_acquire) == j)
 			++i; /* Commit was successful */
 	}
-	return NULL;
+	;
 }

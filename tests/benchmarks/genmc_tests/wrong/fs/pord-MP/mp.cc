@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 void *thread_1(void *unused)
 {
 	char buf[8];
@@ -10,7 +12,7 @@ void *thread_1(void *unused)
 	/* sync(); */
 	write(fd_y, buf, 1);
 
-	return NULL;
+	;
 }
 
 void __VERIFIER_recovery_routine(void)
@@ -23,6 +25,6 @@ void __VERIFIER_recovery_routine(void)
 	read(fd_y, buf_y, 1);
 	read(fd_x, buf_x, 1);
 
-	assert(!(buf_y[0] == 42 && buf_x[0] == 1));
+	MODEL_ASSERT(!(buf_y[0] == 42 && buf_x[0] == 1));
 	return;
 }

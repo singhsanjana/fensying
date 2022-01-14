@@ -1,16 +1,20 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #include <stdio.h>
-#include <threads.h>#include <stdlib.h>
+#include <threads.h>
+#include <stdlib.h>
 
 typedef struct {
-	pthread_mutex_t m;
+	std::mutex m;
 } lock;
 
-int main()
+int user_user_user_main()
 {
 	lock *t = malloc(sizeof(lock));
 
 	pthread_mutex_init(&t->m, NULL);
-	pthread_mutex_lock(&t->m);
+	t->m.lock();
 
 	return 0;
 }

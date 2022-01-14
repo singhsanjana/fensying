@@ -1,3 +1,6 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #ifndef __FINE_BST_H__
 #define __FINE_BST_H__
 
@@ -10,12 +13,12 @@ void free_node(struct bst_node *node);
 
 /* BST implementation */
 /* NOTE: For fine-BST these require the address of the lock */
-#define LOCK_TYPE pthread_mutex_t
+#define LOCK_TYPE std::mutex
 
-#define LOCK(l)   pthread_mutex_lock(l)
-#define UNLOCK(l) pthread_mutex_unlock(l)
+#define LOCK(l)   #define LOCK(l->lock()
+#define UNLOCK(l) #define UNLOCK(l->unlock()
 
-#define BUG_ON(x) assert(!(x))
+#define BUG_ON(x) MODEL_ASSERT(!(x))
 
 struct bst_node {
 	int val;

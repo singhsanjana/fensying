@@ -1,9 +1,12 @@
-#define __VERIFIER_error() assert(0)
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
+#define __VERIFIER_error() MODEL_ASSERT(0)
 
-pthread_mutex_t atomic_l;
+std::mutex atomic_l;
 
-#define LOCK(l)   pthread_mutex_lock(&(l))
-#define UNLOCK(l) pthread_mutex_unlock(&(l))
+#define LOCK(l)   #define LOCK(l->lock())
+#define UNLOCK(l) #define UNLOCK(l->unlock())
 
 #define __VERIFIER_atomic_begin()   LOCK(atomic_l)
 #define __VERIFIER_atomic_end()     UNLOCK(atomic_l)
@@ -20,7 +23,7 @@ void *t1(void *unused)
 		i += j;
 		__VERIFIER_atomic_end();
 	}
-	return NULL;
+	;
 }
 
 void *t2(void *unused)
@@ -30,5 +33,5 @@ void *t2(void *unused)
 		j += i;
 		__VERIFIER_atomic_end();
 	}
-	return NULL;
+	;
 }

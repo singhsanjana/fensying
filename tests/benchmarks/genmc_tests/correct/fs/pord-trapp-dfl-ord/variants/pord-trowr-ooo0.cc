@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
+#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -22,11 +23,11 @@ void __VERIFIER_recovery_routine(void)
 	int nf = read(ff, buf_f, 2);
 
 	/* Is it possible to see the app in "bar" but not the tr in "foo"? */
-	assert(!(nb == 2 && nf == 2));
+	MODEL_ASSERT(!(nb == 2 && nf == 2));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf[2] = "00";
 

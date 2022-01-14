@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef CONFIG_READERS
 # define DEFAULT_READERS 2
 #else
@@ -21,7 +23,7 @@ void *thread_writer(void *unused)
 	x = 1;
 	x = 1;
 #endif
-	return NULL;
+	;
 }
 
 void *thread_reader(void *unused)
@@ -29,5 +31,5 @@ void *thread_reader(void *unused)
 	int a = x;
 	while (a != 0)
 		a = x;
-	return NULL;
+	;
 }

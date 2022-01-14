@@ -1,3 +1,6 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 
 // Copyright (c) 2015 Michael Tautschnig <michael.tautschnig@qmul.ac.uk>
 //
@@ -73,12 +76,12 @@
   OUTPUT a
 */
 
-#define __VERIFIER_error(void) assert(0)
-void __VERIFIER_assume(int);
+#define __VERIFIER_error(void) MODEL_ASSERT(0)
+void assume(int);
 
 extern unsigned int __VERIFIER_nondet_uint();
 
-void __VERIFIER_assert(int cond)
+void MODEL_ASSERT(int cond)
 {
 	if (!(cond))
 		__VERIFIER_error();
@@ -87,22 +90,22 @@ void __VERIFIER_assert(int cond)
 
 atomic_uint a, b;
 
-pthread_mutex_t lock;
+std::mutex lock;
 
 void __VERIFIER_atomic_dec_a()
 {
-	pthread_mutex_lock(&lock);
+	lock.lock();
 	if (a > b)
 		a = a - b;
-	pthread_mutex_unlock(&lock);
+	lock.unlock();
 }
 
 void __VERIFIER_atomic_dec_b()
 {
-	pthread_mutex_lock(&lock);
+	lock.lock();
 	if (b > a)
 		b = b - a;
-	pthread_mutex_unlock(&lock);
+	lock.unlock();
 }
 
 void *dec_a(void* arg)
@@ -111,7 +114,7 @@ void *dec_a(void* arg)
 		__VERIFIER_atomic_dec_a();
 	}
 
-	return NULL;
+	;
 }
 
 void *dec_b(void* arg)
@@ -120,7 +123,7 @@ void *dec_b(void* arg)
 		__VERIFIER_atomic_dec_b();
 	}
 
-	return NULL;
+	;
 }
 
 unsigned start(unsigned a_in, unsigned b_in)
@@ -130,15 +133,15 @@ unsigned start(unsigned a_in, unsigned b_in)
 	a = a_in;
 	b = b_in;
 
-	if (pthread_create(&t1, NULL, dec_a, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, dec_b, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& dec_a, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& dec_b, NULL))
+		MODEL_ASSERT(0);
 
-	if (pthread_join(t1, NULL))
-		abort();
-	if (pthread_join(t2, NULL))
-		abort();
+	if (thrd_join(t1))
+		MODEL_ASSERT(0);
+	if (thrd_join(t2))
+		MODEL_ASSERT(0);
 
 	return a;
 }
@@ -146,12 +149,12 @@ unsigned start(unsigned a_in, unsigned b_in)
 void check_gcd(unsigned a_in, unsigned b_in, unsigned gcd)
 {
 	unsigned guessed_gcd = 5; //__VERIFIER_nondet_uint();
-	__VERIFIER_assume(guessed_gcd > 1);
-	__VERIFIER_assume(a_in % guessed_gcd == 0);
-	__VERIFIER_assume(b_in % guessed_gcd == 0);
+	assume(guessed_gcd > 1);
+	assume(a_in % guessed_gcd == 0);
+	assume(b_in % guessed_gcd == 0);
 
-	__VERIFIER_assert(a_in % gcd == 0);
-	__VERIFIER_assert(b_in % gcd == 0);
+	MODEL_ASSERT(a_in % gcd == 0);
+	MODEL_ASSERT(b_in % gcd == 0);
 
-	__VERIFIER_assert(gcd >= guessed_gcd);
+	MODEL_ASSERT(gcd >= guessed_gcd);
 }

@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdatomic.h>
 
 typedef struct spinning_barrier {

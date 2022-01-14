@@ -1,5 +1,8 @@
-pthread_mutex_t mutex;
-pthread_mutex_t l;
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
+std::mutex mutex;
+std::mutex l;
 
 int x;
 int y;
@@ -8,24 +11,24 @@ void *thread_n(void *unused)
 {
 	int r1, r2;
 
-	pthread_mutex_lock(&mutex);
+	mutex.lock();
 	++x;
 	/* ++y; */
-	pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 
-	/* pthread_mutex_lock(&l); */
-	/* pthread_mutex_unlock(&l); */
+	/* l.lock(); */
+	/* l.unlock(); */
 
-	pthread_mutex_lock(&l);
-	pthread_mutex_unlock(&l);
+	l.lock();
+	l.unlock();
 
-	pthread_mutex_lock(&mutex);
+	mutex.lock();
 	++x;
 
-	/* pthread_mutex_lock(&l); */
-	/* pthread_mutex_unlock(&l); */
+	/* l.lock(); */
+	/* l.unlock(); */
 
 	/* ++y; */
-	pthread_mutex_unlock(&mutex);
-	return NULL;
+	mutex.unlock();
+	;
 }

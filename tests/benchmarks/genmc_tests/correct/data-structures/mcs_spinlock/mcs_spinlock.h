@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * MCS lock defines
  *
@@ -64,8 +66,8 @@ void mcs_spin_lock(_Atomic(struct mcs_spinlock *) *lock, struct mcs_spinlock *no
 	struct mcs_spinlock *prev;
 
 	/* Init node */
-	atomic_store_explicit(&node->locked,  0, mo_relaxed);
-	atomic_store_explicit(&node->next, NULL, mo_relaxed);
+	atomic_store_explicit(__FILE__, __LINE__, &node->locked,  0, mo_relaxed);
+	atomic_store_explicit(__FILE__, __LINE__, &node->next, NULL, mo_relaxed);
 
 	/*
 	 * We rely on the full barrier with global transitivity implied by the

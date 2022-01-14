@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int i = 1;
 atomic_int j = 1;
 
@@ -10,7 +12,7 @@ void *t1(void* arg)
 		int prevJ = atomic_load_explicit(__FILE__, __LINE__, &j, memory_order_relaxed);
 		atomic_store_explicit(__FILE__, __LINE__, &i, prevI + prevJ, memory_order_relaxed);
 	}
-	return NULL;
+	;
 }
 
 void *t2(void* arg)
@@ -20,13 +22,13 @@ void *t2(void* arg)
 		int prevJ = atomic_load_explicit(__FILE__, __LINE__, &j, memory_order_relaxed);
 		atomic_store_explicit(__FILE__, __LINE__, &j, prevI + prevJ, memory_order_relaxed);
 	}
-	return NULL;
+	;
 }
 
 void *t3(void *arg)
 {
 	if (atomic_load_explicit(__FILE__, __LINE__, &i, memory_order_relaxed) >= 144 ||
 	    atomic_load_explicit(__FILE__, __LINE__, &j, memory_order_relaxed) >= 144)
-		assert(0);
-	return NULL;
+		MODEL_ASSERT(0);
+	;
 }

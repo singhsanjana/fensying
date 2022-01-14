@@ -1,3 +1,6 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #ifndef __COARSE_HTABLE_H__
 #define __COARSE_HTABLE_H__
 
@@ -11,8 +14,8 @@ struct htable_entry *new_node(int val);
 void free_node(struct htable_entry *node);
 
 /* Hashtable definition */
-#define LOCK(l)   pthread_mutex_lock(&(l))
-#define UNLOCK(l) pthread_mutex_unlock(&(l))
+#define LOCK(l)   #define LOCK(l->lock())
+#define UNLOCK(l) #define UNLOCK(l->unlock())
 
 #define HTABLE_CAPACITY 16
 #define HASH(x) (x) % HTABLE_CAPACITY
@@ -29,7 +32,7 @@ struct htable_bucket {
 struct htable {
 	struct htable_bucket table[HTABLE_CAPACITY];
 	size_t size;
-	pthread_mutex_t lock;
+	std::mutex lock;
 };
 
 #define __HTABLE_INITIALIZER() { .lock = PTHREAD_MUTEX_INITIALIZER }

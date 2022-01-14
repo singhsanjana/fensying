@@ -1,5 +1,7 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "fake.h"
-#include "qrcu.c"
+#include "qrcu.cc"
 
 atomic_int x;
 atomic_int y;
@@ -15,7 +17,7 @@ void *qrcu_reader(void *unused)
 	r_x = x;
 	r_x = y;
 	qrcu_read_unlock(&qs, idx);
-	return NULL;
+	;
 }
 
 void *qrcu_updater(void *unused)
@@ -24,5 +26,5 @@ void *qrcu_updater(void *unused)
 	x = 1;
 	synchronize_qrcu(&qs);
 	y = 1;
-	return NULL;
+	;
 }

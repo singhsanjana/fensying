@@ -1,15 +1,16 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
+#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
 
-int main()
+int user_main()
 {
 	/* Create the file */
 	int fd = creat("foo", S_IRWXU);
@@ -17,7 +18,7 @@ int main()
 
 	/* Open the file with O_RDONLY|O_TRUNC */
 	fd = open("foo", O_RDONLY|O_TRUNC, 0640);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 	close(fd);
 
 	return 0;

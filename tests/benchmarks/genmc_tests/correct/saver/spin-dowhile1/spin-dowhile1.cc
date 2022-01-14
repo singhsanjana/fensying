@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * spin-dowhile1: do-while that only contains plain paths
  */
@@ -11,12 +13,12 @@ void *thread_1(void *unused)
 				break;
 	} while (atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed) != 0);
 
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
 {
 	for (int i = 1u; i <= 42; i++)
 		atomic_store_explicit(__FILE__, __LINE__, &x, i, memory_order_relaxed);
-	return NULL;
+	;
 }

@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -16,13 +17,13 @@ void __VERIFIER_recovery_routine(void)
 	int fb = open("bar", O_RDONLY, 0640);
 
 	/* Rename should be atomic -- <= 1 name should exist */
-	assert((ff >= 0 && fb < 0  && fq < 0) ||
+	MODEL_ASSERT((ff >= 0 && fb < 0  && fq < 0) ||
 				   (ff < 0  && fb >= 0 && fq < 0) ||
 				   (ff < 0  && fb < 0  && fq >= 0));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf[3] = "111";
 

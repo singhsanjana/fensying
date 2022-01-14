@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef __TICKETLOCK_H__
 #define __TICKETLOCK_H__
 

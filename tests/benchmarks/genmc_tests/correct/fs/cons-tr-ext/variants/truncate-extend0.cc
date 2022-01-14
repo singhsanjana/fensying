@@ -1,14 +1,15 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <stdio.h>
 #include <stdint.h>
 
-int main()
+int user_user_user_main()
 {
 	int fd = open("test.txt", O_CREAT | O_RDWR | O_TRUNC, S_IRWXU);
 	if (fd == -1)
@@ -17,7 +18,7 @@ int main()
 	close(fd);
 
 	int ret = truncate("test.txt", 2);
-	assert(ret != -1);
+	MODEL_ASSERT(ret != -1);
 
 	return 0;
 }

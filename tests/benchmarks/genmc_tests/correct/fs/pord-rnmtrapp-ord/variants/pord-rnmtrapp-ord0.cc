@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -17,11 +18,11 @@ void __VERIFIER_recovery_routine(void)
 	int sf = lseek(ff, SEEK_END, 0);
 
 	/* Is it possible to see the new foo but not bar? */
-	assert(!(ff >= 0 && fb == -1 && sf < 2));
+	MODEL_ASSERT(!(ff >= 0 && fb == -1 && sf < 2));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf[2];
 

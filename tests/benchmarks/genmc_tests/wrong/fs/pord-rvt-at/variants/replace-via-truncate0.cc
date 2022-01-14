@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
+#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -21,11 +22,11 @@ void __VERIFIER_recovery_routine(void)
 	int nrb = read(fdb, buf, 1);
 
 	/* Is is possible for foo to be empty and for bar not to be? */
-	assert(!(nrb > 0 && nrf <= 0));
+	MODEL_ASSERT(!(nrb > 0 && nrf <= 0));
 	return;
 }
 
-int main()
+int user_main()
 {
 	char buf[8];
 	buf[0] = 42;

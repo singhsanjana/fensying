@@ -1,22 +1,23 @@
-#include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../read_write_lock-1.c"
+#include "../read_write_lock-1.cc"
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2, t3, t4;
 
-	if (pthread_create(&t1, NULL, writer, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, reader, NULL))
-		abort();
-	if (pthread_create(&t3, NULL, writer, NULL))
-		abort();
-	if (pthread_create(&t4, NULL, reader, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& writer, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& reader, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t3, (thrd_start_t)& writer, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t4, (thrd_start_t)& reader, NULL))
+		MODEL_ASSERT(0);
 
 	/* thrd_join(t1); */
 	/* thrd_join(t2); */

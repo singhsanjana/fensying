@@ -1,12 +1,13 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 /* Different threads concurrently writing to different files, which
- * are subsequently joined by the main() function.
+ * are subsequently joined by the user_user_user_main() function.
  *
  * The contents of the files might persist in any order.
  */
@@ -21,9 +22,9 @@
 		char buf[FILESIZE] = { [0 ... FILESIZE - 1] = 42};	\
 		int fd = creat("file" #id, 0640);			\
 		int nw = write(fd, buf, FILESIZE);			\
-		assert(nw == FILESIZE);					\
+		MODEL_ASSERT(nw == FILESIZE);					\
 		close(fd);						\
-		return NULL;						\
+		;						\
 	}
 
 /* Ugly trickery to only use const static strings for filenames... */
@@ -36,38 +37,38 @@ void __VERIFIER_recovery_routine(void)
 {
 	/* Read the contents of the product file */
 	int fd = open("result", O_RDONLY, 0640);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	char buf[MAX_FILESIZE];
 	int nr = read(fd, buf, MAX_FILESIZE);
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2, t3, t4;
 
 	int fd = creat("result", 0640);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 	__VERIFIER_pbarrier();
 
-	if (pthread_create(&t1, NULL, thread_1, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, thread_2, NULL))
-		abort();
-	if (pthread_create(&t3, NULL, thread_3, NULL))
-		abort();
-	if (pthread_create(&t4, NULL, thread_4, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& thread_2, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t3, (thrd_start_t)& thread_3, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t4, (thrd_start_t)& thread_4, NULL))
+		MODEL_ASSERT(0);
 
-	if (pthread_join(t1, NULL))
-		abort();
-	if (pthread_join(t2, NULL))
-		abort();
-	if (pthread_join(t3, NULL))
-		abort();
-	if (pthread_join(t4, NULL))
-		abort();
+	if (thrd_join(t1))
+		MODEL_ASSERT(0);
+	if (thrd_join(t2))
+		MODEL_ASSERT(0);
+	if (thrd_join(t3))
+		MODEL_ASSERT(0);
+	if (thrd_join(t4))
+		MODEL_ASSERT(0);
 
 	/* Read the files and stitch them together */
 	int f1 = open("file1", O_RDONLY, S_IRWXU);
@@ -75,7 +76,7 @@ int main()
 	int f3 = open("file3", O_RDONLY, S_IRWXU);
 	int f4 = open("file4", O_RDONLY, S_IRWXU);
 
-	assert(f1 != -1 && f2 != -1 && f3 != -1 && f4 != -1);
+	MODEL_ASSERT(f1 != -1 && f2 != -1 && f3 != -1 && f4 != -1);
 
 	char buf1[FILESIZE], buf2[FILESIZE], buf3[FILESIZE], buf4[FILESIZE];
 
@@ -83,7 +84,7 @@ int main()
 	int n2 = read(f2, buf2, FILESIZE);
 	int n3 = read(f3, buf3, FILESIZE);
 	int n4 = read(f4, buf4, FILESIZE);
-	assert(n1 == FILESIZE && n2 == FILESIZE && n3 == FILESIZE && n4 == FILESIZE);
+	MODEL_ASSERT(n1 == FILESIZE && n2 == FILESIZE && n3 == FILESIZE && n4 == FILESIZE);
 
 	write(fd, buf1, n1);
 	write(fd, buf2, n2);

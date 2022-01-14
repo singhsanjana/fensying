@@ -1,22 +1,23 @@
-#include <stdlib.h>
-#include <threads.h>#include <stdbool.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <threads.h>
+#include <stdbool.h>
 
 #ifndef N
 # define N 13
 #endif
 
-#include "../indexer.c"
+#include "../indexer.cc"
 
-int main()
+int user_user_user_main()
 {
 	for (int i = 0; i < SIZE; i++)
 		pthread_mutex_init(&cas_mutex[i], NULL);
 
 	for (int i = 0; i < N; i++) {
 		idx[i] = i;
-		pthread_create(&tids[i], NULL,  thread_routine, &idx[i]);
+		thrd_create(&tids[i], (thrd_start_t)&  thread_routine, NULL);
 	}
 
 	for (int i = 0; i < N; i++) {

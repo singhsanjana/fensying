@@ -1,19 +1,22 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../linuxrwlocks.c"
+#include "../linuxrwlocks.cc"
 
-int main()
+int user_main()
 {
 	thrd_t W[MAXWRITERS], R[MAXREADERS], RW[MAXRDWR];
 
 	atomic_init(&mylock.lock, RW_LOCK_BIAS);
 	for (int i = 0; i < writers; i++)
-		pthread_create(&W[i], NULL, threadW, NULL);
+		thrd_create(&W[i], (thrd_start_t)& threadW, NULL);
 	for (int i = 0; i < readers; i++)
-		pthread_create(&R[i], NULL, threadR, NULL);
+		thrd_create(&R[i], (thrd_start_t)& threadR, NULL);
 	for (int i = 0; i < rdwr; i++)
-		pthread_create(&RW[i], NULL, threadRW, NULL);
+		thrd_create(&RW[i], (thrd_start_t)& threadRW, NULL);
 
 	/* for (int i = 0; i < writers; i++) */
 	/* 	pthread_join(W[i], NULL); */

@@ -1,6 +1,6 @@
 #include "librace.h" 
 #include "model-assert.h"
-#include "fine-bst.c"
+#include "fine-bst.cc"
 
 /* Driver code */
 #ifndef MAX_THREADS
@@ -52,7 +52,7 @@ struct bst_node *new_node(int elem)
 {
 	int t = get_thread_num();
 
-	assert(free_index[t] < MAX_FREELIST);
+	MODEL_ASSERT(free_index[t] < MAX_FREELIST);
 	free_lists[t][free_index[t]].val = elem;
 	free_lists[t][free_index[t]].left = NULL;
 	free_lists[t][free_index[t]].right = NULL;
@@ -63,7 +63,7 @@ void free_node(struct bst_node *node)
 {
 }
 
-/* Should be called before threads are spawned (from main()) */
+/* Should be called before threads are spawned (from user_user_user_main()) */
 void init()
 {
 	num_threads = adders + seekers + removers + 1;
@@ -88,7 +88,7 @@ void *thread_add(void *tid)
 	set_thread_num(t);
 
 	add(&mybst, (BASE(t) * 7) % 16);
-	return NULL;
+	;
 }
 
 void *thread_seek(void *tid)
@@ -97,10 +97,10 @@ void *thread_seek(void *tid)
 	set_thread_num(t);
 
 	contains(&mybst, (BASE(t) * 7) % 16);
-	return NULL;
+	;
 }
 
 void *thread_del(void *tid)
 {
-	return NULL;
+	;
 }

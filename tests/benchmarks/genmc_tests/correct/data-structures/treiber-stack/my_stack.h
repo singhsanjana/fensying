@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #define MAX_NODES			0xf
 
 typedef unsigned long long pointer;

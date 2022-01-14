@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "spinlock.h"
 
 static inline void spinlock_init(struct spinlock_s *l)
@@ -15,7 +17,7 @@ static inline void await_for_lock(struct spinlock_s *l)
 static inline int try_get_lock(struct spinlock_s *l)
 {
 	int val = 0;
-	return atomic_compare_exchange_strong_explicit(&l->lock, &val, 1,
+	return atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&l->lock, &val, 1,
 						       memory_order_acquire,
 						       memory_order_acquire);
 }

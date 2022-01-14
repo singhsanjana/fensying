@@ -1,5 +1,8 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
 struct bar {
 	int x;
@@ -12,7 +15,7 @@ struct foo {
 	struct bar c;
 };
 
-int main()
+int user_user_main()
 {
 	/*
 	 * This will produce a warning for incompatible ptr to int conversion,

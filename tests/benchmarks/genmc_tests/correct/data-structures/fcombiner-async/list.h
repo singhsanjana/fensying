@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef __LIST_H__
 #define __LIST_H__
 

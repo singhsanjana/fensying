@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * Shows why checking whether reading from uninitialized memory
  * only when adding a load is not sufficient. (For this to be
@@ -8,7 +10,7 @@
  */
 
 _Atomic(atomic_int *) p;
-atomic_bool done;
+bool done;
 
 void *thread_1(void *unused)
 {
@@ -16,7 +18,7 @@ void *thread_1(void *unused)
 
 	atomic_store_explicit(__FILE__, __LINE__, &x, 42, memory_order_relaxed);
 	atomic_store_explicit(__FILE__, __LINE__, &p, &x, memory_order_relaxed);
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -26,5 +28,5 @@ void *thread_2(void *unused)
 
 	atomic_int r = *p;
 	done = 1;
-	return NULL;
+	;
 }

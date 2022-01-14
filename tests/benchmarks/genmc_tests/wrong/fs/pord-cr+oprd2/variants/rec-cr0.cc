@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
+#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -19,11 +20,11 @@ void __VERIFIER_recovery_routine(void)
 
 	int nr = read(fd, buf, 1);
 
-	assert(nr == 1);
+	MODEL_ASSERT(nr == 1);
 	return;
 }
 
-int main()
+int user_main()
 {
 	int fd = creat("foo", S_IRWXU);
 	return 0;

@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 typedef struct node {
 	int value;
 	int next;
@@ -24,7 +26,7 @@ void *thread_1(void *unused)
 		a[1][1] = 42;
 		a[0][0] = 17;
 	}
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -32,5 +34,5 @@ void *thread_2(void *unused)
 	a[1][0] = 3;
 	stack.nodes[1][1].value = 42;
 	x = 42;
-	return NULL;
+	;
 }

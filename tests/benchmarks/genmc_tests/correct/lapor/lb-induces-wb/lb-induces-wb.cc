@@ -1,45 +1,48 @@
-void __VERIFIER_assume(int);
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
+void assume(int);
 
 atomic_int x;
 atomic_int y;
 atomic_int z;
 
-pthread_mutex_t l;
+std::mutex l;
 
 void *thread_1(void *unused)
 {
-	pthread_mutex_lock(&l);
+	l.lock();
 	y = 1;
-	pthread_mutex_unlock(&l);
+	l.unlock();
 
-	__VERIFIER_assume(x == 2);
-	return NULL;
+	assume(x == 2);
+	;
 }
 
 void *thread_2(void *unused)
 {
-	pthread_mutex_lock(&l);
+	l.lock();
 	x = 1;
-	__VERIFIER_assume(y == 0);
-	pthread_mutex_unlock(&l);
-	return NULL;
+	assume(y == 0);
+	l.unlock();
+	;
 }
 
 void *thread_3(void *unused)
 {
-	pthread_mutex_lock(&l);
+	l.lock();
 	x = 2;
-	__VERIFIER_assume(z == 0);
-	pthread_mutex_unlock(&l);
-	return NULL;
+	assume(z == 0);
+	l.unlock();
+	;
 }
 
 void *thread_4(void *unused)
 {
-	pthread_mutex_lock(&l);
+	l.lock();
 	z = 1;
-	pthread_mutex_unlock(&l);
+	l.unlock();
 
-	__VERIFIER_assume(x == 1);
-	return NULL;
+	assume(x == 1);
+	;
 }

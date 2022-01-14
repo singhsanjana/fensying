@@ -1,4 +1,7 @@
-#include <threads.h>#include <stdlib.h>
+#include "librace.h" 
+#include "model-assert.h"
+#include <threads.h>
+#include <stdlib.h>
 
 #include "my_queue.h"
 
@@ -23,7 +26,7 @@
 
 static unsigned int free_lists[MAX_THREADS][MAX_FREELIST];
 
-void __VERIFIER_assume(int);
+void assume(int);
 
 /* Search this thread's free list for a "new" node */
 static unsigned int new_node()
@@ -38,7 +41,7 @@ static unsigned int new_node()
 		}
 	}
 	/* free_list is empty? */
-	assert(0);
+	MODEL_ASSERT(0);
 	return 0;
 }
 
@@ -49,7 +52,7 @@ static void reclaim(unsigned int node)
 	int t = get_thread_num();
 
 	/* Don't reclaim NULL node */
-	assert(node);
+	MODEL_ASSERT(node);
 
 	for (i = 0; i < MAX_FREELIST; i++) {
 		/* Should never race with our own thread here */
@@ -62,7 +65,7 @@ static void reclaim(unsigned int node)
 		}
 	}
 	/* free list is full? */
-	assert(0);
+	MODEL_ASSERT(0);
 }
 
 void init_queue(queue_t *q, int num_threads)
@@ -104,25 +107,25 @@ void enqueue(queue_t *q, unsigned int val)
 		if (tail == atomic_load_explicit(__FILE__, __LINE__, &q->tail, relaxed)) {
 
 			/* Check for uninitialized 'next' */
-			assert(get_ptr(next) != POISON_IDX);
+			MODEL_ASSERT(get_ptr(next) != POISON_IDX);
 
 			if (get_ptr(next) == 0) { // == NULL
 				pointer value = MAKE_POINTER(node, get_count(next) + 1);
-				success = atomic_compare_exchange_strong_explicit(&q->nodes[get_ptr(tail)].next,
+				success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__, &q->nodes[get_ptr(tail)].next,
 						&next, value, release, release);
 			}
 			if (!success) {
 				unsigned int ptr = get_ptr(atomic_load_explicit(__FILE__, __LINE__, &q->nodes[get_ptr(tail)].next, acquire));
 				pointer value = MAKE_POINTER(ptr,
 						get_count(tail) + 1);
-				atomic_compare_exchange_strong_explicit(&q->tail,
+				atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&q->tail,
 						&tail, value,
 						release, release);
 //				thrd_yield();
 			}
 		}
 	}
-	atomic_compare_exchange_strong_explicit(&q->tail,
+	atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&q->tail,
 			&tail,
 			MAKE_POINTER(node, get_count(tail) + 1),
 			release, release);
@@ -143,23 +146,23 @@ bool dequeue(queue_t *q, unsigned int *retVal)
 			if (get_ptr(head) == get_ptr(tail)) {
 
 				/* Check for uninitialized 'next' */
-				assert(get_ptr(next) != POISON_IDX);
+				MODEL_ASSERT(get_ptr(next) != POISON_IDX);
 
 				if (get_ptr(next) == 0) { // NULL
 					return false; // NULL
 				}
-				atomic_compare_exchange_strong_explicit(&q->tail,
+				atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&q->tail,
 						&tail,
 						MAKE_POINTER(get_ptr(next), get_count(tail) + 1),
 						release, release);
 //				thrd_yield();
 			} else {
 				*retVal = q->nodes[get_ptr(next)].value;
-				success = atomic_compare_exchange_strong_explicit(&q->head,
+				success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&q->head,
 						&head,
 						MAKE_POINTER(get_ptr(next), get_count(head) + 1),
 						release, release);
-				__VERIFIER_assume(success);
+				assume(success);
 				/* if (!success) */
 				/* 	;//					thrd_yield(); */
 			}

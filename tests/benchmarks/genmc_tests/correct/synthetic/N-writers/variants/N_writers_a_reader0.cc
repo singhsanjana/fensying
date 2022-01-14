@@ -1,18 +1,21 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../N_writers_a_reader.c"
+#include "../N_writers_a_reader.cc"
 
-int main()
+int user_main()
 {
 	thrd_t tr, tw[N + 1];
 
-	if (pthread_create(&tr, NULL, threadR, NULL))
-		abort();
+	if (thrd_create(&tr, (thrd_start_t)& threadR, NULL))
+		MODEL_ASSERT(0);
 	for (int i = 0; i <= N; i++) {
 		idx[i] = i;
-		if (pthread_create(&tw[i], NULL, threadW, &idx[i]))
-			abort();
+		if (thrd_create(&tw[i], (thrd_start_t)& threadW, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	return 0;

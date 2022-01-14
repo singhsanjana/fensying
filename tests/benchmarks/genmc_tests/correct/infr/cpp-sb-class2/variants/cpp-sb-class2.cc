@@ -1,4 +1,7 @@
-#include <threads.h>#include <atomic>
+#include "librace.h" 
+#include "model-assert.h"
+#include <threads.h>
+#include <atomic>
 
 class SB {
 
@@ -35,14 +38,14 @@ void *thread_2(void *arg)
 	return nullptr;
 }
 
-int main()
+int user_user_main()
 {
 	thrd_t t1, t2;
 
 	SB vars;
 
-	pthread_create(&t1, nullptr, thread_1, &vars);
-	pthread_create(&t2, nullptr, thread_2, &vars);
+	thrd_create(&t1, (thrd_start_t)& thread_1, NULL);
+	thrd_create(&t2, (thrd_start_t)& thread_2, NULL);
 
 	pthread_join(t1, nullptr);
 	pthread_join(t2, nullptr);

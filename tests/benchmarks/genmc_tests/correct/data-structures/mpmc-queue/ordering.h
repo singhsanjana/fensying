@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifdef MAKE_ALL_SC
 # define mo_acquire memory_order_seq_cst
 # define mo_release memory_order_seq_cst

@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * "Fake" declarations to scaffold a Linux-kernel SMP environment.
  *
@@ -32,21 +34,21 @@
 #define cpu_relax() do {} while (0)
 
 /* RC11 semantics for some atomic ops */
-#define READ_ONCE(x)     atomic_load_explicit(&x, mo_relaxed)
-#define WRITE_ONCE(x, v) atomic_store_explicit(&x, v, mo_relaxed)
+#define READ_ONCE(x)     atomic_load_explicit(__FILE__, __LINE__, &x, mo_relaxed)
+#define WRITE_ONCE(x, v) atomic_store_explicit(__FILE__, __LINE__, &x, v, mo_relaxed)
 
 #define smp_store_release(p, v)			        \
-	atomic_store_explicit(p, v, mo_release)
+	atomic_store_explicit(__FILE__, __LINE__, p, v, mo_release)
 #define smp_load_acquire(p)			        \
-	atomic_load_explicit(p, mo_acquire)
+	atomic_load_explicit(__FILE__, __LINE__, p, mo_acquire)
 
 #define xchg(p, v)					\
-	atomic_exchange_explicit(p, v, mo_acq_rel)
+	atomic_exchange_explicit(__FILE__, __LINE__, p, v, mo_acq_rel)
 
 #define __cmpxchg(ptr, old, new, ord)		        \
 ({					                \
 	__typeof__(old) __old = (old);			\
-	atomic_compare_exchange_strong_explicit(ptr,	\
+	atomic_compare_exchange_strong_explicit(__FILE__, __LINE__ptr,	\
 				&__old, new, ord, ord);	\
 	__old;						\
 })

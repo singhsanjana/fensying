@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * An example demonstrating why we should treat assume() statements like
  * if statements, in the sense that the former also create control dependencies.
@@ -27,14 +29,14 @@
 atomic_int x;
 atomic_int y;
 
-void __VERIFIER_assume(int);
+void assume(int);
 
 void *thread_1(void *unused)
 {
 	__VERIFIER_assume(2 > atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_relaxed) ||
 			  atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_relaxed) > 3);
 	atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -44,5 +46,5 @@ void *thread_2(void *unused)
 	atomic_store_explicit(__FILE__, __LINE__, &y, 3, memory_order_relaxed);
 	atomic_thread_fence(__FILE__, __LINE__, memory_order_seq_cst);
 	atomic_store_explicit(__FILE__, __LINE__, &y, 4, memory_order_relaxed);
-	return NULL;
+	;
 }

@@ -1,14 +1,15 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <stdio.h>
 #include <stdint.h>
 
-int main()
+int user_user_user_main()
 {
 	char buf[8];
 
@@ -24,7 +25,7 @@ int main()
 	close(fd);
 
 	/* Even if there are holes, only returns #bytes written */
-	assert(ret == 2);
+	MODEL_ASSERT(ret == 2);
 
 	return 0;
 }

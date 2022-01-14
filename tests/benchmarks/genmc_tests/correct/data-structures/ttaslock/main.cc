@@ -1,4 +1,6 @@
-#include "ttaslock.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "ttaslock.cc"
 
 #ifndef N
 # define N 2
@@ -14,7 +16,7 @@ void *thread_n(void *arg)
 	ttaslock_acquire(&lock);
 	shared = index;
 	int r = shared;
-	assert(r == index);
+	MODEL_ASSERT(r == index);
 	ttaslock_release(&lock);
-	return NULL;
+	;
 }

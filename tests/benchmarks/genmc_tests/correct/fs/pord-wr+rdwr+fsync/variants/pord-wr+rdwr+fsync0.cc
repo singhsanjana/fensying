@@ -1,8 +1,9 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 /* Simple test case demonstrating the effects of fsync() across files.
@@ -16,25 +17,25 @@
 void *thread_1(void *unused)
 {
 	int fd = creat("foo", S_IRWXU);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	char buf[FILESIZE] = { [0 ... FILESIZE - 1] = 42 };
 
 	int nw = write(fd, buf, FILESIZE);
-	assert(nw == FILESIZE);
-	return NULL;
+	MODEL_ASSERT(nw == FILESIZE);
+	;
 }
 
 void *thread_2(void *unused)
 {
 	/* Wait until foo is created... */
 	int ff = open("foo", O_RDONLY, S_IRWXU);
-	__VERIFIER_assume(ff != -1);
+	assume(ff != -1);
 
 	/* Wait until foo is fully populated... */
 	char buf[FILESIZE];
 	int nr = read(ff, buf, FILESIZE);
-	__VERIFIER_assume(nr == FILESIZE);
+	assume(nr == FILESIZE);
 
 	/* Make sure foo has reached disk... */
 	fsync(ff);
@@ -45,8 +46,8 @@ void *thread_2(void *unused)
 
 	int fb = creat("bar", S_IRWXU);
 	int nw = write(fb, buf, FILESIZE);
-	assert(nw == FILESIZE);
-	return NULL;
+	MODEL_ASSERT(nw == FILESIZE);
+	;
 }
 
 void __VERIFIER_recovery_routine(void)
@@ -65,21 +66,21 @@ void __VERIFIER_recovery_routine(void)
 		return;
 
 	int nrf = read(ff, buff, FILESIZE);
-	assert(nrf == FILESIZE && nrb == FILESIZE);
+	MODEL_ASSERT(nrf == FILESIZE && nrb == FILESIZE);
 
 	for (int i = 0u; i < FILESIZE; i++)
-		assert(buff[i] == 42);
+		MODEL_ASSERT(buff[i] == 42);
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2;
 
-	if (pthread_create(&t1, NULL, thread_1, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, thread_2, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& thread_2, NULL))
+		MODEL_ASSERT(0);
 
 	return 0;
 }

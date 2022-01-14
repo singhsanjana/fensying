@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
+#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -25,11 +26,11 @@ void __VERIFIER_recovery_routine(void)
 		return;
 
 	/* Is is possible to read {1,2} ? */
-	assert(!(buf[0] == 1 && buf[1] == 2));
+	MODEL_ASSERT(!(buf[0] == 1 && buf[1] == 2));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf1[8], buf2[8];
 

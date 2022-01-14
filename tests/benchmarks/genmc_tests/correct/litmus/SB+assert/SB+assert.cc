@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int x;
 atomic_int y;
 
@@ -8,12 +10,12 @@ void *thread_1(void *arg)
 {
 	x = 1;
 	r_y = y;
-	return NULL;
+	;
 }
 
 void *thread_2(void *arg)
 {
 	y = 1;
 	r_x = x;
-	return NULL;
+	;
 }

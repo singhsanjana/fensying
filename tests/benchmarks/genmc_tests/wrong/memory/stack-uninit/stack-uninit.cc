@@ -1,5 +1,7 @@
+#include "librace.h" 
+#include "model-assert.h"
 _Atomic(int *) p;
-atomic_bool done;
+bool done;
 
 void *thread_1(void *unused)
 {
@@ -8,7 +10,7 @@ void *thread_1(void *unused)
 	p = &x;
 	while (!done)
 		;
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -18,5 +20,5 @@ void *thread_2(void *unused)
 
 	int r = *p;
 	done = 1;
-	return NULL;
+	;
 }

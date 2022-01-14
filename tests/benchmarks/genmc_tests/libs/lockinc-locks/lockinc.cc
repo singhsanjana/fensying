@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 typedef int elem_t;
 
 void myinit(elem_t *loc, elem_t val);
@@ -10,5 +12,5 @@ void *thread_n(void *unused)
 {
 	mylock(&l);
 	myunlock(&l, 0);
-	return NULL;
+	;
 }

@@ -1,12 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -18,18 +17,18 @@ void __VERIFIER_recovery_routine(void)
 	buf[1] = 0;
 
 	int fd = open("foo", O_RDONLY, 0666);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	int nr = pread(fd, buf, 2, 2);
 	if (nr < 2)
 		return;
 
 	/* Is is possible to read other than {1,2} ? */
-	assert(!(buf[0] == 1 && buf[1] == 0));
+	MODEL_ASSERT(!(buf[0] == 1 && buf[1] == 0));
 	return;
 }
 
-int main()
+int user_main()
 {
 	char buf[8];
 

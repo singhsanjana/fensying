@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * "Fake" declarations to scaffold nano's environment.
  *
@@ -25,7 +27,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <assert.h>
 
 /*************************************************************
  * Definitions taken from nano's code
@@ -219,14 +220,14 @@ int __next_fd;
 ({					        \
 	/* Cheat by always opening for RW */    \
 	int fd = open(name, O_RDWR, 0640);	\
-	assert(__next_fd < MAX_FD_NUM);		\
+	MODEL_ASSERT(__next_fd < MAX_FD_NUM);		\
 	__fds[__next_fd] = fd;			\
 	(FILE *) &__fds[__next_fd++];		\
 })
 
 FILE *fdopen(int fd, const char *mode)
 {
-	assert(__next_fd < MAX_FD_NUM);
+	MODEL_ASSERT(__next_fd < MAX_FD_NUM);
 	__fds[__next_fd] = fd;
 	return (FILE *) &__fds[__next_fd++];
 }
@@ -273,8 +274,8 @@ int ferror(FILE *stream)
 #define sprintf(...) do {} while (0)
 
 /* Some functions that should not be called */
-#define strcmp(...) ({ assert(0); 0; })
-#define mallocstrcpy(...) ({ assert(0); NULL; })
+#define strcmp(...) ({ MODEL_ASSERT(0); 0; })
+#define mallocstrcpy(...) ({ MODEL_ASSERT(0); NULL; })
 
 /* We replaced all dynamic allocations, so make free() do nothing */
 #define free(x) do {} while (0)

@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "barrier.h"
 
 #ifndef NUMREADERS
@@ -12,12 +14,12 @@ void *threadW(void *unused)
 {
 	var = 42;
 	wait(&barr);
-	return NULL;
+	;
 }
 
 void *threadR(void *unused)
 {
 	wait(&barr);
 	int data = var;
-	return NULL;
+	;
 }

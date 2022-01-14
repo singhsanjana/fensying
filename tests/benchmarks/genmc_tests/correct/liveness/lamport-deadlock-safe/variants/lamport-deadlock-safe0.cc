@@ -1,11 +1,14 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdbool.h>
+#include <threads.h>
+#include <stdbool.h>
 #include <stdatomic.h>
 
 atomic_int x;
 
-atomic_bool p1;
-atomic_bool p2;
+bool p1;
+bool p2;
 
 void *thread_1(void *unused)
 {
@@ -19,7 +22,7 @@ void *thread_1(void *unused)
 		/* end critical section */
 		p1 = false;
 	}
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -38,17 +41,17 @@ void *thread_2(void *unused)
 		/* end critical section */
 		p2 = false;
 	}
-	return NULL;
+	;
 }
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2;
 
-	if (pthread_create(&t1, NULL, thread_1, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, thread_2, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& thread_2, NULL))
+		MODEL_ASSERT(0);
 
 	return 0;
 }

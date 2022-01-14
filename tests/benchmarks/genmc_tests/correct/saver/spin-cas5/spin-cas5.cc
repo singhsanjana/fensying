@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * spin-cas5: PHI nodes for a counter in the loop header.
  *            The transformation should fail.
@@ -10,13 +12,13 @@ void *thread_1()
 	int a = 0;
 	int r = x;
 
-	while (!atomic_compare_exchange_strong(&x, &r, 42))
+	while (!atomic_compare_exchange_strong(__FILE__, __LINE__, &x, &r, 42))
 		a++;
-	return NULL;
+	;
 }
 
 void *thread_2()
 {
 	x = 1;
-	return NULL;
+	;
 }

@@ -1,12 +1,13 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 
-#include "../lamportfm-sc.c"
+#include "../lamportfm-sc.cc"
 
-int main()
+int user_main()
 {
 	thrd_t t[N+1];
 
@@ -16,12 +17,12 @@ int main()
 		myinit(&b[i], false);
 
 	for (intptr_t i = 1; i <= N; i++)
-		if (pthread_create(&t[i], 0, thread, (void *) i))
-			abort();
+		if (thrd_create(&t[i], (thrd_start_t)& thread, NULL))
+			MODEL_ASSERT(0);
 
 	for (intptr_t i = 1; i <= N; i++)
-		if (pthread_join(t[i], NULL))
-			abort();
+		if (thrd_join(t[i]))
+			MODEL_ASSERT(0);
 
 	return 0;
 }

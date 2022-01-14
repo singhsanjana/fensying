@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "qrcu.h"
 
 int init_qrcu_struct(struct qrcu_struct *qp)

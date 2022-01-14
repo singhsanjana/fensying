@@ -1,4 +1,6 @@
-#include "stc.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "stc.cc"
 
 /***********************************************************
  * Client infrastructure
@@ -26,7 +28,7 @@ struct stack_node *new_node()
 {
 	int t = get_thread_num();
 
-	assert(free_index[t] < MAX_FREELIST);
+	MODEL_ASSERT(free_index[t] < MAX_FREELIST);
 	return &free_lists[t][free_index[t]++];
 }
 
@@ -100,7 +102,7 @@ void *thread_1(void *arg)
 	}
 	result3 = res;
 
-	return NULL;
+	;
 }
 
 void *thread_2(void *arg)
@@ -141,7 +143,7 @@ void *thread_2(void *arg)
 	}
 	result3 = res;
 
-	return NULL;
+	;
 }
 
 void *thread_3(void *arg)
@@ -182,5 +184,5 @@ void *thread_3(void *arg)
 	}
 	result3 = res;
 
-	return NULL;
+	;
 }

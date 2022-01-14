@@ -1,15 +1,18 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <stdatomic.h>
 #include <threads.h>
-#include "../lockN-r.c"
 
-int main()
+#include "../lockN-r.cc"
+
+int user_user_user_main()
 {
 	thrd_t t[N];
 
 	for (int i = 0; i < N; i++) {
-		if (pthread_create(&t[i], NULL, threadn, NULL))
-			abort();
+		if (thrd_create(&t[i], (thrd_start_t)& threadn, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	return 0;

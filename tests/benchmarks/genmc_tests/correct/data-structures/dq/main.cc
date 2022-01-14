@@ -1,4 +1,6 @@
-#include "dq.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "dq.cc"
 
 /***********************************************************
  * Client infrastructure
@@ -89,7 +91,7 @@ void *thread_1(void *arg)
 	}
 	result4 = res;
 
-	return NULL;
+	;
 }
 
 void *thread_2(void *arg)
@@ -136,7 +138,7 @@ void *thread_2(void *arg)
 	}
 	result4 = res;
 
-	return NULL;
+	;
 }
 
 void *thread_3(void *arg)
@@ -183,5 +185,5 @@ void *thread_3(void *arg)
 	}
 	result4 = res;
 
-	return NULL;
+	;
 }

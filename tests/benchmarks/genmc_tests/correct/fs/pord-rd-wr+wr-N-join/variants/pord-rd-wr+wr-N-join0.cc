@@ -1,15 +1,16 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 #include <stdbool.h>
-#include "librace.h" 
-#include "model-assert.h"
 #include <genmc.h>
 
-/* main() reads a file in batches, dispatches the batches to different
+/* user_user_user_main() reads a file in batches, dispatches the batches to different
  * threads for processing which in turn write the result of some
- * computation in different files. In the end, main() glues all
+ * computation in different files. In the end, user_user_user_main() glues all
  * different files in one.
  *
  * After a crash, only a prefix of the file written might have persisted,
@@ -26,7 +27,7 @@ struct thread_info_struct {
 	int thrid; /* Application-defined thread id */
 	int thrcnt;
 	_Atomic(char *) data;
-	atomic_bool ready;
+	bool ready;
 };
 
 struct thread_info_struct threads[NUM_WRITERS + 1];
@@ -39,9 +40,9 @@ struct thread_info_struct threads[NUM_WRITERS + 1];
 	struct thread_info_struct *thr = arg;				\
 									\
 	int fr = open("thefile", O_RDONLY, 0640);			\
-	assert(fr != -1);						\
+	MODEL_ASSERT(fr != -1);						\
 	int fw = creat("file" #id, 0640);				\
-	assert(fw != -1);						\
+	MODEL_ASSERT(fw != -1);						\
 									\
 	/* Wait until data to process is ready */			\
 	__VERIFIER_assume(atomic_load_explicit(__FILE__, __LINE__, &thr->ready, memory_order_acquire)); \
@@ -51,8 +52,8 @@ struct thread_info_struct threads[NUM_WRITERS + 1];
 	for (int i = 0u; i < BATCH_SIZE; i++)				\
 		buf[i] = buf[i] + thr->thrid;				\
 	int nw = write(fw, buf, BATCH_SIZE);				\
-	assert(nw == BATCH_SIZE);					\
-	return NULL;							\
+	MODEL_ASSERT(nw == BATCH_SIZE);					\
+	;							\
 	}
 
 DECLARE_WORKER(1);
@@ -64,11 +65,11 @@ void __VERIFIER_recovery_routine(void)
 {
 	/* Observe the outcome of the serialization */
 	int fd = open("result", O_RDONLY, S_IRWXU);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	char buf[FILESIZE];
 	int nr = read(fd, buf, FILESIZE);
-	assert(nr <= FILESIZE);
+	MODEL_ASSERT(nr <= FILESIZE);
 
 	/* /\* Print the file contents *\/ */
 	/* if (nr == FILESIZE) { */
@@ -85,20 +86,20 @@ void __VERIFIER_recovery_routine(void)
 		threads[id].data = NULL;				\
 		threads[id].ready = false;				\
 		threads[id].thrcnt = NUM_WRITERS;			\
-		if (pthread_create(&threads[id].tid, NULL, thread_##id, &threads[id])) \
-			abort();					\
+		if (thrd_create(&threads[id].tid, (thrd_start_t)& thread_##id, NULL)) \
+			MODEL_ASSERT(0);					\
 	} while (0)
 
 #define READ_NOTIFY(id)						\
 	char buf##id[BATCH_SIZE];				\
 	int nr##id = read(fd, buf##id, BATCH_SIZE);		\
-	assert(nr##id == BATCH_SIZE);				\
+	MODEL_ASSERT(nr##id == BATCH_SIZE);				\
 	atomic_store_explicit(__FILE__, __LINE__, &threads[id].data, buf##id, memory_order_relaxed); \
 	atomic_store_explicit(__FILE__, __LINE__, &threads[id].ready, true, memory_order_release);
 
 #define JOIN_WORKER(id)					\
-	if (pthread_join(threads[id].tid, NULL))	\
-		abort();
+	if (thrd_join(threads[id].tid))	\
+		MODEL_ASSERT(0);
 
 #define GLUE_RESULTS(id, fc)				\
 	char res##id[BATCH_SIZE];			\
@@ -106,7 +107,7 @@ void __VERIFIER_recovery_routine(void)
 	int n##id = read(f##id, res##id, BATCH_SIZE);	\
 	int nw##id = write(fc, res##id, BATCH_SIZE);
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t[NUM_WRITERS + 1];
 
@@ -115,7 +116,7 @@ int main()
 
 	int fd = open("thefile", O_CREAT|O_RDWR, 0640);
 	int nw = write(fd, buf, FILESIZE);
-	assert(nw == FILESIZE);
+	MODEL_ASSERT(nw == FILESIZE);
 	lseek(fd, 0, SEEK_SET); /* reset offset */
 	int fc = creat("result", 0640);
 	__VERIFIER_pbarrier();

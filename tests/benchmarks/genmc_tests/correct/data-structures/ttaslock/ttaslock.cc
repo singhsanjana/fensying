@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "ttaslock.h"
 
 static inline void ttaslock_init(struct ttaslock_s *l)
@@ -14,7 +16,7 @@ static inline void await_for_lock(struct ttaslock_s *l)
 
 static inline int try_acquire(struct ttaslock_s *l)
 {
-	return atomic_exchange_explicit(&l->state, 1, memory_order_acquire);
+	return atomic_exchange_explicit(__FILE__, __LINE__, &l->state, 1, memory_order_acquire);
 }
 
 static inline void ttaslock_acquire(struct ttaslock_s *l)

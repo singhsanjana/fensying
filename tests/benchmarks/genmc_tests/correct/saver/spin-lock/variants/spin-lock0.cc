@@ -1,6 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #include <stdio.h>
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 #include <genmc.h>
 
 #ifndef THREADS
@@ -15,7 +19,7 @@
 # define DEF (-42)
 #endif
 
-pthread_mutex_t l;
+std::mutex l;
 int a[MAX] = { [0 ... MAX-1] = DEF };
 
 int check_array(int array[MAX])
@@ -31,14 +35,14 @@ void *thread_checker(void *unused)
 {
 	while (1) {
 		/* Check whether all threads have finished */
-		pthread_mutex_lock(&l);
+		l.lock();
 		if (check_array(a)) {
-			pthread_mutex_unlock(&l);
+			l.unlock();
 			break;
 		}
-		pthread_mutex_unlock(&l);
+		l.unlock();
 	}
-	return NULL;
+	;
 }
 
 void *thread_worker(void *arg)
@@ -50,22 +54,22 @@ void *thread_worker(void *arg)
 		int result = i;
 
 		/* Write result to its place */
-		pthread_mutex_lock(&l);
+		l.lock();
 		a[i] = result;
-		pthread_mutex_unlock(&l);
+		l.unlock();
 	}
-	return NULL;
+	;
 }
 
-int main()
+int user_user_user_main()
 {
 	thrd_t tc, tw[THREADS];
 
-	if (pthread_create(&tc, NULL, thread_checker, NULL))
-		abort();
+	if (thrd_create(&tc, (thrd_start_t)& thread_checker, NULL))
+		MODEL_ASSERT(0);
 	for (int i = 0u; i < THREADS; i++) {
-		if (pthread_create(&tw[i], NULL, thread_worker, (void *) i))
-			abort();
+		if (thrd_create(&tw[i], (thrd_start_t)& thread_worker, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	return 0;

@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef __MUTEX_H__
 #define __MUTEX_H__
 

@@ -1,3 +1,6 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 /* Testcase from Threader's distribution. For details see:
    http://www.model.in.tum.de/~popeea/research/threader
 
@@ -6,42 +9,42 @@
    by Cormac Flanagan, Stephen Freund, Shaz Qadeer.
 */
 
-#define __VERIFIER_error() assert(0)
-void __VERIFIER_assume(int);
+#define __VERIFIER_error() MODEL_ASSERT(0)
+void assume(int);
 
 int w = 0, r = 0;
 atomic_int x, y;
 
-pthread_mutex_t atomic_l;
+std::mutex atomic_l;
 
 void __VERIFIER_atomic_take_write_lock()
 {
-	pthread_mutex_lock(&atomic_l);
-	__VERIFIER_assume(w == 0 && r == 0);
+	atomic_l.lock();
+	assume(w == 0 && r == 0);
 	w = 1;
-	pthread_mutex_unlock(&atomic_l);
+	atomic_l.unlock();
 }
 
 void __VERIFIER_atomic_release_write_lock()
 {
-	pthread_mutex_lock(&atomic_l);
+	atomic_l.lock();
 	w = 0;
-	pthread_mutex_unlock(&atomic_l);
+	atomic_l.unlock();
 }
 
 void __VERIFIER_atomic_take_read_lock()
 {
-	pthread_mutex_lock(&atomic_l);
-	__VERIFIER_assume(w == 0);
+	atomic_l.lock();
+	assume(w == 0);
 	r = r + 1;
-	pthread_mutex_unlock(&atomic_l);
+	atomic_l.unlock();
 }
 
 void __VERIFIER_atomic_release_read_lock()
 {
-	pthread_mutex_lock(&atomic_l);
+	atomic_l.lock();
 	r = r - 1;
-	pthread_mutex_unlock(&atomic_l);
+	atomic_l.unlock();
 }
 
 /* writer */
@@ -61,7 +64,7 @@ void *reader(void *arg)
 	__VERIFIER_atomic_take_read_lock();
 	l = x;
 	y = l;
-	assert(y == x);
+	MODEL_ASSERT(y == x);
 	__VERIFIER_atomic_release_read_lock();
 	return 0;
 }

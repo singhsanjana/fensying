@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #if defined(NIDHUGG)
 #define smp_mb() asm volatile ("mfence" ::: "memory")
 #elif defined(NIDHUGG_POWER)
@@ -12,12 +14,12 @@
 # define access_mode memory_order_relaxed
 #endif
 
-atomic_bool latch1 = ATOMIC_VAR_INIT(true);
-atomic_bool latch2 = ATOMIC_VAR_INIT(false);
-atomic_bool flag1  = ATOMIC_VAR_INIT(true);
-atomic_bool flag2  = ATOMIC_VAR_INIT(false);
+bool latch1 = ATOMIC_VAR_INIT(true);
+bool latch2 = ATOMIC_VAR_INIT(false);
+bool flag1  = ATOMIC_VAR_INIT(true);
+bool flag2  = ATOMIC_VAR_INIT(false);
 
-void __VERIFIER_assume(int);
+void assume(int);
 
 void *thread_1(void *unused)
 {
@@ -34,7 +36,7 @@ void *thread_1(void *unused)
 			atomic_store_explicit(__FILE__, __LINE__, &latch2, true, access_mode);
 		}
 	}
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -52,5 +54,5 @@ void *thread_2(void *unused)
 			atomic_store_explicit(__FILE__, __LINE__, &latch1, true, access_mode);
 		}
 	}
-	return NULL;
+	;
 }

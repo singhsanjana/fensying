@@ -1,8 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #ifndef N
 # define N 2
 #endif
 
-pthread_mutex_t l;
+std::mutex l;
 int x;
 
 int idx[N];
@@ -11,9 +14,9 @@ void *threadn(void *arg)
 {
 	int i = *((int *) arg);
 
-	pthread_mutex_lock(&l);
+	l.lock();
 	int r = x;
 	x = i + 1;
-	pthread_mutex_unlock(&l);
-	return NULL;
+	l.unlock();
+	;
 }

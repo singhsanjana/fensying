@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * Adapted from: https://github.com/schets/c_flat_combining
  *

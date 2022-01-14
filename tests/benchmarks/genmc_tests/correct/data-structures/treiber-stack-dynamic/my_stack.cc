@@ -1,5 +1,8 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
 #include "my_stack.h"
 
@@ -49,7 +52,7 @@ void push(mystack_t *s, unsigned int val)
 		atomic_store_explicit(__FILE__, __LINE__, &node->next, oldTop, relaxed);
 
 		// release & relaxed
-		success = atomic_compare_exchange_strong_explicit(&s->top, &oldTop,
+		success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&s->top, &oldTop,
 			newTop, release, relaxed);
 		if (success)
 			break;
@@ -72,7 +75,7 @@ unsigned int pop(mystack_t *s)
 		next = atomic_load_explicit(__FILE__, __LINE__, &node->next, relaxed);
 		newTop = (pointer) next;
 		// release & relaxed
-		success = atomic_compare_exchange_strong_explicit(&s->top, &oldTop,
+		success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&s->top, &oldTop,
 			newTop, release, relaxed);
 		if (success)
 			break;

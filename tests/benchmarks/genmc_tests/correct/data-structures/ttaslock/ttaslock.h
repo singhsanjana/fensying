@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef __TTASLOCK_H__
 #define __TTASLOCK_H__
 

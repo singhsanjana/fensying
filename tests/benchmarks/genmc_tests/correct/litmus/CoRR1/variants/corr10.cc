@@ -1,30 +1,33 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../corr1.c"
+#include "../corr1.cc"
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2, t3, t4;
 
-	if (pthread_create(&t1, NULL, thread_one, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, thread_two, NULL))
-		abort();
-	if (pthread_create(&t3, NULL, thread_three, NULL))
-		abort();
-	if (pthread_create(&t4, NULL, thread_four, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& thread_one, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& thread_two, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t3, (thrd_start_t)& thread_three, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t4, (thrd_start_t)& thread_four, NULL))
+		MODEL_ASSERT(0);
 
-	if (pthread_join(t1, NULL))
-		abort();
-	if (pthread_join(t2, NULL))
-		abort();
-	if (pthread_join(t3, NULL))
-		abort();
-	if (pthread_join(t4, NULL))
-		abort();
+	if (thrd_join(t1))
+		MODEL_ASSERT(0);
+	if (thrd_join(t2))
+		MODEL_ASSERT(0);
+	if (thrd_join(t3))
+		MODEL_ASSERT(0);
+	if (thrd_join(t4))
+		MODEL_ASSERT(0);
 
 	return 0;
 }

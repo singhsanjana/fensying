@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 /* Some utilities */
@@ -32,7 +33,7 @@ static const char buffer_data[] = BUFFER_DATA;
 /* #define MAKE_BACKUP 1 // defined in args.*.in */
 
 #include <fake.h>
-#include <nano.c>
+#include <nano.cc
 
 /* Test case */
 
@@ -45,24 +46,24 @@ void __VERIFIER_recovery_routine(void)
 
 	int fd = open(__stringify(FILENAME), O_RDONLY, 0640);
 	int fb = open(__stringify(BACKUPNAME), O_RDONLY, 0640);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	int nr = lseek(fd, 0, SEEK_END);
 	/* int nr = read(fd, buf, max_size); */
 
 	/* We wouldn't want to see the file smaller... */
-	/* assert(nr >= init_len && nr <= buf_len); */
+	/* MODEL_ASSERT(nr >= init_len && nr <= buf_len); */
 
 	/* If we do see the file smaller, there should at least be a full backup */
 	if (nr < init_len) {
-		/* assert(fb != -1); */
+		/* MODEL_ASSERT(fb != -1); */
 		int nrb = lseek(fb, 0, SEEK_END);
 		if (nrb >= 0)
-			assert(nrb == init_len);
+			MODEL_ASSERT(nrb == init_len);
 	}
 }
 
-int main()
+int user_user_user_main()
 {
 	/* Create an existing file */
 	int fd = creat(__stringify(FILENAME), 0640);
@@ -77,7 +78,7 @@ int main()
 
 	/* Execute nano's writeout */
 	bool ret = write_file(file, NULL, FALSE, OVERWRITE, FALSE);
-	assert(ret);
+	MODEL_ASSERT(ret);
 
 	return 0;
 }

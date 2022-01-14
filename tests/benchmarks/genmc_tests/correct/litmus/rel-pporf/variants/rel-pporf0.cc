@@ -1,13 +1,16 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdatomic.h>
 #include <threads.h>
-#include "../rel-pporf.c"
 
-int main()
+#include "../rel-pporf.cc"
+
+int user_user_user_main()
 {
 	thrd_t t[2];
 
-	pthread_create(&t[0], NULL, &runA, NULL);
-	pthread_create(&t[1], NULL, &runB, NULL);
+	thrd_create(&t[0], (thrd_start_t)& , NULL);
+	thrd_create(&t[1], (thrd_start_t)& , NULL);
 
 	return 0;
 }

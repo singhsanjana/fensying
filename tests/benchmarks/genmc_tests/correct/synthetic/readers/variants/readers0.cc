@@ -1,9 +1,12 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../readers.c"
+#include "../readers.cc"
 
-int main()
+int user_main()
 {
 	thrd_t t[N+1];
 
@@ -11,11 +14,11 @@ int main()
                 atomic_init(&idx[i], i);
 	for (int i = 0; i <= N; i++) {
 		if (i == 0) {
-			if (pthread_create(&t[i], NULL, thread_writer, NULL))
-				abort();
+			if (thrd_create(&t[i], (thrd_start_t)& thread_writer, NULL))
+				MODEL_ASSERT(0);
 		} else {
-			if (pthread_create(&t[i], NULL, thread_reader, &idx[i-1]))
-				abort();
+			if (thrd_create(&t[i], (thrd_start_t)& thread_reader, NULL))
+				MODEL_ASSERT(0);
 		}
 	}
 

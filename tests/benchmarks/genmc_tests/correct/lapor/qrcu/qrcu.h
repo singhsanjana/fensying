@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef _LINUX_SRCU_H
 #define _LINUX_SRCU_H
 

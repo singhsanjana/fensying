@@ -1,27 +1,30 @@
-pthread_mutex_t l;
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
+std::mutex l;
 
 int x;
 
 void *thread1(void *unused)
 {
-	pthread_mutex_lock(&l);
+	l.lock();
 	int r = x;
-	pthread_mutex_unlock(&l);
-	return NULL;
+	l.unlock();
+	;
 }
 
 void *thread2(void *unused)
 {
-	pthread_mutex_lock(&l);
+	l.lock();
 	x = 42;
-	pthread_mutex_unlock(&l);
-	return NULL;
+	l.unlock();
+	;
 }
 
 void *thread3(void *unused)
 {
-	pthread_mutex_lock(&l);
+	l.lock();
 	int r = x;
-	pthread_mutex_unlock(&l);
-	return NULL;
+	l.unlock();
+	;
 }

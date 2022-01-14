@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -20,12 +21,12 @@ void __VERIFIER_recovery_routine(void)
 	int nr = read(fd, buf, 2);
 
 	/* Is it possible to see the overwrite but not "bar"? */
-	assert(!(nr == 2 && fb == -1 &&
+	MODEL_ASSERT(!(nr == 2 && fb == -1 &&
 				     buf[1] == '1' && buf[0] == '1'));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf_init[2] = "00";
 	char buf[2] = "11";

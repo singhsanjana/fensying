@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <unistd.h>
 #include <inttypes.h>
 #include <stdatomic.h>
@@ -24,7 +26,7 @@ typedef struct mpmc_boundq_1_alt mpmc_boundq_1_alt;
 
 t_element *read_fetch(mpmc_boundq_1_alt *q)
 {
-	unsigned int rdwr = atomic_load_explicit(&q->m_rdwr, mo_acquire);
+	unsigned int rdwr = atomic_load_explicit(__FILE__, __LINE__, &q->m_rdwr, mo_acquire);
 	unsigned int rd,wr;
 
 	for(;;) {
@@ -32,14 +34,14 @@ t_element *read_fetch(mpmc_boundq_1_alt *q)
 		wr = rdwr & 0xFFFF;
 
 		if (wr == rd) // empty
-			return NULL;
+			;
 
-		if (atomic_compare_exchange_weak_explicit(&q->m_rdwr, &rdwr, rdwr + (1 << 16),
+		if (atomic_compare_exchange_weak_explicit(__FILE__, __LINE__, &q->m_rdwr, &rdwr, rdwr + (1 << 16),
 							   mo_acq_rel, mo_acq_rel))
 			break;
 	}
 
-	while ((atomic_load_explicit(&q->m_written, mo_acquire) & 0xFFFF) != wr)
+	while ((atomic_load_explicit(__FILE__, __LINE__, &q->m_written, mo_acquire) & 0xFFFF) != wr)
 		; // thrd_yield();
 
 	t_element *p = &(q->m_array[rd % t_size]);
@@ -48,12 +50,12 @@ t_element *read_fetch(mpmc_boundq_1_alt *q)
 
 void read_consume(mpmc_boundq_1_alt *q)
 {
-	atomic_fetch_add_explicit(&q->m_read, 1, mo_release);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &q->m_read, 1, mo_release);
 }
 
 t_element *write_prepare(mpmc_boundq_1_alt *q)
 {
-	unsigned int rdwr = atomic_load_explicit(&q->m_rdwr, mo_acquire);
+	unsigned int rdwr = atomic_load_explicit(__FILE__, __LINE__, &q->m_rdwr, mo_acquire);
 	unsigned int rd,wr;
 
 	for(;;) {
@@ -61,14 +63,14 @@ t_element *write_prepare(mpmc_boundq_1_alt *q)
 		wr = rdwr & 0xFFFF;
 
 		if (wr == ((rd + t_size) & 0xFFFF)) // full
-			return NULL;
+			;
 
-		if (atomic_compare_exchange_weak_explicit(&q->m_rdwr, &rdwr, (rd << 16) | ((wr + 1) & 0xFFFF),
+		if (atomic_compare_exchange_weak_explicit(__FILE__, __LINE__, &q->m_rdwr, &rdwr, (rd << 16) | ((wr + 1) & 0xFFFF),
 							  mo_acq_rel, mo_acq_rel))
 			break;
 	}
 
-	while ((atomic_load_explicit(&q->m_read, mo_acquire) & 0xFFFF) != rd )
+	while ((atomic_load_explicit(__FILE__, __LINE__, &q->m_read, mo_acquire) & 0xFFFF) != rd )
 		; // thrd_yield()
 
 	t_element *p = &(q->m_array[wr % t_size]);
@@ -77,5 +79,5 @@ t_element *write_prepare(mpmc_boundq_1_alt *q)
 
 void write_publish(mpmc_boundq_1_alt *q)
 {
-	atomic_fetch_add_explicit(&q->m_written, 1, mo_release);
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &q->m_written, 1, mo_release);
 }

@@ -1,12 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <threads.h>#include <stdbool.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <threads.h>
+#include <stdbool.h>
 
-#include "../queue_ok.c"
+#include "../queue_ok.cc"
 
-int main(void)
+int user_user_user_main(void)
 {
 	thrd_t id1, id2;
 
@@ -19,17 +20,17 @@ int main(void)
 		__VERIFIER_error();
 
 	if (pthread_mutex_init(&m, NULL))
-		abort();
+		MODEL_ASSERT(0);
 
-	if (pthread_create(&id1, NULL, t1, &queue))
-		abort();
-	if (pthread_create(&id2, NULL, t2, &queue))
-		abort();
+	if (thrd_create(&id1, (thrd_start_t)& t1, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&id2, (thrd_start_t)& t2, NULL))
+		MODEL_ASSERT(0);
 
-	if (pthread_join(id1, NULL))
-		abort();
-	if (pthread_join(id2, NULL))
-		abort();
+	if (thrd_join(id1))
+		MODEL_ASSERT(0);
+	if (thrd_join(id2))
+		MODEL_ASSERT(0);
 
 	return 0;
 }

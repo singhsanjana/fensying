@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 typedef int elem_t;
 
 void myinit(elem_t *loc, elem_t val);
@@ -11,7 +13,7 @@ void *thread_writer(void *arg)
 {
 	mywrite(&x, 42);
 	mywrite(&flag, 1);
-	return NULL;
+	;
 }
 
 void *thread_reader(void *arg)
@@ -27,6 +29,6 @@ void *thread_reader(void *arg)
 		local = myread(&flag);
 	}
 	// printf("got it!\n");
-	assert(myread(&x) == 42);
-	return NULL;
+	MODEL_ASSERT(myread(&x) == 42);
+	;
 }

@@ -1,18 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <threads.h>
+#include <stdatomic.h>
 #include <genmc.h>
 
-#include "../main.c"
+#include "../main.cc"
 
-int main()
+int user_main()
 {
 	thrd_t t[N];
 
 	for (int i = 0u; i < N; i++)
-		pthread_create(&t[i], NULL, thread_n, (void *) i);
+		thrd_create(&t[i], (thrd_start_t)& thread_n, NULL);
 
 	return 0;
 }

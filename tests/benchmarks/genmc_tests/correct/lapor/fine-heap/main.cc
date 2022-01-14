@@ -1,6 +1,6 @@
 #include "librace.h" 
 #include "model-assert.h"
-#include "fine-heap.c"
+#include "fine-heap.cc"
 
 /* Driver code */
 #ifndef N
@@ -38,5 +38,5 @@ void *thread_n(void *tid)
 		add(&myheap, t * 2, t);
 	else
 		add(&myheap, t / 2, t);
-	return NULL;
+	;
 }

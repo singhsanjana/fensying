@@ -1,10 +1,12 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 /* Adapted from: https://www.linuxquestions.org/questions/programming-9/when-do-you-need-more-than-1-pthread-barrier-variable-752164/  */
 
 #include <stdio.h>
-#include <threads.h>#include <stdlib.h>
+#include <threads.h>
+#include <stdlib.h>
 #include <string.h>
-#include "librace.h" 
-#include "model-assert.h"
 
 #ifndef NTHREADS
 # define NTHREADS 2
@@ -14,7 +16,7 @@
 #endif
 
 static pthread_barrier_t barriers[NTHREADS];
-static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+static std::mutex lock = PTHREAD_MUTEX_INITIALIZER;
 static int counters[NTHREADS];
 static int serial[NTHREADS];
 
@@ -41,9 +43,9 @@ static void *worker(void *arg)
 
 		for (j = nr; j < NTHREADS; ++j)	{
 			/* Increment the counter for this round.  */
-			pthread_mutex_lock(&lock);
+			lock.lock();
 			++counters[j];
-			pthread_mutex_unlock(&lock);
+			lock.unlock();
 
 			/* Wait for the rest.  */
 			retval = pthread_barrier_wait(&barriers[j]);
@@ -61,9 +63,9 @@ static void *worker(void *arg)
 					/* 	nr, j); */
 					result = (void *) 1;
 				} else {
-					pthread_mutex_lock(&lock);
+					lock.lock();
 					++serial[j];
-					pthread_mutex_unlock(&lock);
+					lock.unlock();
 				}
 			}
 
@@ -75,14 +77,14 @@ static void *worker(void *arg)
 			/* 	printf ("not exactly one serial thread in round %d\n", j); */
 			/* 	result = (void *) 1; */
 			/* } */
-			assert(!(nr == 0 && serial[j] != 1));
+			MODEL_ASSERT(!(nr == 0 && serial[j] != 1));
 		}
 	}
 	return result;
 }
 
 
-int main()
+int user_main()
 {
 	thrd_t threads[NTHREADS];
 	int i;
@@ -99,7 +101,7 @@ int main()
 
 	/* Start the threads.  */
 	for (i = 0; i < NTHREADS; ++i) {
-		if (pthread_create(&threads[i], NULL, worker, (void *) i) != 0) {
+		if (thrd_create(&threads[i], (thrd_start_t)& worker, NULL) != 0) {
 			printf("Failed to start thread %d\n", i);
 			exit(1);
 		}
@@ -107,11 +109,11 @@ int main()
 
 	/* And wait for them.  */
 	for (i = 0; i < NTHREADS; ++i) {
-		/* if (pthread_join(threads[i], &res) != 0 || res != NULL) { */
+		/* if (thrd_join(threads[i]) != 0 || res != NULL) { */
 		/* 	printf("thread %d returned a failure\n", i); */
 		/* 	result = 1; */
 		/* } */
-		if (pthread_join(threads[i], NULL) != 0) {
+		if (thrd_join(threads[i]) != 0) {
 			printf("thread %d returned a failure\n", i);
 			result = 1;
 		}

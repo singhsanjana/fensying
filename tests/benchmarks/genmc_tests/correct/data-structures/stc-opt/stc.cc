@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * Treiber stack -- adapted from [Pulte et al. 2019]
  */
@@ -44,7 +46,7 @@ int stack_try_push(struct stack *s, int data)
 	struct stack_node *head = atomic_load_explicit(__FILE__, __LINE__, &s->head, memory_order_relaxed);
 	atomic_store_explicit(__FILE__, __LINE__, &node->next, head, memory_order_relaxed);
 
-	bool success = atomic_compare_exchange_strong_explicit(&s->head, &head, node,
+	bool success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&s->head, &head, node,
 							       memory_order_release,
 							       memory_order_release);
 	return (success ? 0 : -2); /* CAVEAT: memory leak if unsuccessful*/
@@ -60,7 +62,7 @@ int stack_try_pop(struct stack *s, int *ret_data)
 
 	*ret_data = atomic_load_explicit(__FILE__, __LINE__, &head->data, memory_order_relaxed);
 	struct stack_node *next = atomic_load_explicit(__FILE__, __LINE__, &head->next, memory_order_relaxed);
-	bool success = atomic_compare_exchange_strong_explicit(&s->head, &head, next,
+	bool success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&s->head, &head, next,
 							       memory_order_relaxed,
 							       memory_order_relaxed);
 	return (success ? 0 : -2); /* CAVEAT: memory leak if successful */

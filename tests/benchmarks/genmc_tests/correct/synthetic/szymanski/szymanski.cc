@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* Full memory barrier */
 #ifdef NIDHUGG
 # define smp_mb() asm volatile ("mfence" ::: "memory")
@@ -15,7 +17,7 @@ atomic_int x;
 atomic_int flag1;
 atomic_int flag2;
 
-void __VERIFIER_assume(int);
+void assume(int);
 
 void *thread_1(void *unused)
 {
@@ -47,7 +49,7 @@ void *thread_1(void *unused)
 				  atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_relaxed) > 3);
 		atomic_store_explicit(__FILE__, __LINE__, &flag1, 0, memory_order_relaxed);
 	}
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -80,5 +82,5 @@ void *thread_2(void *unused)
 				  atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_relaxed) > 3);
 		atomic_store_explicit(__FILE__, __LINE__, &flag2, 0, memory_order_relaxed);
 	}
-	return NULL;
+	;
 }

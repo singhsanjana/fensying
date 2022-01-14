@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /***********************************************************
  * Queue implementation (utilizes malloc infrastructure)
  ***********************************************************/
@@ -51,7 +53,7 @@ int64_t deque_try_pop(struct deque *deq, int64_t *data)
 	}
 
 	// len = 1.
-	bool is_successful = atomic_compare_exchange_strong_explicit(&deq->top, &t, t + 1,
+	bool is_successful = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&deq->top, &t, t + 1,
 							    memory_order_acq_rel,
 							    memory_order_acq_rel);
 	atomic_store_explicit(__FILE__, __LINE__, &deq->bottom, b, memory_order_relaxed);
@@ -73,7 +75,7 @@ int64_t deque_try_steal(struct deque *deq, int64_t* data)
 
 	*data = deq->buffer[t % LEN];
 
-	bool is_successful = atomic_compare_exchange_strong_explicit(&deq->top, &t, t + 1,
+	bool is_successful = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&deq->top, &t, t + 1,
 							    memory_order_release,
 							    memory_order_release);
 	return (is_successful ? 0 : -2); // success or lost

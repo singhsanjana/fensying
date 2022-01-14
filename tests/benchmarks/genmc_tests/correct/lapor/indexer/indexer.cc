@@ -1,11 +1,14 @@
-#define __VERIFIER_error() assert(0)
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
+#define __VERIFIER_error() MODEL_ASSERT(0)
 
 #define SIZE  128
 #define MAX   4
 #define N  13
 
 int table[SIZE];
-pthread_mutex_t  cas_mutex[SIZE];
+std::mutex  cas_mutex[SIZE];
 
 thrd_t  tids[N];
 int idx[N];
@@ -14,14 +17,14 @@ bool cas(int *tab, int h, int val, int new_val)
 {
 	int ret_val = false;
 
-	pthread_mutex_lock(&cas_mutex[h]);
+	cas_mutex[h].lock();
 
 	if (tab[h] == val) {
 		tab[h] = new_val;
 		ret_val = true;
 	}
 
-	pthread_mutex_unlock(&cas_mutex[h]);
+	cas_mutex[h].unlock();
 
 	return ret_val;
 }
@@ -37,7 +40,7 @@ void *thread_routine(void *arg)
 		if (m < MAX) {
 			w = (++m) * 11 + tid;
 		} else {
-			return NULL;
+			;
 		}
 
 		h = (w * 7) % SIZE;

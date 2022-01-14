@@ -1,4 +1,6 @@
-#include "mutex.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "mutex.cc"
 
 #ifndef N
 # define N 2
@@ -14,7 +16,7 @@ void *thread_n(void *arg)
 	mutex_lock(&mutex);
 	shared = index;
 	int r = shared;
-	assert(r == index);
+	MODEL_ASSERT(r == index);
 	mutex_unlock(&mutex);
-	return NULL;
+	;
 }

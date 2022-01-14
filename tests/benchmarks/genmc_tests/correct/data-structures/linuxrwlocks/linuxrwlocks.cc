@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifdef MAKE_ACCESSES_SC
 # define mo_relaxed memory_order_seq_cst
 # define mo_acquire memory_order_seq_cst
@@ -33,7 +35,7 @@
 int readers = DEFAULT_READERS, writers = DEFAULT_WRITERS, rdwr = DEFAULT_RDWR;
 
 #ifdef SPINLOOP_ASSUME
-void __VERIFIER_assume(int);
+void assume(int);
 #endif
 
 #define RW_LOCK_BIAS            0x00100000
@@ -124,7 +126,7 @@ void *threadR(void *arg)
 	read_lock(&mylock);
 	int r = shareddata;
 	read_unlock(&mylock);
-	return NULL;
+	;
 }
 
 void *threadW(void *arg)
@@ -132,7 +134,7 @@ void *threadW(void *arg)
 	write_lock(&mylock);
 	shareddata = 42;
 	write_unlock(&mylock);
-	return NULL;
+	;
 }
 
 void *threadRW(void *arg)
@@ -148,5 +150,5 @@ void *threadRW(void *arg)
 			write_unlock(&mylock);
 		}
 	}
-	return NULL;
+	;
 }

@@ -1,11 +1,12 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <stdbool.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 
-#include "../main.c"
+#include "../main.cc"
 
-int main()
+int user_main()
 {
 	int i = 0;
 
@@ -18,11 +19,11 @@ int main()
 	for (int j = 0; j < num_threads; j++)
 		param[j] = j;
 	for (int j = 0; j < writers; j++, i++)
-		pthread_create(&threads[i], NULL, threadW, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& threadW, NULL);
 	for (int j = 0; j < readers; j++, i++)
-		pthread_create(&threads[i], NULL, threadR, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& threadR, NULL);
 	for (int j = 0; j < rdwr; j++, i++)
-		pthread_create(&threads[i], NULL, threadRW, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& threadRW, NULL);
 
 	for (i = 0; i < num_threads; i++)
 		pthread_join(threads[i], NULL);

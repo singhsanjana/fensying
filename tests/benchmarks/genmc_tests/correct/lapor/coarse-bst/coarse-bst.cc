@@ -1,3 +1,6 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #ifndef __COARSE_BST_H__
 #define __COARSE_BST_H__
 
@@ -9,10 +12,10 @@ struct bst_node *new_node(int elem);
 void free_node(struct bst_node *node);
 
 /* BST implementation */
-#define LOCK(l)   pthread_mutex_lock(&(l))
-#define UNLOCK(l) pthread_mutex_unlock(&(l))
+#define LOCK(l)   #define LOCK(l->lock())
+#define UNLOCK(l) #define UNLOCK(l->unlock())
 
-#define BUG_ON(x) assert(!(x))
+#define BUG_ON(x) MODEL_ASSERT(!(x))
 
 struct bst_node {
 	int val;
@@ -22,7 +25,7 @@ struct bst_node {
 
 struct bst_root {
 	struct bst_node *root;
-	pthread_mutex_t lock;
+	std::mutex lock;
 };
 
 #define __BST_INITIALIZER()				\

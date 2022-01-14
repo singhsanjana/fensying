@@ -1,6 +1,9 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* Adapted from: http://pages.cs.wisc.edu/~travitch/pthreads_primer.html */
 
-#include <threads.h>#include <stdlib.h>
+#include <threads.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #ifndef THREADS
@@ -87,10 +90,10 @@ void *thread_worker(void *arg)
 	for (int row = rank * DIM / THREADS; row < DIM && row < (rank + 1) * DIM / THREADS; ++row)
 		for (int col = 0; col < DIM; ++col)
 			dot_product(row, col, final_matrix, initial_matrix);
-	return NULL;
+	;
 }
 
-int main(int argc, char **argv)
+int user_main(int argc, char **argv)
 {
 	thrd_t thr[THREADS];
 
@@ -101,14 +104,14 @@ int main(int argc, char **argv)
 	}
 
 	for (int i = 0; i < THREADS; ++i) {
-		if (pthread_create(&thr[i], NULL, thread_worker, (void *) i)) {
+		if (thrd_create(&thr[i], (thrd_start_t)& thread_worker, NULL)) {
 			printf("Could not create thread %d\n", i);
 			return -1;
 		}
 	}
 
 	for (int i = 0; i < THREADS; ++i) {
-		if (pthread_join(thr[i], NULL)) {
+		if (thrd_join(thr[i])) {
 			printf("Could not join thread %d\n", i);
 			return -1;
 		}

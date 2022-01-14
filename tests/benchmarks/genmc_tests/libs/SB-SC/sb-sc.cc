@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 typedef int elem_t;
 
 elem_t myread(elem_t *loc);
@@ -11,12 +13,12 @@ void *thread_1(void *unused)
 {
 	mywrite(&x, 1);
 	elem_t a = myread(&y);
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
 {
 	mywrite(&y, 1);
 	elem_t b = myread(&x);
-	return NULL;
+	;
 }

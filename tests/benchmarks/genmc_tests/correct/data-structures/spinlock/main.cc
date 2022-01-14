@@ -1,4 +1,6 @@
-#include "spinlock.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "spinlock.cc"
 
 #ifndef N
 # define N 2
@@ -14,7 +16,7 @@ void *thread_n(void *arg)
 	spinlock_acquire(&lock);
 	shared = index;
 	int r = shared;
-	assert(r == index);
+	MODEL_ASSERT(r == index);
 	spinlock_release(&lock);
-	return NULL;
+	;
 }

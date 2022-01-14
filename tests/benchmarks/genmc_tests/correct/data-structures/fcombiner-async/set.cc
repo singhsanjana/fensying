@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* A naive sequential set implementation */
 
 #include <stdbool.h>

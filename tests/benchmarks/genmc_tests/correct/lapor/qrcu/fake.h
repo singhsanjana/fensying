@@ -1,3 +1,6 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 /*
  * "Fake" declarations to scaffold a Linux-kernel SMP environment.
  *
@@ -21,7 +24,6 @@
 #ifndef __FAKE_H
 #define __FAKE_H
 
-#include <assert.h>
 #include <stdatomic.h>
 #include "ordering.h"
 
@@ -81,8 +83,8 @@ typedef uint64_t __u64;
 #define CONFIG_DEBUG_SPINLOCK
 
 /* BUG() statements and relatives */
-#define BUG() assert(0)
-#define BUG_ON(x) assert(!(x))
+#define BUG() MODEL_ASSERT(0)
+#define BUG_ON(x) MODEL_ASSERT(!(x))
 #define BUILD_BUG_ON(x) BUG_ON(x)
 
 
@@ -101,10 +103,10 @@ int __thread __running_cpu;
 
 /* RC11 semantics for memory barriers */
 #define barrier() atomic_signal_fence(mo_acq_rel)
-#define smp_mb()  atomic_thread_fence(mo_seq_cst)
+#define smp_mb()  atomic_thread_fence(__FILE__, __LINE__, mo_seq_cst)
 
-#define smp_rmb() atomic_thread_fence(mo_acq_rel)
-#define smp_wmb() atomic_thread_fence(mo_acq_rel)
+#define smp_rmb() atomic_thread_fence(__FILE__, __LINE__, mo_acq_rel)
+#define smp_wmb() atomic_thread_fence(__FILE__, __LINE__, mo_acq_rel)
 
 #define smp_mb__after_atomic_inc()    do {} while (0)
 
@@ -131,30 +133,30 @@ typedef struct {
 
 #define ATOMIC_INIT(i) { ATOMIC_VAR_INIT(i) }
 
-#define atomic_read(v)   atomic_load_explicit(&(v)->counter, mo_relaxed)
-#define atomic_set(v, i) atomic_store_explicit(&(v)->counter, i, mo_relaxed)
+#define atomic_read(v)   atomic_load_explicit(__FILE__, __LINE__, &(v)->counter, mo_relaxed)
+#define atomic_set(v, i) atomic_store_explicit(__FILE__, __LINE__, &(v)->counter, i, mo_relaxed)
 
-#define atomic_add(i, v) atomic_fetch_add_explicit(&(v)->counter, i, mo_relaxed)
-#define atomic_sub(i, v) atomic_fetch_sub_explicit(&(v)->counter, i, mo_relaxed)
+#define atomic_add(i, v) atomic_fetch_add_explicit(__FILE__, __LINE__, &(v)->counter, i, mo_relaxed)
+#define atomic_sub(i, v) atomic_fetch_sub_explicit(__FILE__, __LINE__, &(v)->counter, i, mo_relaxed)
 
 #define atomic_inc(v) atomic_add(1, v)
 #define atomic_dec(v) atomic_sub(1, v)
 
-#define READ_ONCE(x)     atomic_load_explicit(&x, mo_relaxed)
-#define WRITE_ONCE(x, v) atomic_store_explicit(&x, v, mo_relaxed)
+#define READ_ONCE(x)     atomic_load_explicit(__FILE__, __LINE__, &x, mo_relaxed)
+#define WRITE_ONCE(x, v) atomic_store_explicit(__FILE__, __LINE__, &x, v, mo_relaxed)
 
 #define smp_store_release(p, v)			        \
-	atomic_store_explicit(p, v, mo_release)
+	atomic_store_explicit(__FILE__, __LINE__, p, v, mo_release)
 #define smp_load_acquire(p)			        \
-	atomic_load_explicit(p, mo_acquire)
+	atomic_load_explicit(__FILE__, __LINE__, p, mo_acquire)
 
 #define xchg(p, v)					\
-	atomic_exchange_explicit(p, v, mo_acq_rel)
+	atomic_exchange_explicit(__FILE__, __LINE__, p, v, mo_acq_rel)
 
 #define __cmpxchg(ptr, old, new, ord)		        \
 ({					                \
 	__typeof__(old) __old = (old);			\
-	atomic_compare_exchange_strong_explicit(ptr,	\
+	atomic_compare_exchange_strong_explicit(__FILE__, __LINE__ptr,	\
 				&__old, new, ord, ord);	\
 	__old;						\
 })
@@ -175,7 +177,7 @@ typedef struct {
 #define __atomic_sub_return(val, ptr, ord)		\
 ({						        \
 	__typeof__(val) __ret;				\
-	__ret = atomic_fetch_sub_explicit(&(ptr)->counter, val, ord);	\
+	__ret = atomic_fetch_sub_explicit(__FILE__, __LINE__, &(ptr)->counter, val, ord);	\
 	__ret = __ret - val;				\
 	__ret;						\
 })
@@ -233,7 +235,7 @@ static inline bool atomic_add_unless(atomic_t *v, int a, int u)
 
 /* Synchronization primitives */
 struct mutex {
-	pthread_mutex_t lock;
+	std::mutex lock;
 };
 #define __MUTEX_INITIALIZER(lockname) { .lock = PTHREAD_MUTEX_INITIALIZER }
 
@@ -243,13 +245,13 @@ void mutex_init(struct mutex *l)
 
 void mutex_lock(struct mutex *l)
 {
-	if (pthread_mutex_lock(&l->lock))
+	if (l->lock.lock())
 		exit(-1);
 }
 
 void mutex_unlock(struct mutex *l)
 {
-	if (pthread_mutex_unlock(&l->lock))
+	if (l->lock.unlock())
 		exit(-1);
 }
 

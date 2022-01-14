@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * This test case exposes a bug in the implementation where
  * a PSC edge from Wx1 to Ry0 was added in the following program,
@@ -13,7 +15,7 @@
  * (Print PSC to see the erroneously added edge.)
  */
 
-void __VERIFIER_assume(int);
+void assume(int);
 
 atomic_int x;
 atomic_int y;
@@ -22,15 +24,15 @@ void *thread_1(void *unused)
 {
 	x = 1;
 	y = 1;
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
 {
 	int a = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_acquire);
-	__VERIFIER_assume(a == 1);
+	assume(a == 1);
 
 	int b = y;
-	__VERIFIER_assume(b == 0);
-	return NULL;
+	assume(b == 0);
+	;
 }

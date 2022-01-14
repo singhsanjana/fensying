@@ -1,4 +1,7 @@
-pthread_mutex_t l;
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
+std::mutex l;
 
 atomic_int x;
 atomic_int y;
@@ -10,20 +13,20 @@ void *thread_1(void *unused)
 {
 	atomic_store_explicit(__FILE__, __LINE__, &y, 1, memory_order_relaxed);
 
-	pthread_mutex_lock(&l);
-	pthread_mutex_unlock(&l);
+	l.lock();
+	l.unlock();
 
 	r_x = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
 {
 	atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
 
-	pthread_mutex_lock(&l);
-	pthread_mutex_unlock(&l);
+	l.lock();
+	l.unlock();
 
 	r_y = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_relaxed);
-	return NULL;
+	;
 }

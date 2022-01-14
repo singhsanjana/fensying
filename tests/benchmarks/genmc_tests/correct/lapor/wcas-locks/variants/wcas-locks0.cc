@@ -1,16 +1,19 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <threads.h>
-#include "../wcas-locks.c"
 
-int main()
+#include "../wcas-locks.cc"
+
+int user_user_user_main()
 {
 	thrd_t t0, t[N];
 
-	if (pthread_create(&t0, NULL, thread_0, NULL))
-		abort();
+	if (thrd_create(&t0, (thrd_start_t)& thread_0, NULL))
+		MODEL_ASSERT(0);
 	for (int i = 0; i < N; i++) {
-		if (pthread_create(&t[i], NULL, thread_n, NULL))
-			abort();
+		if (thrd_create(&t[i], (thrd_start_t)& thread_n, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	return 0;

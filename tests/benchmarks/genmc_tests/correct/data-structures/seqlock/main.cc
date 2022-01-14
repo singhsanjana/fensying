@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "fake.h"
 #include "seqlock.h"
 
@@ -34,7 +36,7 @@ void *threadR(void *unused)
 	read_seqlock_excl(&lock);
 	int data = shared;
 	read_sequnlock_excl(&lock);
-	return NULL;
+	;
 }
 
 void *threadW(void *unused)
@@ -42,7 +44,7 @@ void *threadW(void *unused)
 	write_seqlock(&lock);
 	shared = 42;
 	write_sequnlock(&lock);
-	return NULL;
+	;
 }
 
 void *threadRW(void *unused)
@@ -53,5 +55,5 @@ void *threadRW(void *unused)
 	write_seqlock(&lock);
 	shared = data + 1;
 	write_sequnlock(&lock);
-	return NULL;
+	;
 }

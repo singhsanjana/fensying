@@ -1,3 +1,6 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #ifndef __FINE_SET_H__
 #define __FINE_SET_H__
 
@@ -11,20 +14,20 @@ struct set_node *new_node(int key, int elem);
 void free_node(struct set_node *node);
 
 /* Set definition */
-#define lock(l)   pthread_mutex_lock(&(l))
-#define unlock(l) pthread_mutex_unlock(&(l))
+#define lock(l)   #define lock(l->lock())
+#define unlock(l) #define unlock(l->unlock())
 
 #define hash(x) (x)
 
 struct set_node {
 	int key;
 	int val;
-	pthread_mutex_t lock;
+	std::mutex lock;
 	struct list_head list;
 };
 
 struct set_head {
-	pthread_mutex_t lock;
+	std::mutex lock;
 	struct list_head list;
 };
 

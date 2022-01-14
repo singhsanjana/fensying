@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "fake.h"
 #include "seqlock.h"
 
@@ -39,7 +41,7 @@ void *threadR(void *unused)
 		/* Make a copy of the data of interest */
 		data = atomic_load_explicit(__FILE__, __LINE__, &shared, mo_relaxed);
 	} while (read_seqretry(&lock, seq));
-	return NULL;
+	;
 }
 
 void *threadW(void *unused)
@@ -47,7 +49,7 @@ void *threadW(void *unused)
 	write_seqlock(&lock);
 	atomic_store_explicit(__FILE__, __LINE__, &shared, 42, mo_relaxed);
 	write_sequnlock(&lock);
-	return NULL;
+	;
 }
 
 void *threadRW(void *unused)
@@ -64,5 +66,5 @@ void *threadRW(void *unused)
 	write_seqlock(&lock);
 	atomic_store_explicit(__FILE__, __LINE__, &shared, data + 1, mo_relaxed);
 	write_sequnlock(&lock);
-	return NULL;
+	;
 }

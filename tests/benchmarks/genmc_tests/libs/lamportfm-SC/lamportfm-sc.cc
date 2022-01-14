@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* Lamport's fast mutex algorithm 2
  * (https://users.soe.ucsc.edu/~scott/courses/Fall11/221/Papers/Sync/lamport-tocs87.pdf)
  */
@@ -7,8 +9,8 @@
 #  define N 2
 #endif
 
-void __VERIFIER_assume(intptr_t);
-#define await(cond) __VERIFIER_assume(cond)
+void assume(intptr_t);
+#define await(cond) assume(cond)
 
 typedef intptr_t elem_t;
 void myinit(elem_t *loc, elem_t val);
@@ -52,5 +54,5 @@ static void *thread(void *arg)
 	intptr_t thread = (intptr_t) arg;
 	lock(thread);
 	unlock(thread);
-	return NULL;
+	;
 }

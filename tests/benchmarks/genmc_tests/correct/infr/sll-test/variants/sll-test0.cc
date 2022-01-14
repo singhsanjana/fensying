@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * Test case by: Carlo Wood <carlo@alinoe.com>
  *
@@ -10,26 +12,25 @@
  * regarding the type is needed when reading from such stores.
  */
 
-#include <threads.h>#include <stdlib.h>
+#include <threads.h>
+#include <stdlib.h>
 #include <stddef.h>
-#include "librace.h" 
-#include "model-assert.h"
 #include <stdatomic.h>
 #include <stdio.h>
 
-#include "../sll-test.c"
+#include "../sll-test.cc"
 
-int main()
+int user_user_user_main()
 {
 	// Start THREADS threads that each append one node the the queue.
 	for (int i = 0; i < THREADS; ++i)
-		if (pthread_create(&t[i], NULL, producer_thread, &n[i]))
-			abort();
+		if (thrd_create(&t[i], (thrd_start_t)& producer_thread, NULL))
+			MODEL_ASSERT(0);
 
 	// Wait till all threads finished.
 	for (int i = 0; i < THREADS; ++i)
-		if (pthread_join(t[i], NULL))
-			abort();
+		if (thrd_join(t[i]))
+			MODEL_ASSERT(0);
 
 	// Count number of elements in the list.
 	struct Node* l = list;

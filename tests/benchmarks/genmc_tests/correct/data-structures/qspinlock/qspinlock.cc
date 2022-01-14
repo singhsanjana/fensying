@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * Queued spinlock
  *
@@ -643,6 +645,6 @@ EXPORT_SYMBOL(queued_spin_lock_slowpath);
 #define queued_spin_lock_slowpath	__pv_queued_spin_lock_slowpath
 
 #include "qspinlock_paravirt.h"
-#include "qspinlock.c"
+#include "qspinlock.cc"
 
 #endif

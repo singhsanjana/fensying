@@ -1,22 +1,23 @@
-#include <stdlib.h>
-#include <threads.h>#include <stdbool.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <threads.h>
+#include <stdbool.h>
 
-#include "../main.c"
+#include "../main.cc"
 
-int main()
+int user_user_user_main()
 {
 	/* Store PIDs starting from the first entry of threads[] */
 	int i = 1;
 
 	init();
 	for (int j = 0; j < adders; j++, i++)
-		pthread_create(&threads[i], NULL, thread_add, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& thread_add, NULL);
 	for (int j = 0; j < seekers; j++, i++)
-		pthread_create(&threads[i], NULL, thread_seek, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& thread_seek, NULL);
 	for (int j = 0; j < removers; j++, i++)
-		pthread_create(&threads[i], NULL, thread_del, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& thread_del, NULL);
 
 	i = 1;
 	for (int j = 0; j < adders; j++, i++)

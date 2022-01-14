@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "twalock.h"
 
 /* access the i-th array index */
@@ -55,7 +57,7 @@ static inline void twalock_release(struct twalock_s *l)
 static inline int twalock_tryacquire(struct twalock_s *l)
 {
 	int k = atomic_load_explicit(__FILE__, __LINE__, &l->grant, memory_order_acquire);
-	return atomic_compare_exchange_strong_explicit(&l->ticket, &k, k + 1,
+	return atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&l->ticket, &k, k + 1,
 						       memory_order_relaxed,
 						       memory_order_relaxed) == k;
 }

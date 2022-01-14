@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "mutex.h"
 
 static inline void mutex_init(mutex_t *m)
@@ -8,7 +10,7 @@ static inline void mutex_init(mutex_t *m)
 static inline int mutex_lock_fastpath(mutex_t *m)
 {
 	int r = 0;
-	return atomic_compare_exchange_strong_explicit(m, &r, 1,
+	return atomic_compare_exchange_strong_explicit(__FILE__, __LINE__m, &r, 1,
 						       memory_order_acquire,
 						       memory_order_acquire);
 }
@@ -16,7 +18,7 @@ static inline int mutex_lock_fastpath(mutex_t *m)
 static inline int mutex_lock_try_acquire(mutex_t *m)
 {
 	int r = 0;
-	return atomic_compare_exchange_strong_explicit(m, &r, 2,
+	return atomic_compare_exchange_strong_explicit(__FILE__, __LINE__m, &r, 2,
 						       memory_order_acquire,
 						       memory_order_acquire);
 }
@@ -28,7 +30,7 @@ static inline void mutex_lock(mutex_t *m)
 
 	while (1) {
 		int r = 1;
-		atomic_compare_exchange_strong_explicit(m, &r, 2,
+		atomic_compare_exchange_strong_explicit(__FILE__, __LINE__m, &r, 2,
 							memory_order_relaxed,
 							memory_order_relaxed);
 		__futex_wait(m, 2);
@@ -40,7 +42,7 @@ static inline void mutex_lock(mutex_t *m)
 static inline int mutex_unlock_fastpath(mutex_t *m)
 {
 	int r = 1;
-	return atomic_compare_exchange_strong_explicit(m, &r, 0,
+	return atomic_compare_exchange_strong_explicit(__FILE__, __LINE__m, &r, 0,
 						       memory_order_release,
 						       memory_order_release);
 }

@@ -1,11 +1,12 @@
-#include <stdlib.h>
-#include <threads.h>#include <stdbool.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <threads.h>
+#include <stdbool.h>
 
-#include "../main.c"
+#include "../main.cc"
 
-int main()
+int user_user_user_main()
 {
 	num_threads = N;
 	for (int j = 0; j < num_threads; j++)
@@ -14,21 +15,21 @@ int main()
 	add(&myheap, 0, 0);
 
 	for (int i = 0; i < num_threads; i++)
-		if (pthread_create(&threads[i + 1], NULL, thread_n, &param[i]))
-			abort();
+		if (thrd_create(&threads[i + 1], (thrd_start_t)& thread_n, NULL))
+			MODEL_ASSERT(0);
 
 	for (int i = 0; i < num_threads; i++)
-		if (pthread_join(threads[i + 1], NULL))
-			abort();
+		if (thrd_join(threads[i + 1]))
+			MODEL_ASSERT(0);
 
 	/* for (int i = 0; i < num_threads; i++) { */
-	/* 	if (pthread_create(&threads[i], NULL, thread_n, NULL)) */
-	/* 		abort(); */
+	/* 	if (thrd_create(&threads[i], (thrd_start_t)& thread_n, NULL)) */
+	/* 		MODEL_ASSERT(0); */
 	/* } */
 
 	/* for (int i = 0; i < num_threads; i++) { */
-	/* 	if (pthread_join(threads[i], NULL)) */
-	/* 		abort(); */
+	/* 	if (thrd_join(threads[i])) */
+	/* 		MODEL_ASSERT(0); */
 	/* } */
 
 	/* for (int i = 0; i < myheap.next; i++) */

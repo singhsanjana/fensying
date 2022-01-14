@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef N
 # define N 42
 #endif
@@ -5,13 +7,13 @@
 atomic_int x;
 atomic_int y;
 
-void __VERIFIER_assume(int);
+void assume(int);
 
 void *thread_1(void *unused)
 {
 	for (int i = 1u; i <= N; i++)
 		atomic_store_explicit(__FILE__, __LINE__, &x, i, memory_order_relaxed);
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -22,7 +24,7 @@ void *thread_2(void *unused)
 	if (a < N)
 		atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_relaxed);
 
-	__VERIFIER_assume(b == N);
+	assume(b == N);
 
-	return NULL;
+	;
 }

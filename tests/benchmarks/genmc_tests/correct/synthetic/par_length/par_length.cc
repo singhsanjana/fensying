@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef N
 #  warning "N was not defined, assuming 2"
 #  define N 2
@@ -19,5 +21,5 @@ void *thread_n(void *arg)
 
 	atomic_store(&v, tid);
 	atomic_load(&v);
-	return NULL;
+	;
 }

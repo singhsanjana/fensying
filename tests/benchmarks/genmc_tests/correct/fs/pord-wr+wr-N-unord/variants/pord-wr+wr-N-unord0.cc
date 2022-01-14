@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 #include <stdbool.h>
-#include "librace.h" 
-#include "model-assert.h"
 #include <genmc.h>
 
 /* Different threads concurrently writing to the same file in a completely
@@ -32,7 +33,7 @@ void *thread_n(void *arg)
 	struct thread_info_struct *thr = arg;
 
 	int fd = open("thefile", O_WRONLY|O_APPEND, 0640);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	for (int i = 0u; i < WRITER_BATCHES; ++i) {
 		/* Model a (supposedly intense) computation taking place */
@@ -42,25 +43,25 @@ void *thread_n(void *arg)
 
 		/* Append to the file  */
 		int nw = write(fd, buf, WRITER_BATCH_SIZE);
-		assert(nw == WRITER_BATCH_SIZE);
+		MODEL_ASSERT(nw == WRITER_BATCH_SIZE);
 	}
-	return NULL;
+	;
 }
 
 void __VERIFIER_recovery_routine(void)
 {
 	/* Observe the outcome of the serialization */
 	int fd = open("thefile", O_RDONLY, S_IRWXU);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	char buf[MAX_FILESIZE];
 	/* int nr = read(fd, buf, MAX_FILESIZE); */
 	int nr = lseek(fd, 0, SEEK_END);
-	assert(nr <= MAX_FILESIZE); /* Trivally true */
+	MODEL_ASSERT(nr <= MAX_FILESIZE); /* Trivally true */
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t[NUM_WRITERS];
 
@@ -71,8 +72,8 @@ int main()
 		threads[i].thrid = i;
 		threads[i].data = i;
 		threads[i].thrcnt = NUM_WRITERS;
-		if (pthread_create(&threads[i].tid, NULL, thread_n, &threads[i]))
-			abort();
+		if (thrd_create(&threads[i].tid, (thrd_start_t)& thread_n, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	return 0;

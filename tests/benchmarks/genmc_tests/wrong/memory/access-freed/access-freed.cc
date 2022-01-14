@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #define mo_acq memory_order_acquire
 
 _Atomic(int *) p;
@@ -6,7 +8,7 @@ void *thread1(void *unused)
 {
 	p = malloc(sizeof(int));
 	free(p);
-	return NULL;
+	;
 }
 
 void *thread2(void *unused)
@@ -15,5 +17,5 @@ void *thread2(void *unused)
 	if (r) {
 		*r = 18;
 	}
-	return NULL;
+	;
 }

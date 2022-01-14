@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int x = ATOMIC_VAR_INIT(3);
 atomic_int y = ATOMIC_VAR_INIT(4);
 
@@ -14,9 +16,9 @@ void *thread_one(void *unused)
 	t = atomic_load_explicit(__FILE__, __LINE__, &p, memory_order_acquire);
 	atomic_store_explicit(t, atomic_load_explicit(__FILE__, __LINE__, t, memory_order_acquire) + 3,
 			      memory_order_release);
-	/* assert(3 <= x && x <= 9); */
-	/* assert(3 <= y && y <= 9); */
-	return NULL;
+	/* MODEL_ASSERT(3 <= x && x <= 9); */
+	/* MODEL_ASSERT(3 <= y && y <= 9); */
+	;
 }
 
 void *thread_two(void *unused)
@@ -30,7 +32,7 @@ void *thread_two(void *unused)
 	t = atomic_load_explicit(__FILE__, __LINE__, &p, memory_order_acquire);
 	atomic_store_explicit(t, atomic_load_explicit(__FILE__, __LINE__, t, memory_order_acquire) + 3,
 			      memory_order_release);
-	/* assert(3 <= x && x <= 9); */
-	/* assert(3 <= y && y <= 9); */
-	return NULL;
+	/* MODEL_ASSERT(3 <= x && x <= 9); */
+	/* MODEL_ASSERT(3 <= y && y <= 9); */
+	;
 }

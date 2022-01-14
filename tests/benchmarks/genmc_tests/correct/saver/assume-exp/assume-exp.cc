@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef NUM
 # define NUM 4
 #endif
@@ -9,13 +11,13 @@ void *thread_1(void *unused)
 {
 	for (int i = 1u; i <= 42; i++)
 		x = i;
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
 {
-	__VERIFIER_assume(x == 42);
-	return NULL;
+	assume(x == 42);
+	;
 }
 
 void *thread_3(void *unused)
@@ -24,12 +26,12 @@ void *thread_3(void *unused)
 		for (int j = 0u; j < 8; j++)
 			atomic_store_explicit(__FILE__, __LINE__, &a[j], i, memory_order_relaxed);
 	}
-	return NULL;
+	;
 }
 
 void *thread_4(void *unused)
 {
 	for (int i = 0u; i < 8; i++)
 		atomic_load_explicit(__FILE__, __LINE__, &a[i], memory_order_relaxed);
-	return NULL;
+	;
 }

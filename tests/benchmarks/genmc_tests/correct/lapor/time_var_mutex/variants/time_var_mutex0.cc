@@ -1,29 +1,30 @@
-#include <stdlib.h>
-#include <threads.h>#include "librace.h" 
+#include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <threads.h>
 
-#include "../time_var_mutex.c"
+#include "../time_var_mutex.cc"
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2;
 
-	__VERIFIER_assume(inode == busy);
+	assume(inode == busy);
 
 	if (pthread_mutex_init(&m_inode, NULL))
-		abort();
+		MODEL_ASSERT(0);
 	if (pthread_mutex_init(&m_busy, NULL))
-		abort();
+		MODEL_ASSERT(0);
 
-	if (pthread_create(&t1, NULL, allocator, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, de_allocator, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& allocator, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& de_allocator, NULL))
+		MODEL_ASSERT(0);
 
-	if (pthread_join(t1, NULL))
-		abort();
-	if (pthread_join(t2, NULL))
-		abort();
+	if (thrd_join(t1))
+		MODEL_ASSERT(0);
+	if (thrd_join(t2))
+		MODEL_ASSERT(0);
 
 	/* pthread_mutex_destroy(&m_inode); */
 	/* pthread_mutex_destroy(&m_busy); */

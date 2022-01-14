@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 _Atomic(struct mcs_spinlock *) lock;
 
 int shared;
@@ -10,5 +12,5 @@ void *thread_n(void *param)
 	mcs_spin_lock(&lock, &nodes[i]);
 	shared = 42;
 	mcs_spin_unlock(&lock, &nodes[i]);
-	return NULL;
+	;
 }

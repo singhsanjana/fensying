@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int x, y;
 
 _Atomic(atomic_int *) p;
@@ -5,7 +7,7 @@ _Atomic(atomic_int *) p;
 void *thread1(void *unused)
 {
 	x = 42;
-	return NULL;
+	;
 }
 
 void *thread2(void *unused)
@@ -14,7 +16,7 @@ void *thread2(void *unused)
 		p = malloc(sizeof(atomic_int));
 
 	y = 17;
-	return NULL;
+	;
 }
 
 void *thread3(void *unused)
@@ -23,5 +25,5 @@ void *thread3(void *unused)
 		atomic_int *a = atomic_load_explicit(__FILE__, __LINE__, &p, memory_order_acquire);
 		atomic_store_explicit(__FILE__, __LINE__, a, 42, memory_order_relaxed);
 	}
-	return NULL;
+	;
 }

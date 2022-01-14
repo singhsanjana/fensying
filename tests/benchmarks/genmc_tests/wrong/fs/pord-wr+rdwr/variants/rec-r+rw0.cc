@@ -1,10 +1,11 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include <genmc.h>
-#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
+#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -16,7 +17,7 @@ void *thread_1(void *fdx)
 	buf[0] = 42;
 
 	pwrite(fd_x, buf, 1, 0);
-	return NULL;
+	;
 }
 
 void *thread_2(void *fdx)
@@ -34,7 +35,7 @@ void *thread_2(void *fdx)
 	if (buf_x[0] == 42)
 		pwrite(fd_y, buf_y, 1, 0);
 
-	return NULL;
+	;
 }
 
 void __VERIFIER_recovery_routine(void)
@@ -54,11 +55,11 @@ void __VERIFIER_recovery_routine(void)
 	pread(fd_y, buf_y, 1, 0);
 	pread(fd_x, buf_x, 1, 0);
 
-	assert(!(buf_y[0] == 42 && buf_x[0] == 0));
+	MODEL_ASSERT(!(buf_y[0] == 42 && buf_x[0] == 0));
 	return;
 }
 
-int main()
+int user_main()
 {
 	thrd_t t1, t2;
 
@@ -66,14 +67,14 @@ int main()
 
 	__VERIFIER_pbarrier();
 
-	if (pthread_create(&t1, NULL, thread_1, &fd_x))
-		abort();
-	if (pthread_create(&t2, NULL, thread_2, &fd_x))
-		abort();
-	if (pthread_join(t1, NULL))
-		abort();
-	if (pthread_join(t2, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& thread_2, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_join(t1))
+		MODEL_ASSERT(0);
+	if (thrd_join(t2))
+		MODEL_ASSERT(0);
 
 	return 0;
 }

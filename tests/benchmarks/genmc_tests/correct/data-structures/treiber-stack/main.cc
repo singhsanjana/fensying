@@ -1,4 +1,6 @@
-#include "my_stack.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "my_stack.cc"
 
 #define MAXREADERS 3
 #define MAXWRITERS 3
@@ -56,7 +58,7 @@ void *threadW(void *param)
 
 	atomic_store_explicit(__FILE__, __LINE__, &x[pid], pid + 42, relaxed);
 	push(&stack, pid);
-	return NULL;
+	;
 }
 
 void *threadR(void *param)
@@ -71,7 +73,7 @@ void *threadR(void *param)
 		int b = atomic_load_explicit(__FILE__, __LINE__, &x[idx], relaxed);
 		/* printf("b: %d\n", b); */
 	}
-	return NULL;
+	;
 }
 
 void *threadRW(void *param)
@@ -89,5 +91,5 @@ void *threadRW(void *param)
 		int b = atomic_load_explicit(__FILE__, __LINE__, &x[idx], relaxed);
 		/* printf("b: %d\n", b); */
 	}
-	return NULL;
+	;
 }

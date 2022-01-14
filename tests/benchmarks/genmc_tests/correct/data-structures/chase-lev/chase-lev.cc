@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "deque.h"
 
 #ifndef NUM
@@ -75,7 +77,7 @@ void *thread_pp(void *unused)
 	int64_t res1, res2, res3;
 
 	thread0(&deq, NUM, 5, 3, 2, &res1, &res2, &res3);
-	return NULL;
+	;
 }
 
 void *thread_s(void *unused)
@@ -83,5 +85,5 @@ void *thread_s(void *unused)
 	int64_t res1;
 
 	thread1(&deq, NUM, 1, &res1);
-	return NULL;
+	;
 }

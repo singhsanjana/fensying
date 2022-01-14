@@ -1,5 +1,8 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
 /*
  * If we change the label "exit" to "body", this loop does not qualify
@@ -9,7 +12,7 @@
 
 atomic_int x;
 
-int main()
+int user_user_user_main()
 {
 	/* Depending on the value read, the loop has a different entry point */
 	if (atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed))

@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -14,19 +15,19 @@ void __VERIFIER_recovery_routine(void)
 	char buf[8];
 
 	int fd = open("foo", O_RDONLY, 0666);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	int nr = pread(fd, buf, 5, 0);
 	if (nr < 5)
 		return;
 
 	/* Is is possible to read new data for the 2nd block w/out the 1st? */
-	assert(!(buf[3] == 2 && buf[4] == 2 &&
+	MODEL_ASSERT(!(buf[3] == 2 && buf[4] == 2 &&
 				     buf[0] == 1 && buf[1] == 1));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf[8];
 

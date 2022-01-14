@@ -1,38 +1,39 @@
-#include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../inc+inc+rr+w+rr.c"
+#include "../inc+inc+rr+w+rr.cc"
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2, t3, t4, t5;
 
-	if (pthread_create(&t1, NULL, thread_1, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, thread_2, NULL))
-		abort();
-	if (pthread_create(&t3, NULL, thread_3, NULL))
-		abort();
-	if (pthread_create(&t4, NULL, thread_4, NULL))
-		abort();
-	if (pthread_create(&t5, NULL, thread_5, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& thread_2, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t3, (thrd_start_t)& thread_3, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t4, (thrd_start_t)& thread_4, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t5, (thrd_start_t)& thread_5, NULL))
+		MODEL_ASSERT(0);
 
 
-	if (pthread_join(t1, NULL))
-		abort();
-	if (pthread_join(t2, NULL))
-		abort();
-	if (pthread_join(t3, NULL))
-		abort();
-	if (pthread_join(t4, NULL))
-		abort();
-	if (pthread_join(t5, NULL))
-		abort();
+	if (thrd_join(t1))
+		MODEL_ASSERT(0);
+	if (thrd_join(t2))
+		MODEL_ASSERT(0);
+	if (thrd_join(t3))
+		MODEL_ASSERT(0);
+	if (thrd_join(t4))
+		MODEL_ASSERT(0);
+	if (thrd_join(t5))
+		MODEL_ASSERT(0);
 
-	assert (!(a == 42 && b == 2 && c == 1 && d == 42));
+	MODEL_ASSERT (!(a == 42 && b == 2 && c == 1 && d == 42));
 
 	return 0;
 }

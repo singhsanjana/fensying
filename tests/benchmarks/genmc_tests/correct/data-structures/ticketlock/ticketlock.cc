@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 struct ticketlock_s {
 	atomic_int next;
 	atomic_int owner;
@@ -30,7 +32,7 @@ static inline void ticketlock_acquire(struct ticketlock_s *l)
 static inline int ticketlock_tryacquire(struct ticketlock_s *l)
 {
 	int o = atomic_load_explicit(__FILE__, __LINE__, &l->owner, memory_order_acquire);
-	int n = atomic_compare_exchange_strong_explicit(&l->next, &o, o + 1,
+	int n = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&l->next, &o, o + 1,
 							memory_order_relaxed,
 							memory_order_relaxed);
 	return n == o;

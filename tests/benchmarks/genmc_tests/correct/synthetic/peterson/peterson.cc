@@ -1,10 +1,12 @@
-atomic_bool flag1; /* Boolean flags */
-atomic_bool flag2;
+#include "librace.h" 
+#include "model-assert.h"
+bool flag1; /* Boolean flags */
+bool flag2;
 
 atomic_int turn;   /* Atomic integer that holds the ID of the thread whose turn it is */
-atomic_bool x;     /* Boolean variable to test mutual exclusion */
+bool x;     /* Boolean variable to test mutual exclusion */
 
-void __VERIFIER_assume(int);
+void assume(int);
 
 void *thread_1(void *arg)
 {
@@ -21,7 +23,7 @@ void *thread_1(void *arg)
 	/* critical section ending */
 
 	atomic_store_explicit(__FILE__, __LINE__, &flag1, 0, memory_order_release);
-	return NULL;
+	;
 }
 
 void *thread_2(void *arg)
@@ -39,5 +41,5 @@ void *thread_2(void *arg)
 	/* critical section ending */
 
 	atomic_store_explicit(__FILE__, __LINE__, &flag2, 0, memory_order_release);
-	return NULL;
+	;
 }

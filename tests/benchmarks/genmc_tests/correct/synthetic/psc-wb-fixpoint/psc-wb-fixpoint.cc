@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /*
  * PSC/WB Fixpoint:
  *
@@ -8,7 +10,7 @@
  * between SC writes.
  */
 
-void __VERIFIER_assume(int);
+void assume(int);
 
 atomic_int x;
 atomic_int y;
@@ -17,8 +19,8 @@ atomic_int z;
 void *thread_1(void *unused)
 {
 	x = 1;
-	__VERIFIER_assume(y == 0);
-	return NULL;
+	assume(y == 0);
+	;
 }
 
 void *thread_2(void *unused)
@@ -28,8 +30,8 @@ void *thread_2(void *unused)
 	atomic_thread_fence(__FILE__, __LINE__, memory_order_seq_cst);
 
 	int c = atomic_load_explicit(__FILE__, __LINE__, &z, memory_order_relaxed);
-	__VERIFIER_assume(c == 0);
-	return NULL;
+	assume(c == 0);
+	;
 }
 
 void *thread_3(void *unused)
@@ -37,8 +39,8 @@ void *thread_3(void *unused)
 	y = 1;
 
 	int b = x;
-	__VERIFIER_assume(b == 2);
-	return NULL;
+	assume(b == 2);
+	;
 }
 
 void *thread_4(void *unused)
@@ -48,6 +50,6 @@ void *thread_4(void *unused)
 	atomic_thread_fence(__FILE__, __LINE__, memory_order_seq_cst);
 
 	int d = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
-	__VERIFIER_assume(d == 1);
-	return NULL;
+	assume(d == 1);
+	;
 }

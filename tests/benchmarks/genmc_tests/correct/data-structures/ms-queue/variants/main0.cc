@@ -1,13 +1,14 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <threads.h>#include <stdbool.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <threads.h>
+#include <stdbool.h>
 #include <stdatomic.h>
 
-#include "../main.c"
+#include "../main.cc"
 
-int main()
+int user_main()
 {
 	int i = 0;
 	unsigned int in_sum = 0, out_sum = 0;
@@ -19,15 +20,15 @@ int main()
 	for (int j = 0; j < num_threads; j++)
 		param[j] = j;
 	for (int j = 0; j < writers; j++, i++)
-		pthread_create(&threads[i], NULL, threadW, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& threadW, NULL);
 	for (int j = 0; j < readers; j++, i++)
-		pthread_create(&threads[i], NULL, threadR, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& threadR, NULL);
 	for (int j = 0; j < rdwr; j++, i++)
-		pthread_create(&threads[i], NULL, threadRW, &param[i]);
+		thrd_create(&threads[i], (thrd_start_t)& threadRW, NULL);
 
 	/* for (i = 0; i < num_threads; i++) { */
 	/* 	param[i] = i; */
-	/* 	pthread_create(&threads[i], NULL, main_task, &param[i]); */
+	/* 	thrd_create(&threads[i], (thrd_start_t)& main_task, NULL); */
 	/* } */
 
 	/* for (i = 0; i < num_threads; i++) { */
@@ -39,9 +40,9 @@ int main()
 	/* for (i = 0; i < num_threads; i++) */
 	/* 	printf("output[%d] = %u\n", i, output[i]); */
 	/* if (succ1 && succ2) */
-	/* 	assert(in_sum == out_sum); */
+	/* 	MODEL_ASSERT(in_sum == out_sum); */
 	/* else */
-	/* 	assert(0); */
+	/* 	MODEL_ASSERT(0); */
 
 	return 0;
 }

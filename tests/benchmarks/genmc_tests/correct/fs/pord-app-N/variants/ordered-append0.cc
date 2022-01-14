@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -28,11 +29,11 @@ void __VERIFIER_recovery_routine(void)
 	/* Just check if the first one persisted... */
 	int sz = lseek(fd, SEEK_END, 0);
 	if (fd > 0)
-		assert(sz >= 0);
+		MODEL_ASSERT(sz >= 0);
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 
 

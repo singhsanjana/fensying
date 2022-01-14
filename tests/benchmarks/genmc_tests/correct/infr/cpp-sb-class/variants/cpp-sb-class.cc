@@ -1,4 +1,7 @@
-#include <threads.h>#include <atomic>
+#include "librace.h" 
+#include "model-assert.h"
+#include <threads.h>
+#include <atomic>
 
 std::atomic<int> x;
 std::atomic<int> y;
@@ -7,8 +10,8 @@ class SB1 {
 
 public:
 	SB1() {
-		x.store(42);
-		val = y.load();
+		x.store(__FILE__, __LINE__, 42);
+		val = y.load(__FILE__, __LINE__);
 	}
 
 private:
@@ -19,8 +22,8 @@ class SB2 {
 
 public:
 	SB2() {
-		y.store(42);
-		val = x.load();
+		y.store(__FILE__, __LINE__, 42);
+		val = x.load(__FILE__, __LINE__);
 	}
 
 private:
@@ -39,12 +42,12 @@ void *thread_2(void *unused)
 	return nullptr;
 }
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2;
 
-	pthread_create(&t1, nullptr, thread_1, nullptr);
-	pthread_create(&t2, nullptr, thread_2, nullptr);
+	thrd_create(&t1, (thrd_start_t)& thread_1, NULL);
+	thrd_create(&t2, (thrd_start_t)& thread_2, NULL);
 
 	return 0;
 }

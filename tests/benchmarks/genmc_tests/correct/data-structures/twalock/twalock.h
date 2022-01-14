@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* Adapted from "Ticket Locks Augmented with a Waiting Array" @ EuroPar'19 */
 
 #ifndef __TWALOCK_H__

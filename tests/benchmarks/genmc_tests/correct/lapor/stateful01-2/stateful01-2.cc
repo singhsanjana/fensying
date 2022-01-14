@@ -1,31 +1,34 @@
-#define __VERIFIER_error() assert(0)
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
+#define __VERIFIER_error() MODEL_ASSERT(0)
 
-pthread_mutex_t ma, mb;
+std::mutex ma, mb;
 int data1, data2;
 
 void *thread1(void *arg)
 {
-	pthread_mutex_lock(&ma);
+	ma.lock();
 	data1++;
-	pthread_mutex_unlock(&ma);
+	ma.unlock();
 
-	pthread_mutex_lock(&ma);
+	ma.lock();
 	data2++;
-	pthread_mutex_unlock(&ma);
+	ma.unlock();
 
-	return NULL;
+	;
 }
 
 
 void *thread2(void *arg)
 {
-	pthread_mutex_lock(&ma);
+	ma.lock();
 	data1 += 5;
-	pthread_mutex_unlock(&ma);
+	ma.unlock();
 
-	pthread_mutex_lock(&ma);
+	ma.lock();
 	data2 -= 6;
-	pthread_mutex_unlock(&ma);
+	ma.unlock();
 
-	return NULL;
+	;
 }

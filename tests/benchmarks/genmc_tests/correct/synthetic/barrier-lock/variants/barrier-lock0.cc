@@ -1,8 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <threads.h>#include <stdatomic.h>
 #include "librace.h" 
 #include "model-assert.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <threads.h>
+#include <stdatomic.h>
 
 #ifndef N
 # define N 2
@@ -29,7 +30,7 @@ void *thread_n(void *arg)
 
 		/* lock */
 		int r = 0;
-		while (!atomic_compare_exchange_strong(&l, &r, 1))
+		while (!atomic_compare_exchange_strong(__FILE__, __LINE__, &l, &r, 1))
 			r = 0;
 
 		/* enter cs */
@@ -39,23 +40,23 @@ void *thread_n(void *arg)
 		/* unlock */
 		l = 0;
 	}
-	return NULL;
+	;
 }
 
-int main()
+int user_main()
 {
 	thrd_t t[N];
 
 	pthread_barrier_init(&barrier, NULL, N);
 
 	for (unsigned i = 0; i < N; i++) {
-		if (pthread_create(&t[i], NULL, thread_n, (void *) i))
-			abort();
+		if (thrd_create(&t[i], (thrd_start_t)& thread_n, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	for (unsigned i = 0; i < N; i++) {
-		if (pthread_join(t[i], NULL))
-			abort();
+		if (thrd_join(t[i]))
+			MODEL_ASSERT(0);
 	}
 
 	/* Test mutual exclusion; all values read should be different in each round */
@@ -63,7 +64,7 @@ int main()
 		for (int j = 0u; j < N; j++)
 			for (int k = 0u; k < N; k++)
 				if (j != k && result[i][j] == result[i][k])
-					assert(0);
+					MODEL_ASSERT(0);
 	}
 
 	/* printf("Alles gut.\n"); */

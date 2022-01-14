@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "ordering.h"
 
 #ifndef LEN
@@ -14,8 +16,8 @@ struct Deque {
 
 int64_t try_push(struct Deque *deq, int64_t N, int64_t data)
 {
-	uint64_t b = atomic_load_explicit(&deq->bottom, mo_rlx);
-	uint64_t t = atomic_load_explicit(&deq->top, mo_acq);
+	uint64_t b = atomic_load_explicit(__FILE__, __LINE__, &deq->bottom, mo_rlx);
+	uint64_t t = atomic_load_explicit(__FILE__, __LINE__, &deq->top, mo_acq);
 
 	int64_t len = (int64_t) (b - t);
 	if (len >= N) {
@@ -23,22 +25,22 @@ int64_t try_push(struct Deque *deq, int64_t N, int64_t data)
 	}
 
 	deq->buffer[b % N] = data;
-	atomic_store_explicit(&deq->bottom, b + 1, mo_rel);
+	atomic_store_explicit(__FILE__, __LINE__, &deq->bottom, b + 1, mo_rel);
 	return 0;
 }
 
 int64_t try_pop(struct Deque *deq, int64_t N, int64_t *data)
 {
-	uint64_t b = atomic_load_explicit(&deq->bottom, mo_rlx);
-	atomic_store_explicit(&deq->bottom, b - 1, mo_rlx);
+	uint64_t b = atomic_load_explicit(__FILE__, __LINE__, &deq->bottom, mo_rlx);
+	atomic_store_explicit(__FILE__, __LINE__, &deq->bottom, b - 1, mo_rlx);
 
-	atomic_thread_fence(mo_seq_cst);
+	atomic_thread_fence(__FILE__, __LINE__, mo_seq_cst);
 
-	uint64_t t = atomic_load_explicit(&deq->top, mo_rlx);
+	uint64_t t = atomic_load_explicit(__FILE__, __LINE__, &deq->top, mo_rlx);
 	int64_t len = (int64_t) (b - t);
 
 	if (len <= 0) {
-		atomic_store_explicit(&deq->bottom, b, mo_rlx);
+		atomic_store_explicit(__FILE__, __LINE__, &deq->bottom, b, mo_rlx);
 		return -1; // empty
 	}
 
@@ -49,20 +51,20 @@ int64_t try_pop(struct Deque *deq, int64_t N, int64_t *data)
 	}
 
 	// len = 1.
-	bool is_successful = atomic_compare_exchange_strong_explicit(&deq->top, &t, t + 1,
+	bool is_successful = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&deq->top, &t, t + 1,
 							    mo_acq_rel,
 							    mo_acq_rel);
-	atomic_store_explicit(&deq->bottom, b, mo_rlx);
+	atomic_store_explicit(__FILE__, __LINE__, &deq->bottom, b, mo_rlx);
 	return (is_successful ? 0 : -2); // success or lost
 }
 
 int64_t try_steal(struct Deque *deq, int64_t N, int64_t* data)
 {
-	uint64_t t = atomic_load_explicit(&deq->top, mo_rlx);
+	uint64_t t = atomic_load_explicit(__FILE__, __LINE__, &deq->top, mo_rlx);
 
-	atomic_thread_fence(mo_seq_cst);
+	atomic_thread_fence(__FILE__, __LINE__, mo_seq_cst);
 
-	uint64_t b = atomic_load_explicit(&deq->bottom, mo_acq);
+	uint64_t b = atomic_load_explicit(__FILE__, __LINE__, &deq->bottom, mo_acq);
 	int64_t len = (int64_t) (b - t);
 
 	if (len <= 0) {
@@ -71,7 +73,7 @@ int64_t try_steal(struct Deque *deq, int64_t N, int64_t* data)
 
 	*data = deq->buffer[t % N];
 
-	bool is_successful = atomic_compare_exchange_strong_explicit(&deq->top, &t, t + 1,
+	bool is_successful = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&deq->top, &t, t + 1,
 							    mo_rel,
 							    mo_rel);
 	return (is_successful ? 0 : -2); // success or lost

@@ -1,6 +1,6 @@
 #include "librace.h" 
 #include "model-assert.h"
-#include "fine-htable.c"
+#include "fine-htable.cc"
 
 /* Driver code */
 #ifndef MAX_THREADS
@@ -52,13 +52,13 @@ struct htable_entry *new_node(int val)
 {
 	int t = get_thread_num();
 
-	assert(free_index[t] < MAX_FREELIST);
+	MODEL_ASSERT(free_index[t] < MAX_FREELIST);
 	free_lists[t][free_index[t]].val = val;
 	INIT_LIST_HEAD(&free_lists[t][free_index[t]].list);
 	return &free_lists[t][free_index[t]++];
 }
 
-/* Should be called before threads are spawned (from main()) */
+/* Should be called before threads are spawned (from user_user_user_main()) */
 void init()
 {
 	num_threads = adders + seekers + removers + 1;
@@ -78,7 +78,7 @@ void *thread_add(void *tid)
 
 	for (int i = 0; i < MAX; i++)
 		add(&myht, i * NO_COLLISION_LIMIT + t);
-	return NULL;
+	;
 }
 
 void *thread_seek(void *tid)
@@ -88,10 +88,10 @@ void *thread_seek(void *tid)
 
 	for (int i = 0; i < MAX; i++)
 		contains(&myht, i * NO_COLLISION_LIMIT + t);
-	return NULL;
+	;
 }
 
 void *thread_del(void *arg)
 {
-	return NULL;
+	;
 }

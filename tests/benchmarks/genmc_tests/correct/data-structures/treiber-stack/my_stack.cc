@@ -1,5 +1,8 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
 #include "my_stack.h"
 
@@ -39,7 +42,7 @@ static unsigned int new_node()
 		}
 	}
 	/* free_list is empty? */
-	assert(0);
+	MODEL_ASSERT(0);
 	return 0;
 }
 
@@ -50,7 +53,7 @@ static void reclaim(unsigned int node)
 	int t = get_thread_num();
 
 	/* Don't reclaim NULL node */
-	//assert(node);
+	//MODEL_ASSERT(node);
 
 	for (i = 0; i < MAX_FREELIST; i++) {
 		/* Should never race with our own thread here */
@@ -65,7 +68,7 @@ static void reclaim(unsigned int node)
 		}
 	}
 	/* free list is full? */
-	assert(0);
+	MODEL_ASSERT(0);
 }
 
 void init_stack(mystack_t *s, int num_threads)
@@ -100,7 +103,7 @@ void push(mystack_t *s, unsigned int val) {
 		atomic_store_explicit(__FILE__, __LINE__, &node->next, oldTop, relaxed);
 
 		// release & relaxed
-		success = atomic_compare_exchange_strong_explicit(&s->top, &oldTop,
+		success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&s->top, &oldTop,
 			newTop, release, relaxed);
 		if (success)
 			break;
@@ -123,7 +126,7 @@ unsigned int pop(mystack_t *s)
 		next = atomic_load_explicit(__FILE__, __LINE__, &node->next, relaxed);
 		newTop = MAKE_POINTER(get_ptr(next), get_count(oldTop) + 1);
 		// release & relaxed
-		success = atomic_compare_exchange_strong_explicit(&s->top, &oldTop,
+		success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&s->top, &oldTop,
 			newTop, release, relaxed);
 		if (success)
 			break;

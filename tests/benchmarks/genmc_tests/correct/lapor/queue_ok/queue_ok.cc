@@ -1,5 +1,8 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #define __VERIFIER_nondet_int() 42   /* int __VERIFIER_nondet_int(void); */
-#define __VERIFIER_error() assert(0)
+#define __VERIFIER_error() MODEL_ASSERT(0)
 
 #ifndef SIZE
 # define SIZE	(20)
@@ -15,7 +18,7 @@ typedef struct {
 	int amount;
 } QType;
 
-pthread_mutex_t m;
+std::mutex m;
 int stored_elements[SIZE];
 bool enqueue_flag, dequeue_flag;
 QType queue;
@@ -77,7 +80,7 @@ int dequeue(QType *q)
 
 void *t1(void *arg)
 {
-	pthread_mutex_lock(&m);
+	m.lock();
 	if (enqueue_flag) {
 		for (int i = 0; i < SIZE; i++) {
 			int value = __VERIFIER_nondet_int();
@@ -87,14 +90,14 @@ void *t1(void *arg)
 		enqueue_flag = false;
 		dequeue_flag = true;
 	}
-	pthread_mutex_unlock(&m);
+	m.unlock();
 
-	return NULL;
+	;
 }
 
 void *t2(void *arg)
 {
-	pthread_mutex_lock(&m);
+	m.lock();
 	if (dequeue_flag) {
 		for(int i = 0; i < SIZE; i++) {
 			if (empty(&queue) != EMPTY &&
@@ -104,7 +107,7 @@ void *t2(void *arg)
 		dequeue_flag = false;
 		enqueue_flag = true;
 	}
-	pthread_mutex_unlock(&m);
+	m.unlock();
 
-	return NULL;
+	;
 }

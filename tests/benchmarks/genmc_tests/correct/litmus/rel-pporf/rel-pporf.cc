@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* Test case by: Jonas Oberhauser */
 
 atomic_int x;
@@ -10,15 +12,15 @@ void *runA(void *p)
 #ifdef USE_STORE
 	atomic_store_explicit(__FILE__, __LINE__, &z, 1, memory_order_release);
 #else
-	atomic_exchange_explicit(&z, 1, memory_order_release);
+	atomic_exchange_explicit(__FILE__, __LINE__, &z, 1, memory_order_release);
 #endif
 	atomic_store_explicit(__FILE__, __LINE__, &y, 1, memory_order_release);
-	return NULL;
+	;
 }
 
 void *runB(void *q)
 {
 	int b = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_relaxed);
 	atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
-	return NULL;
+	;
 }

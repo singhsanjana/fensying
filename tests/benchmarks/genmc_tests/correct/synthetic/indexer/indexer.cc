@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #define SIZE 128
 #define MAX  4
 
@@ -15,14 +17,14 @@ void *thread_n(void *arg)
 		h = (w * 7) % SIZE;
 
 		if (h < 0)
-			assert(0);
+			MODEL_ASSERT(0);
 
-		while (!atomic_compare_exchange_strong_explicit(&table[h], &zero, w,
+		while (!atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&table[h], &zero, w,
 								memory_order_relaxed,
 								memory_order_relaxed)) {
 			h = (h+1) % SIZE;
 			zero = 0;
 		}
 	}
-	return NULL;
+	;
 }

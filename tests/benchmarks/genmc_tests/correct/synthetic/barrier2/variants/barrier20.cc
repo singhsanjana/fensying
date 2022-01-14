@@ -1,5 +1,8 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
 #ifndef N
 # define N 2
@@ -11,18 +14,18 @@ void *thread_n()
 {
 	pthread_barrier_wait(&barrier);
 	pthread_barrier_wait(&barrier);
-	return NULL;
+	;
 }
 
-int main()
+int user_main()
 {
 	thrd_t t[N];
 
 	pthread_barrier_init(&barrier, NULL, N);
 
 	for (int i = 0; i < N; i++) {
-		if (pthread_create(&t[i], NULL, thread_n, NULL))
-			abort();
+		if (thrd_create(&t[i], (thrd_start_t)& thread_n, NULL))
+			MODEL_ASSERT(0);
 	}
 
 	/* pthread_barrier_destroy(&barrier); */

@@ -1,9 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdatomic.h>
-#include <threads.h>#include "librace.h" 
-#include "model-assert.h"
+#include <threads.h>
 #include <genmc.h>
 
 #include <fcntl.h>
@@ -17,20 +18,20 @@ void __VERIFIER_recovery_routine(void)
 	buf2[0] = buf2[1] = 0;
 
 	int fd = open("foo", O_RDONLY, 0666);
-	assert(fd != -1);
+	MODEL_ASSERT(fd != -1);
 
 	int nr1 = pread(fd, buf1, 2, 2);
 	int nr2 = pread(fd, buf2, 2, 4);
 
 	/* Is is possible to see the 2nd append but not the 1st?
 	 * ...The answer is 42 (executions) ;-)  */
-	assert(!(nr1 == 2 && nr2 == 2 &&
+	MODEL_ASSERT(!(nr1 == 2 && nr2 == 2 &&
 				     buf1[0] != 2 && buf1[1] != 2 &&
 				     buf2[0] == 3 && buf2[1] == 3));
 	return;
 }
 
-int main()
+int user_user_user_main()
 {
 	char buf[8];
 

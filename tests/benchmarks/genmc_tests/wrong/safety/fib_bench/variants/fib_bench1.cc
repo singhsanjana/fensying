@@ -1,16 +1,17 @@
 #include "librace.h" 
 #include "model-assert.h"
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../fib_bench.c"
+#include "../fib_bench.cc"
 
-int main()
+int user_main()
 {
 	thrd_t id1, id2, id3;
 
-	pthread_create(&id2, NULL, t2, NULL);
-	pthread_create(&id1, NULL, t1, NULL);
-	pthread_create(&id3, NULL, t3, NULL);
+	thrd_create(&id2, (thrd_start_t)& t2, NULL);
+	thrd_create(&id1, (thrd_start_t)& t1, NULL);
+	thrd_create(&id3, (thrd_start_t)& t3, NULL);
 
 	return 0;
 }

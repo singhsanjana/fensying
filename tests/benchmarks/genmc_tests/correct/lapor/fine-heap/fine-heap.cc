@@ -1,3 +1,6 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #ifndef __FINE_HEAP_H__
 #define __FINE_HEAP_H__
 
@@ -7,8 +10,8 @@
 int get_thread_num();
 
 /* Heap implementation */
-#define LOCK(l)   pthread_mutex_lock(&(l))
-#define UNLOCK(l) pthread_mutex_unlock(&(l))
+#define LOCK(l)   #define LOCK(l->lock())
+#define UNLOCK(l) #define UNLOCK(l->unlock())
 
 enum node_status { EMPTY, AVAILABLE, BUSY };
 
@@ -17,7 +20,7 @@ struct heap_node {
 	int item;
 	int score;
 	int owner;
-	pthread_mutex_t lock;
+	std::mutex lock;
 };
 
 #define MAX_CAPACITY 512
@@ -28,7 +31,7 @@ struct heap_node {
 struct heap {
 	int next;
 	struct heap_node nodes[MAX_CAPACITY + ROOT];
-	pthread_mutex_t lock;
+	std::mutex lock;
 };
 
 #define __HEAP_INITIALIZER()				\

@@ -1,8 +1,10 @@
+#include "librace.h" 
+#include "model-assert.h"
 #ifndef N
 # define N 2
 #endif
 
-#include "twalock.c"
+#include "twalock.cc"
 
 int shared;
 
@@ -16,7 +18,7 @@ void *thread_n(void *arg)
 	twalock_acquire(&lock);
 	shared = index;
 	int r = shared;
-	assert(r == index);
+	MODEL_ASSERT(r == index);
 	twalock_release(&lock);
-	return NULL;
+	;
 }

@@ -1,4 +1,6 @@
-#include "ticketlock.c"
+#include "librace.h" 
+#include "model-assert.h"
+#include "ticketlock.cc"
 
 #ifndef N
 # define N 2
@@ -14,7 +16,7 @@ void *thread_n(void *arg)
 	ticketlock_acquire(&lock);
 	shared = index;
 	int r = shared;
-	assert(r == index);
+	MODEL_ASSERT(r == index);
 	ticketlock_release(&lock);
-	return NULL;
+	;
 }

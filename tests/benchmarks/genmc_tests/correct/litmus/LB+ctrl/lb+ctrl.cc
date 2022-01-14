@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int x;
 atomic_int y;
 
@@ -8,7 +10,7 @@ void *thread_1(void *unused)
 		atomic_store_explicit(__FILE__, __LINE__, &y, 1, memory_order_relaxed);
 	else
 		atomic_store_explicit(__FILE__, __LINE__, &y, 2, memory_order_relaxed);
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -18,5 +20,5 @@ void *thread_2(void *unused)
 		atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
 	else
 		atomic_store_explicit(__FILE__, __LINE__, &x, 2, memory_order_relaxed);
-	return NULL;
+	;
 }

@@ -1,10 +1,13 @@
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
 #define NUMBLOCKS 26
 #define NUMINODES 32
 
-pthread_mutex_t locki[NUMINODES];
+std::mutex locki[NUMINODES];
 int inode[NUMINODES];
 
-pthread_mutex_t lockb[NUMBLOCKS];
+std::mutex lockb[NUMBLOCKS];
 bool busy[NUMBLOCKS];
 
 int idx[N];
@@ -14,21 +17,21 @@ void *thread_n(void *arg)
 	int tid = *((int *) arg);
 	int i = tid % NUMINODES;
 
-	pthread_mutex_lock(&locki[i]);
+	locki[i].lock();
 	if (inode[i] == 0) {
 		int b = (i * 2) % NUMBLOCKS;
 		while (true) {
-			pthread_mutex_lock(&lockb[b]);
+			lockb[b].lock();
 			if (!busy[b]) {
 				busy[b] = true;
 				inode[i] = b + 1;
-				pthread_mutex_unlock(&lockb[b]);
+				lockb[b].unlock();
 				break;
 			}
-			pthread_mutex_unlock(&lockb[b]);
+			lockb[b].unlock();
 			b = (b + 1) % NUMBLOCKS;
 		}
 	}
-	pthread_mutex_unlock(&locki[i]);
-	return NULL;
+	locki[i].unlock();
+	;
 }

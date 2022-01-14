@@ -1,10 +1,12 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int x;
 
 void *thread_1(void *unused)
 {
 	for (int i = 1u; i <= 42; i++)
 		x = i;
-	return NULL;
+	;
 }
 
 void *thread_2(void *unused)
@@ -17,6 +19,6 @@ void *thread_2(void *unused)
 	} else {
 		r = a - 4242;
 	}
-	__VERIFIER_assume(r == 0);
-	return NULL;
+	assume(r == 0);
+	;
 }

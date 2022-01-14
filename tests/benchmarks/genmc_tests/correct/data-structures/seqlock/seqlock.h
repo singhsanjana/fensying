@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __LINUX_SEQLOCK_H
 #define __LINUX_SEQLOCK_H

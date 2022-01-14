@@ -1,5 +1,8 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
 struct foo {
 	int a[8];
@@ -10,7 +13,7 @@ struct foo {
 
 struct foo f;
 
-int main()
+int user_user_main()
 {
 	struct foo q = { .x = 42 };
 

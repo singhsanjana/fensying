@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <stdatomic.h>
 #include <threads.h>
-#include "../lockN-ww.c"
 
-int main()
+#include "../lockN-ww.cc"
+
+int user_user_user_main()
 {
 	thrd_t t[N];
 
@@ -13,15 +14,15 @@ int main()
 		idx[i] = i;
 
 	for (int i = 0; i < N; i++) {
-		if (pthread_create(&t[i], NULL, threadn, &idx[i]))
-			abort();
+		if (thrd_create(&t[i], (thrd_start_t)& threadn, NULL))
+			MODEL_ASSERT(0);
 	}
 	for (int i = 0; i < N; i++) {
-		if (pthread_join(t[i], NULL))
-			abort();
+		if (thrd_join(t[i]))
+			MODEL_ASSERT(0);
 	}
 
-	assert (x == y);
+	MODEL_ASSERT (x == y);
 
 	return 0;
 }

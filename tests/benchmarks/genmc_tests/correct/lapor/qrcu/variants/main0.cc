@@ -1,20 +1,23 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include <stdlib.h>
-#include <threads.h>#include <stdatomic.h>
+#include <threads.h>
+#include <stdatomic.h>
 
-#include "../main.c"
+#include "../main.cc"
 
-int main()
+int user_user_user_main()
 {
 	thrd_t t1, t2, t3;
 
 	init_qrcu_struct(&qs);
 
-	if (pthread_create(&t1, NULL, qrcu_reader, NULL))
-		abort();
-	if (pthread_create(&t2, NULL, qrcu_reader, NULL))
-		abort();
-	if (pthread_create(&t3, NULL, qrcu_updater, NULL))
-		abort();
+	if (thrd_create(&t1, (thrd_start_t)& qrcu_reader, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t2, (thrd_start_t)& qrcu_reader, NULL))
+		MODEL_ASSERT(0);
+	if (thrd_create(&t3, (thrd_start_t)& qrcu_updater, NULL))
+		MODEL_ASSERT(0);
 
 	return 0;
 }

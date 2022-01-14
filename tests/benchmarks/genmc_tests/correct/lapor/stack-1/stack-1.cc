@@ -1,7 +1,10 @@
-#define __VERIFIER_error() assert(0)
+#include "librace.h" 
+#include "model-assert.h"
+#include <mutex>
+#define __VERIFIER_error() MODEL_ASSERT(0)
 #define __VERIFIER_nondet_uint() 1u
 
-extern void __VERIFIER_assume(int);
+extern void assume(int);
 
 #ifndef SIZE
 # define SIZE	  (5)
@@ -12,7 +15,7 @@ extern void __VERIFIER_assume(int);
 static int top = 0;
 static unsigned int arr[SIZE];
 
-pthread_mutex_t m;
+std::mutex m;
 
 void error(void)
 {
@@ -65,26 +68,26 @@ int pop(unsigned int *stack)
 void *t1(void *arg)
 {
 	for(int i = 0; i < SIZE; i++) {
-		pthread_mutex_lock(&m);
+		m.lock();
 		/* tmp = __VERIFIER_nondet_uint(); */
-		/* __VERIFIER_assume(tmp < SIZE); */
+		/* assume(tmp < SIZE); */
 		unsigned int tmp = i;
 		if (push(arr,tmp) == OVERFLOW)
 			error();
-		pthread_mutex_unlock(&m);
+		m.unlock();
 	}
-	return NULL;
+	;
 }
 
 void *t2(void *arg)
 {
 	for(int i = 0; i < SIZE; i++) {
-		pthread_mutex_lock(&m);
+		m.lock();
 		if (top > 0) {
 			if (pop(arr) == UNDERFLOW)
 				error();
 		}
-		pthread_mutex_unlock(&m);
+		m.unlock();
 	}
-	return NULL;
+	;
 }

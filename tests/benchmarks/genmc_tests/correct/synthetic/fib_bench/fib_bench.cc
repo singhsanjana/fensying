@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 atomic_int x = ATOMIC_VAR_INIT(1);
 atomic_int y = ATOMIC_VAR_INIT(1);
 
@@ -12,7 +14,7 @@ void *thread_1(void* arg)
 		int prev_y = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_acquire);
 		atomic_store_explicit(__FILE__, __LINE__, &x, prev_x + prev_y, memory_order_release);
 	}
-	return NULL;
+	;
 }
 
 void *thread_2(void* arg)
@@ -22,13 +24,13 @@ void *thread_2(void* arg)
 		int prev_y = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_acquire);
 		atomic_store_explicit(__FILE__, __LINE__, &y, prev_x + prev_y, memory_order_release);
 	}
-	return NULL;
+	;
 }
 
 void *thread_3(void *arg)
 {
 	if (atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_acquire) > 144 ||
 	    atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_acquire) > 144)
-		assert(0);
-	return NULL;
+		MODEL_ASSERT(0);
+	;
 }

@@ -1,3 +1,5 @@
+#include "librace.h" 
+#include "model-assert.h"
 #include "mutex_musl.h"
 
 static inline void mutex_init(mutex_t *m)
@@ -9,7 +11,7 @@ static inline void mutex_init(mutex_t *m)
 static inline int mutex_lock_fastpath(mutex_t *m)
 {
 	int r = 0;
-	return atomic_compare_exchange_strong_explicit(&m->lock, &r, 1,
+	return atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&m->lock, &r, 1,
 						       memory_order_acquire,
 						       memory_order_acquire);
 }
@@ -17,7 +19,7 @@ static inline int mutex_lock_fastpath(mutex_t *m)
 static inline int mutex_lock_slowpath_check(mutex_t *m)
 {
 	int r = 0;
-	return atomic_compare_exchange_strong_explicit(&m->lock, &r, 1,
+	return atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&m->lock, &r, 1,
 						       memory_order_acquire,
 						       memory_order_acquire);
 }
@@ -33,7 +35,7 @@ static inline void mutex_lock(mutex_t *m)
 		atomic_thread_fence(__FILE__, __LINE__, memory_order_relaxed);
 		atomic_fetch_add_explicit(__FILE__, __LINE__, &m->waiters, 1, memory_order_relaxed);
 		int r = 1;
-		if (!atomic_compare_exchange_strong_explicit(&m->lock, &r, 2,
+		if (!atomic_compare_exchange_strong_explicit(__FILE__, __LINE__&m->lock, &r, 2,
 							     memory_order_relaxed,
 							     memory_order_relaxed))
 			atomic_thread_fence(__FILE__, __LINE__, memory_order_relaxed);
@@ -44,7 +46,7 @@ static inline void mutex_lock(mutex_t *m)
 
 static inline void mutex_unlock(mutex_t *m)
 {
-	int old = atomic_exchange_explicit(&m->lock, 0, memory_order_release);
+	int old = atomic_exchange_explicit(__FILE__, __LINE__, &m->lock, 0, memory_order_release);
 	if (atomic_load_explicit(__FILE__, __LINE__, &m->waiters, memory_order_relaxed) > 0 || old != 1)
 		__futex_wake(&m->lock, 1);
 }
