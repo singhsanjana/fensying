@@ -1,6 +1,6 @@
 BASE := ../../model-checker/cds-checker
 
-SUBDIRS := $(wildcard */.)
+SUBDIRS := weak_fensying  #$(wildcard */.)
 
 OBJECTS := $(patsubst %.c, %.o, $(wildcard *.c))
 OBJECTS += $(patsubst %.cc, %.o, $(wildcard *.cc))

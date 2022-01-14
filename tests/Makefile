@@ -1,6 +1,6 @@
 BASE := ../model-checker/cds-checker
 
-SUBDIRS := litmus litmus/weak_fensying # $(wildcard */.)
+SUBDIRS := litmus # $(wildcard */.)
 
 OBJECTS := $(patsubst %.c, %.o, $(wildcard *.c))
 OBJECTS += $(patsubst %.cc, %.o, $(wildcard *.cc))
