@@ -1,9 +1,7 @@
-from curses.ascii import isalnum
 import os
 import sys
 
 def convert_action(line, pattern):
-    print(line + ' : ' + pattern)
     has_line = False
     has_file = False
 
@@ -28,13 +26,9 @@ def convert_action(line, pattern):
         l += 1
     l += 1
     addtext = '__FILE__, __LINE__'
-    print('line_l', line[l:])
     intext = line[ l : l+(line[l:].find(')')) ]
-    print ('intext', intext)
     if intext.strip() != '':
         addtext += ', '
-    print('addtext', addtext)
-    print('newline', line[:l] + addtext + line[l:])
     return line[:l] + addtext + line[l:]
 
 def convert_load(line):
@@ -98,9 +92,8 @@ def convert_thread_create(line):
     l = line.find('pthread_create')
     newline = line[:l]
 
-    if l != 0:
-        if line[l-1].isalnum() or line[l-1] == '_':
-            return line
+    if l != 0 and line[l-1] != ' ' and line[l-1] != '=' and line[l-1] != '(':
+        return line
 
     line = line[l + len('pthread_create'):]
     
@@ -271,33 +264,34 @@ def convert_files(root, files):
         has_mutex_include = False
 
         for line in lines:
-            if line.count('#include') > 1:
-                pos = line.rfind('#include')
-                line = line[:pos] + '\n' + line[pos:]
-            elif 'librace.h' in line:
-                has_librace_include = True
-            elif 'model-assert.h' in line:
-                has_model_assert_include = True
-            elif '<mutex>' in line:
-                has_mutex_include = True
-            elif 'lkmm.h' in line:
-                lkmm_test = True
-                break
-            elif 'stdatomic.h' in line:
-                line = line.replace('../','')
-            elif '#include <pthread.h>' in line:
-                line = '#include <threads.h>\n'
-            elif '#include <assert.h>' in line:
-                line = ''
-            elif 'model-MODEL_ASSERT.h' in line:
-                line = line.replace('model-MODEL_ASSERT.h', 'model-assert.h')
-            elif 'MODEL_ASSERT.h' in line:
-                line = line.replace('MODEL_ASSERT.h', 'model-assert.h')
-            elif '#include' in line and '.c' in line and not '.cc"' in line:
-                start = line.rfind('.')
-                end   = line.rfind('"')
-                line = line[:start] + '.cc' + line[end:]
-            elif 'atomic_load_explicit' in line or '.load' in line:
+            # if line.count('#include') > 1:
+            #     pos = line.rfind('#include')
+            #     line = line[:pos] + '\n' + line[pos:]
+            # elif 'librace.h' in line:
+            #     has_librace_include = True
+            # elif 'model-assert.h' in line:
+            #     has_model_assert_include = True
+            # elif '<mutex>' in line:
+            #     has_mutex_include = True
+            # elif 'lkmm.h' in line:
+            #     lkmm_test = True
+            #     break
+            # elif 'stdatomic.h' in line:
+            #     line = line.replace('../','')
+            # elif '#include <pthread.h>' in line:
+            #     line = '#include <threads.h>\n'
+            # elif '#include <assert.h>' in line:
+            #     line = ''
+            # elif 'model-MODEL_ASSERT.h' in line:
+            #     line = line.replace('model-MODEL_ASSERT.h', 'model-assert.h')
+            # elif 'MODEL_ASSERT.h' in line:
+            #     line = line.replace('MODEL_ASSERT.h', 'model-assert.h')
+            # elif '#include' in line and '.c' in line and not '.cc"' in line:
+            #     start = line.rfind('.')
+            #     end   = line.rfind('"')
+            #     line = line[:start] + '.cc' + line[end:]
+            # elif 'atomic_load_explicit' in line or '.load' in line:
+            if 'atomic_load_explicit' in line or '.load' in line:
                 line = convert_load(line)
             elif 'atomic_store_explicit' in line or '.store' in line:
                 line = convert_store(line)
@@ -317,52 +311,52 @@ def convert_files(root, files):
                 line = convert_fence(line)
             # elif 'atomic_int' in line:
             #     line = convert_declaration(line)
-            elif 'main(' in line.strip() and not 'user_main' in line:
-                line = convert_main(line)
-            elif 'atomic_bool' in line:
-                line = line.replace('atomic_bool', 'bool')
-            elif 'pthread_t' in line:
-                line = convert_thread_declaration(line)
-            elif 'pthread_create' in line:
-                line = convert_thread_create(line)
-            elif 'pthread_join' in line:
-                line = convert_thread_join(line)
-            elif 'pthread_mutex_t' in line:
-                line = line.replace('pthread_mutex_t', 'std::mutex')
-                has_mutex = True
-            elif 'pthread_mutex_lock' in line:
-                line = convert_mutex(line, 'pthread_mutex_lock')
-            elif 'pthread_mutex_unlock' in line:
-                line = convert_mutex(line, 'pthread_mutex_unlock')
-            elif 'return NULL' in line:
-                line = line.replace('return NULL', '')
-            # not required for Tracer benchmarks.
-            elif 'assert' in line and not '#include' in line:
-                line = convert_assert(line) # NOTE THIS NEGATES ASSERT CONDITIONS TOO
-            elif 'abort()' in line:
-                line = line.replace('abort()', 'MODEL_ASSERT(0)')
-            elif '__VERIFIER_assume' in line:
-                line = line.replace('__VERIFIER_assume', 'assume')
-            elif '__VERIFIER_MODEL_ASSERT' in line:
-                line = line.replace('__VERIFIER_MODEL_ASSERT', 'MODEL_ASSERT')
-            elif '__VERIFIER_assert' in line:
-                line = line.replace('__VERIFIER_assert', 'MODEL_ASSERT')
+            # elif 'main(' in line.strip() and not 'user_main' in line:
+            #     line = convert_main(line)
+            # elif 'atomic_bool' in line:
+            #     line = line.replace('atomic_bool', 'bool')
+            # elif 'pthread_t' in line:
+            #     line = convert_thread_declaration(line)
+            # elif 'pthread_create' in line:
+            #     line = convert_thread_create(line)
+            # elif 'pthread_join' in line:
+            #     line = convert_thread_join(line)
+            # elif 'pthread_mutex_t' in line:
+            #     line = line.replace('pthread_mutex_t', 'std::mutex')
+            #     has_mutex = True
+            # elif 'pthread_mutex_lock' in line:
+            #     line = convert_mutex(line, 'pthread_mutex_lock')
+            # elif 'pthread_mutex_unlock' in line:
+            #     line = convert_mutex(line, 'pthread_mutex_unlock')
+            # elif 'return NULL' in line:
+            #     line = line.replace('return NULL', '')
+            # # not required for Tracer benchmarks.
+            # elif 'assert' in line and not '#include' in line:
+            #     line = convert_assert(line) # NOTE THIS NEGATES ASSERT CONDITIONS TOO
+            # elif 'abort()' in line:
+            #     line = line.replace('abort()', 'MODEL_ASSERT(0)')
+            # elif '__VERIFIER_assume' in line:
+            #     line = line.replace('__VERIFIER_assume', 'assume')
+            # elif '__VERIFIER_MODEL_ASSERT' in line:
+            #     line = line.replace('__VERIFIER_MODEL_ASSERT', 'MODEL_ASSERT')
+            # elif '__VERIFIER_assert' in line:
+            #     line = line.replace('__VERIFIER_assert', 'MODEL_ASSERT')
 
             newlines += line
 
         f.close()
 
-        if lkmm_test:
-            os.system('rm ' + os.path.join(root, filename))
-            continue
+        # if lkmm_test:
+        #     os.system('rm ' + os.path.join(root, filename))
+        #     continue
 
         f = open(os.path.join(root, filename), 'w')
-        if not has_librace_include:
-            f.write('#include "librace.h" \n')
-        if not has_model_assert_include:
-            f.write('#include "model-assert.h"\n')
-        if has_mutex and not has_mutex_include:
-            f.write('#include <mutex>\n')
+        # if not has_librace_include:
+        #     f.write('#include "librace.h" \n')
+        # if not has_model_assert_include:
+        #     f.write('#include "model-assert.h"\n')
+        # if has_mutex and not has_mutex_include:
+        #     f.write('#include <mutex>\n')
         f.write(newlines)
         f.close()
         
@@ -371,8 +365,9 @@ def convert_files(root, files):
 
     return filecount, fileModcount
 
-base_dir = 'tests/benchmarks/genmc_tests'
-ignore = ['apr_1', 'apr_2']
+base_dir = 'tests/benchmarks/CDSbench'
+# base_dir = 'tests/benchmarks/genmc_tests'
+ignore = [] #['apr_1', 'apr_2']
 
 filecount = 0
 fileModcount = 0

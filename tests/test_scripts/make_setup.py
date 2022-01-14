@@ -33,9 +33,7 @@ for root, subdirs, files in os.walk(BASE_DIR):
         dir_path = os.path.join(root, dir)
         if 'test_scripts' in dir_path:
             continue
-        print(dir_path)
-        continue
-
+        
         cds_base_path = '../' * dir_path.count('/')
         f = open(dir_path + '/Makefile', 'w')
         f.write('BASE := ' + cds_base_path + '../model-checker/cds-checker')
