@@ -17,7 +17,7 @@ from constants import time_handler
 from constants import output_colours as oc
 
 class translate_cds:
-	def __init__(self, filename, traces_batch_size, current_iteration):
+	def __init__(self, filename, traces_batch_size, current_iteration, cds_y_flag):
 
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
@@ -35,6 +35,8 @@ class translate_cds:
 		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
 		if traces_batch_size:
 			cds_cmd += ' -c ' + str(traces_batch_size)
+		if cds_y_flag:
+			cds_cmd += ' -y'
 		cds_cmd = shlex.split(cds_cmd)
 		
 		if current_iteration > 1:

@@ -33,12 +33,15 @@ parser.add_argument("--max-iter", "-m", type=int, required=False, dest="max_iter
 					help="Max number of batches. Used with -t flag.")
 parser.add_argument("--synthesis-summary", "-s", required=False, action='store_true', dest="print_synthesis_summary",
 					help="Print the file wise summary of fences synthesized and strengthened.")
+parser.add_argument("--yield", "-y", required=False, action='store_true', dest="cds_y_flag",
+					help="Pass yield flag to model checker.")
 
 args = parser.parse_args()
 filename = args.file											# gets the input file name
 no_traces = args.no_traces										# gets the input number of traces to be checked
 max_iter = args.max_iter										# gets the input maximum number of iterations
 print_synthesis_summary = args.print_synthesis_summary          # print summarya of synthesis if set
+cds_y_flag = args.cds_y_flag
 
 
 if not os.path.exists(filename):
@@ -82,7 +85,7 @@ def fn_main(filename):
 	if no_traces:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
-	traces, mc_time, mc_make_time, no_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, no_traces, total_iter)
+	traces, mc_time, mc_make_time, no_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, no_traces, total_iter, cds_y_flag)
 	# print('after model_checking_output, buggy_trace_no:', buggy_trace_no)
 
 	if mc_error_string is not None:
