@@ -185,7 +185,7 @@ def test_dir(dir_path):
 
 def run_tests_from_file (filename):
     with open(filename, 'r') as file:
-        test_list = file.read().replace("'", "").split(' ')
+        test_list = file.read().replace("'", "").strip().split(' ')
     print('test dir:', test_list)
     print('cwd: ', cwd)
 

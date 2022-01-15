@@ -10,7 +10,7 @@ def make_content():
     content += 'OBJECTS += $(patsubst %.cc, %.o, $(wildcard *.cc))\n\n'
     content += 'include $(BASE)/common.mk\n\n'
     content += 'DEPS := $(join $(addsuffix ., $(dir $(OBJECTS))), $(addsuffix .d, $(notdir $(OBJECTS))))\n\n'
-    content += 'CPPFLAGS += -I$(BASE) -I$(BASE)/include\n\n'
+    content += 'CPPFLAGS += -I$(BASE) -I$(BASE)/include -fpermissive\n\n'
     content += 'all: $(OBJECTS)\n'
     content += '\tfor dir in $(SUBDIRS); do \\\n'
     content += '\t\t$(MAKE) -C $$dir; \\\n'
