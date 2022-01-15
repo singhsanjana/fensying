@@ -186,8 +186,8 @@ def test_dir(dir_path):
 def run_tests_from_file (filename):
     with open(filename, 'r') as file:
         test_list = file.read().replace("'", "").strip().split(' ')
-    print('test dir:', test_list)
-    print('cwd: ', cwd)
+    # print('test dir:', test_list)
+    # print('cwd: ', cwd)
 
     csv_file = write_csv_header(os.path.dirname(test_list[0]), 'result-' + filename + '.csv')
     for test in test_list:
