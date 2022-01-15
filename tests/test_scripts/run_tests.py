@@ -82,12 +82,12 @@ def read_result(lines):
 
 def execute_test(filepath, t=0):
     process_command = ['python3', 'main.py', '-f', filepath]
-    print('executing: ', process_command)
-    print('cwd: ',os.getcwd())
     if t > 0:
         process_command.append('-t')
         process_command.append(str(t))
 
+    print('executing: ', process_command)
+    
     _synthesized   = ''
     _strengthened  = ''
     _time_ceg      = ''
@@ -218,4 +218,4 @@ else:
     for dir in test_dirs:
         print('\nENTERING ' + dir)
         test_dir(dir)
-        print('LEAVING ' + dir)    
+        print('LEAVING ' + dir)
