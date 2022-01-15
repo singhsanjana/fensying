@@ -138,7 +138,7 @@ def execute_test(filepath, t=0):
         return 'OK', _synthesized + ',' + _strengthened + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
     return 'TO', 'Fensying TO (15m)' + ',,,,,,'
 
-def write_csv_header(dir_path):
+def write_csv_header(dir_path, csv_file_name):
     csv_header = 'Test Name,#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
     for t in T:
         csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
@@ -147,7 +147,7 @@ def write_csv_header(dir_path):
     csv_header = csv_header[:-1] + '\n'
 
     res_file = 'result-' + str(dir_path).replace('/','_') + '.csv'
-    csv_file = open(os.path.join(res_dir, res_file), 'w')
+    csv_file = open(os.path.join(res_dir, csv_file_name), 'w')
     csv_file.write(csv_header)
     return csv_file
 
@@ -168,7 +168,7 @@ def run_single_test(dir_path, file):
     return csv_row
 
 def test_dir(dir_path):
-    csv_file = write_csv_header(dir_path)
+    csv_file = write_csv_header(dir_path, 'result-' + str(dir_path).replace('/','_') + '.csv')
     for file in os.listdir(dir_path):
         if file[-2:] != '.o':
             continue 
@@ -189,7 +189,7 @@ def run_tests_from_file (filename):
     print('test dir:', test_list)
     print('cwd: ', cwd)
 
-    csv_file = write_csv_header(os.path.dirname(test_list[0]))
+    csv_file = write_csv_header(os.path.dirname(test_list[0]), 'result-' + filename + '.csv')
     for test in test_list:
         filename, ext = os.path.splitext(os.path.basename(test))
         if ext != '.o':
