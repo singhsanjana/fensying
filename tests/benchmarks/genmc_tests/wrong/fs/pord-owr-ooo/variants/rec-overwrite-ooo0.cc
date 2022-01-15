@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <stdatomic.h>
 #include <threads.h>
-#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -27,7 +26,7 @@ void __VERIFIER_recovery_routine(void)
 	return;
 }
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	char buf_a[8], buf_b[8];
 
@@ -39,7 +38,6 @@ int user_main()
 	int fd = creat("foo", 0666);
 	write(fd, buf_a, 4);
 
-	__VERIFIER_pbarrier();
 
 	/* Write to different offsets */
 	pwrite(fd, buf_b, 1, 0);

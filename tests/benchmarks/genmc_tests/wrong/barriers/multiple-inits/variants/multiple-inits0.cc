@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <threads.h>
 #include <stdatomic.h>
-#include <genmc.h>
 
 atomic_int x;
 atomic_int y;
@@ -26,7 +25,7 @@ void *thread_2(void *unused)
 	;
 }
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	thrd_t t1, t2;
 

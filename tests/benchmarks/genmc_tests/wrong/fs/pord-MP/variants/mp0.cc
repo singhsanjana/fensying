@@ -5,14 +5,13 @@
 #include <unistd.h>
 #include <stdatomic.h>
 #include <threads.h>
-#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
 
 #include "../mp.cc"
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	thrd_t t1;
 	char buf[8];
@@ -26,7 +25,6 @@ int user_main()
 	write(fd_x, buf, 1);
 	write(fd_y, buf, 1);
 
-	__VERIFIER_pbarrier();
 
 	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
 		MODEL_ASSERT(0);

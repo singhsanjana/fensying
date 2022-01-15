@@ -9,12 +9,12 @@
  * graph as well.
  */
 
-_Atomic(atomic_int *) p;
+atomic<atomic<int>*> p;
 bool done;
 
 void *thread_1(void *unused)
 {
-	atomic_int x;
+	atomic<int> x;
 
 	atomic_store_explicit(__FILE__, __LINE__, &x, 42, memory_order_relaxed);
 	atomic_store_explicit(__FILE__, __LINE__, &p, &x, memory_order_relaxed);
@@ -23,10 +23,11 @@ void *thread_1(void *unused)
 
 void *thread_2(void *unused)
 {
-	while (p == NULL)
+	while (p.load(__FILE__, __LINE__) == NULL)
 		;
 
-	atomic_int r = *p;
+	atomic<int> *r = p.load(__FILE__, __LINE__);
+	int rval = r->load(__FILE__, __LINE__);
 	done = 1;
 	;
 }

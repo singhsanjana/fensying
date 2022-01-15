@@ -1,10 +1,10 @@
 #include "librace.h" 
 #include "model-assert.h"
-_Atomic(int *) p;
+atomic<int*> p;
 
 void exit_thread(int *loc)
 {
-	p = loc;
+	p.store(__FILE__, __LINE__, loc);
 	pthread_exit(NULL);
 }
 
@@ -17,7 +17,7 @@ void *thread1(void *unused)
 
 void *thread2(void *unused)
 {
-	if (p != NULL)
-		*p = 42;
+	if (p.load(__FILE__, __LINE__) != NULL)
+		*(p.load(__FILE__, __LINE__)) = 42;
 	;
 }

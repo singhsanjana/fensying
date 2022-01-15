@@ -2,7 +2,7 @@
 #include "model-assert.h"
 #include <stdlib.h>
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	void *foo = aligned_alloc(3, 9);
 

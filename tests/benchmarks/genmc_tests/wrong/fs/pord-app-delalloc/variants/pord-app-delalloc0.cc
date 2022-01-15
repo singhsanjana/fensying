@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <stdatomic.h>
 #include <threads.h>
-#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -28,7 +27,7 @@ void __VERIFIER_recovery_routine(void)
 	return;
 }
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	char buf1[6] = "111111";
 	char buf2[6] = "222222";
@@ -38,7 +37,6 @@ int user_main()
 	/* Make the file contain 1111 11 */
 	write(fd, buf1, 6);
 
-	__VERIFIER_pbarrier();
 
 	/* Append so that the file contains 1122 2222 */
 	pwrite(fd, buf2, 6, 2);

@@ -5,7 +5,7 @@
 
 static std::mutex lock;
 
-static atomic_int x = 0;
+static atomic_int x = {0};
 static int readX = 0;
 
 static void *runLock(void *arg)

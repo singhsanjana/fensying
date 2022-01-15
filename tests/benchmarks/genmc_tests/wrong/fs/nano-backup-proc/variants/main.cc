@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <threads.h>
-#include <genmc.h>
 
 /* Some utilities */
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
@@ -63,7 +62,7 @@ void __VERIFIER_recovery_routine(void)
 	}
 }
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	/* Create an existing file */
 	int fd = creat(__stringify(FILENAME), 0640);
@@ -71,7 +70,6 @@ int user_main()
 	close(fd);
 
 	/* Assume the file has persisted on disk */
-	__VERIFIER_pbarrier();
 
 	/* Fake nano's buffer creation and population */
 	fake_make_new_buffer();

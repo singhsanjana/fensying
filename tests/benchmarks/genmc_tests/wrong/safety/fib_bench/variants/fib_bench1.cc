@@ -5,7 +5,7 @@
 
 #include "../fib_bench.cc"
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	thrd_t id1, id2, id3;
 
