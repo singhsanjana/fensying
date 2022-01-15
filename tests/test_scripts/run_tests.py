@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
@@ -81,6 +82,8 @@ def read_result(lines):
 
 def execute_test(filepath, t=0):
     process_command = ['python3', 'main.py', '-f', filepath]
+    print('executing: ', process_command)
+    print('cwd: ',os.getcwd())
     if t > 0:
         process_command.append('-t')
         process_command.append(str(t))
@@ -135,7 +138,7 @@ def execute_test(filepath, t=0):
         return 'OK', _synthesized + ',' + _strengthened + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
     return 'TO', 'Fensying TO (15m)' + ',,,,,,'
 
-def test_dir(dir_path):
+def write_csv_header(dir_path):
     csv_header = 'Test Name,#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
     for t in T:
         csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
@@ -146,39 +149,73 @@ def test_dir(dir_path):
     res_file = 'result-' + str(dir_path).replace('/','_') + '.csv'
     csv_file = open(os.path.join(res_dir, res_file), 'w')
     csv_file.write(csv_header)
+    return csv_file
 
+def run_single_test(dir_path, file):
+    print('Testing ' + dir_path + '/' + file[:-2])
+    filepath = '../' + os.path.join(dir_path, file)
+
+    csv_row = file + ','
+    for t in [0] + T:
+        os.chdir(cwd + '/src')
+        status, test_cols = execute_test(filepath, t)
+        os.chdir(cwd)
+
+        csv_row += test_cols
+        if status == 'STOP':
+            csv_row += '\n'
+            break
+    return csv_row
+
+def test_dir(dir_path):
+    csv_file = write_csv_header(dir_path)
     for file in os.listdir(dir_path):
         if file[-2:] != '.o':
             continue 
         if '_fixed' in file:
             continue
-
-        print('Testing ' + dir_path + '/' + file[:-2])
-        filepath = '../' + os.path.join(dir_path, file)
-
-        csv_row = file + ','
-        for t in [0] + T:
-            os.chdir(cwd + '/src')
-            status, test_cols = execute_test(filepath, t)
-            os.chdir(cwd)
-
-            csv_row += test_cols
-            if status == 'STOP':
-                csv_row += '\n'
-                break
-
+        
+        csv_row = run_single_test(dir_path, file)
         csv_row = csv_row[:-1] + '\n'
         csv_file.write(csv_row)
-        break
     
     csv_file.close()
+
+
+
+def run_tests_from_file (filename):
+    with open(filename, 'r') as file:
+        test_list = file.read().replace("'", "").split(' ')
+    print('test dir:', test_list)
+    print('cwd: ', cwd)
+
+    csv_file = write_csv_header(os.path.dirname(test_list[0]))
+    for test in test_list:
+        filename, ext = os.path.splitext(os.path.basename(test))
+        if ext != '.o':
+            print('\033[0;36mModifying filename:', filename+ext, '-->', filename+'.o\033[0m')
+            ext = '.o'
+        csv_row = run_single_test(os.path.dirname(test), filename+ext)
+        csv_row = csv_row[:-1] + '\n'
+        csv_file.write(csv_row)
+    
+    csv_file.close()
+
 
 cwd = os.getcwd()
     
 if not os.path.exists(res_dir):
     os.system('mkdir ' + res_dir)
 
-for dir in test_dirs:
-    print('\nENTERING ' + dir)
-    test_dir(dir)
-    print('LEAVING ' + dir)    
+# if a filename is passed on command line, 
+# read list of tests to run from file
+# else run from testdir
+if len(sys.argv) == 2:
+    run_tests_from_file(sys.argv[1])
+    exit(0)
+else:
+    print ('No command line argument. Running testdirs')
+    for dir in test_dirs:
+        print('\nENTERING ' + dir)
+        test_dir(dir)
+        print('LEAVING ' + dir)    
