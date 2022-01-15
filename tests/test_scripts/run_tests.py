@@ -189,7 +189,7 @@ def run_tests_from_file (filename):
     # print('test dir:', test_list)
     # print('cwd: ', cwd)
 
-    csv_file = write_csv_header(os.path.dirname(test_list[0]), 'result-' + filename + '.csv')
+    csv_file = write_csv_header(os.path.dirname(test_list[0]), 'result-' + os.path.splitext(os.path.basename(filename))[0] + '.csv')
     for test in test_list:
         filename, ext = os.path.splitext(os.path.basename(test))
         if ext != '.o':
