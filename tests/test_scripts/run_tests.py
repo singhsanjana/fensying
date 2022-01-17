@@ -4,8 +4,7 @@ import sys
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/litmus',
-    'tests/litmus/weak_fensying'
+    'tests/benchmarks/VBMCbench'
 ]
 
 N = 3       # no. of runs per tests
@@ -170,11 +169,13 @@ def run_single_test(dir_path, file):
 def test_dir(dir_path):
     csv_file = write_csv_header(dir_path, 'result-' + str(dir_path).replace('/','_') + '.csv')
     for file in os.listdir(dir_path):
+        if os.path.isdir(os.path.join(dir_path, file)):
+            test_dir(os.path.join(dir_path, file))
         if file[-2:] != '.o':
             continue 
         if '_fixed' in file:
             continue
-        
+              
         csv_row = run_single_test(dir_path, file)
         csv_row = csv_row[:-1] + '\n'
         csv_file.write(csv_row)
