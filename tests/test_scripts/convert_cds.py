@@ -31,10 +31,21 @@ def convert_action(line, pattern):
         addtext += ', '
     return line[:l] + addtext + line[l:]
 
+def convert_many_patterns_in_a_line(line, pattern, start):
+    while start < len(line)-1 and pattern in line[start:]:
+        converted_line = line[:start]
+        remaining_line = line[start:]
+        line = converted_line + convert_action(remaining_line, pattern)
+        l = remaining_line.find(pattern) + len(pattern) + len(converted_line)
+        start = line.find(')',l)
+
+    print(line)
+    return line
+
 def convert_load(line):
     if 'atomic_load_explicit' in line:
-        return convert_action(line, 'atomic_load_explicit')
-    return convert_action(line, '.load')
+        return convert_many_patterns_in_a_line(line, 'atomic_load_explicit', 0)
+    return convert_many_patterns_in_a_line(line, '.load', 0)
 
 def convert_store(line):
     if 'atomic_store_explicit' in line:
@@ -365,7 +376,7 @@ def convert_files(root, files):
 
     return filecount, fileModcount
 
-base_dir = 'tests/benchmarks/CDSbench'
+base_dir = 'tests/benchmarks/VBMCbench'
 # base_dir = 'tests/benchmarks/genmc_tests'
 ignore = [] #['apr_1', 'apr_2']
 
