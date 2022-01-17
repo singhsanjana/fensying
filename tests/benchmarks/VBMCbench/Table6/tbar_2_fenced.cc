@@ -18,15 +18,15 @@ void t0(void *)
     int rtdiff1 = -1;
     for(int i=0;i<LOOP;i++)
     {
-        atomic_store_explicit(&tdiff0, 1, memory_order_release);
-        atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-        rchildnotready = atomic_load_explicit(&childnotready, memory_order_acquire);
+        atomic_store_explicit(__FILE__, __LINE__, &tdiff0, 1, memory_order_release);
+        atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+        rchildnotready = atomic_load_explicit(__FILE__, __LINE__, &childnotready, memory_order_acquire);
         if(!(rchildnotready==0))return;
-        atomic_store_explicit(&childnotready, 1, memory_order_release);
-        atomic_store_explicit(&parentsense, rsense, memory_order_release);
+        atomic_store_explicit(__FILE__, __LINE__, &childnotready, 1, memory_order_release);
+        atomic_store_explicit(__FILE__, __LINE__, &parentsense, rsense, memory_order_release);
         rsense = 1 - rsense;
-        atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-        rtdiff1 = atomic_load_explicit(&tdiff1, memory_order_acquire);
+        atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+        rtdiff1 = atomic_load_explicit(__FILE__, __LINE__, &tdiff1, memory_order_acquire);
         MODEL_ASSERT(rtdiff1!=0);
     }
 }
@@ -40,15 +40,15 @@ void t1(void *)
     int rparentsense = -1;
     for(int i=0;i<LOOP;i++)
     {
-        atomic_store_explicit(&tdiff1, 1, memory_order_release);
-        atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-        atomic_store_explicit(&childnotready, 0, memory_order_release);
-        atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-        rparentsense = atomic_load_explicit(&parentsense, memory_order_acquire);
+        atomic_store_explicit(__FILE__, __LINE__, &tdiff1, 1, memory_order_release);
+        atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+        atomic_store_explicit(__FILE__, __LINE__, &childnotready, 0, memory_order_release);
+        atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+        rparentsense = atomic_load_explicit(__FILE__, __LINE__, &parentsense, memory_order_acquire);
         if(!(rparentsense==rsense))return;
         rsense = 1 - rsense;
-        atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-        rtdiff0 = atomic_load_explicit(&tdiff0, memory_order_acquire);
+        atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+        rtdiff0 = atomic_load_explicit(__FILE__, __LINE__, &tdiff0, memory_order_acquire);
         MODEL_ASSERT(rtdiff0!=0);
     }
 }

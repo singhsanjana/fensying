@@ -1,6 +1,6 @@
 import os
 
-BASE_DIR = 'tests'
+BASE_DIR = 'tests/benchmarks/VBMCbench/'
 IGNORE_DIR = ['test_scripts']
 
 def make_content():

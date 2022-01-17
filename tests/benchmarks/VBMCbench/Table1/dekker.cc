@@ -19,30 +19,30 @@ void t0(void *)
 
   // if(!0)MODEL_ASSERT(0);
     for(int i =0;i<LOOP;i++){
-    atomic_store_explicit(&flag1, 1, memory_order_release);
-    rflag2 = atomic_load_explicit(&flag2, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &flag1, 1, memory_order_release);
+    rflag2 = atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire);
     
 	int j = 0;
     while (rflag2 >= 1 && j<LOOP)
     {
-        rturn_1 = atomic_load_explicit(&turn, memory_order_acquire);;
+        rturn_1 = atomic_load_explicit(__FILE__, __LINE__, &turn, memory_order_acquire);;
         if (rturn_1 != 0)
         {
-            atomic_store_explicit(&flag1, 0, memory_order_release);
-            rturn_2 = atomic_load_explicit(&turn, memory_order_acquire);
+            atomic_store_explicit(__FILE__, __LINE__, &flag1, 0, memory_order_release);
+            rturn_2 = atomic_load_explicit(__FILE__, __LINE__, &turn, memory_order_acquire);
             if(!(rturn_2 == 0))return;
-            atomic_store_explicit(&flag1, 1, memory_order_release);
+            atomic_store_explicit(__FILE__, __LINE__, &flag1, 1, memory_order_release);
         }
-        rflag2 = atomic_load_explicit(&flag2, memory_order_acquire);
+        rflag2 = atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire);
         j=j+1;  
     }
     if(rflag2>=1)
         return;
-    atomic_store_explicit(&_cc_x, 0, memory_order_release);
-    rx =  atomic_load_explicit(&_cc_x, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 0, memory_order_release);
+    rx =  atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire);
     if(!rx<=0) MODEL_ASSERT(0);
-    atomic_store_explicit(&turn, 1, memory_order_release);
-    atomic_store_explicit(&flag1, 0, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &turn, 1, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &flag1, 0, memory_order_release);
     i= i+1;
   }
 }
@@ -51,29 +51,29 @@ void t1(void *)
 {
   int rflag1 = -1, rturn_1 = -1, rturn_2 = -1, rx = -1;
     for(int i =0;i<LOOP;i++){
-    atomic_store_explicit(&flag2, 1, memory_order_release);
-    rflag1 = atomic_load_explicit(&flag1, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &flag2, 1, memory_order_release);
+    rflag1 = atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire);
     int j =0;
     while (rflag1 >= 1 && j<LOOP)
     {
-        rturn_1 = atomic_load_explicit(&turn, memory_order_acquire);;
+        rturn_1 = atomic_load_explicit(__FILE__, __LINE__, &turn, memory_order_acquire);;
         if (rturn_1 != 1)
         {
-            atomic_store_explicit(&flag2, 0, memory_order_release);
-            rturn_2 = atomic_load_explicit(&turn, memory_order_acquire);;
+            atomic_store_explicit(__FILE__, __LINE__, &flag2, 0, memory_order_release);
+            rturn_2 = atomic_load_explicit(__FILE__, __LINE__, &turn, memory_order_acquire);;
             if(!(rturn_2 == 1))return;
-               atomic_store_explicit(&flag2, 1, memory_order_release);
+               atomic_store_explicit(__FILE__, __LINE__, &flag2, 1, memory_order_release);
         }
-        rflag1 = atomic_load_explicit(&flag1, memory_order_acquire);
+        rflag1 = atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire);
         j=j+1;
     }
     if(rflag1>=1)
         return;
-    atomic_store_explicit(&_cc_x, 1, memory_order_release);
-    rx =  atomic_load_explicit(&_cc_x, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_release);
+    rx =  atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire);
     if(!rx>=1) MODEL_ASSERT(0);
-    atomic_store_explicit(&turn, 0, memory_order_release);
-       atomic_store_explicit(&flag2, 0, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &turn, 0, memory_order_release);
+       atomic_store_explicit(__FILE__, __LINE__, &flag2, 0, memory_order_release);
 
   }
 }

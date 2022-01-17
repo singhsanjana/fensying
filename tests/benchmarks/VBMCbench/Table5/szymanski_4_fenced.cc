@@ -14,108 +14,108 @@ void t0(void *)
 {
 for(int l=0;l<LOOP;l++)
         {
-atomic_store_explicit(&flag0, 1, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!((((atomic_load_explicit(&flag1, memory_order_acquire) < 3) && (atomic_load_explicit(&flag2, memory_order_acquire) < 3)) && (atomic_load_explicit(&flag3, memory_order_acquire) < 3)) && 1))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag0, 1, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!((((atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) < 3) && (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) < 3)) && (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) < 3)) && 1))return;
 ;
-atomic_store_explicit(&flag0, 3, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if ((atomic_load_explicit(&flag1, memory_order_acquire) == 1) || (atomic_load_explicit(&flag2, memory_order_acquire) == 1) || atomic_load_explicit(&flag3, memory_order_acquire) == 1)
+atomic_store_explicit(__FILE__, __LINE__, &flag0, 3, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if ((atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) == 1) || (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) == 1) || atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) == 1)
                 {
-atomic_store_explicit(&flag0, 2, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!(((atomic_load_explicit(&flag1, memory_order_acquire) == 4) || (atomic_load_explicit(&flag2, memory_order_acquire) == 4)) || (atomic_load_explicit(&flag3, memory_order_acquire) == 4)))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag0, 2, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!(((atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) == 4) || (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) == 4)) || (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) == 4)))return;
 ;
                 }
-atomic_store_explicit(&flag0, 4, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-atomic_store_explicit(&_cc_x, 0, memory_order_release);
-MODEL_ASSERT(atomic_load_explicit(&_cc_x, memory_order_acquire) == 0);
-if(!((((((atomic_load_explicit(&flag1, memory_order_acquire) != 3) && (atomic_load_explicit(&flag1, memory_order_acquire) != 2)) && (atomic_load_explicit(&flag2, memory_order_acquire) != 3)) && (atomic_load_explicit(&flag2, memory_order_acquire) != 2)) && (atomic_load_explicit(&flag3, memory_order_acquire) != 3)) && (atomic_load_explicit(&flag3, memory_order_acquire) != 2)))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag0, 4, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 0, memory_order_release);
+MODEL_ASSERT(atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire) == 0);
+if(!((((((atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) != 3) && (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) != 2)) && (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) != 3)) && (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) != 2)) && (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) != 3)) && (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) != 2)))return;
 ;
-atomic_store_explicit(&flag0, 0, memory_order_release);
+atomic_store_explicit(__FILE__, __LINE__, &flag0, 0, memory_order_release);
         }
 }
 void t1(void *)
 {
 for(int l=0;l<LOOP;l++)
         {
-atomic_store_explicit(&flag1, 1, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!((((atomic_load_explicit(&flag0, memory_order_acquire) < 3) && (atomic_load_explicit(&flag2, memory_order_acquire) < 3)) && (atomic_load_explicit(&flag3, memory_order_acquire) < 3)) && 1))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag1, 1, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!((((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) < 3) && (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) < 3)) && (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) < 3)) && 1))return;
 ;
-atomic_store_explicit(&flag1, 3, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if ((atomic_load_explicit(&flag0, memory_order_acquire) == 1) || (atomic_load_explicit(&flag2, memory_order_acquire) == 1) || atomic_load_explicit(&flag3, memory_order_acquire) == 1)
+atomic_store_explicit(__FILE__, __LINE__, &flag1, 3, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if ((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) == 1) || (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) == 1) || atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) == 1)
                 {
-atomic_store_explicit(&flag1, 2, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!(((atomic_load_explicit(&flag0, memory_order_acquire) == 4) || (atomic_load_explicit(&flag2, memory_order_acquire) == 4)) || (atomic_load_explicit(&flag3, memory_order_acquire) == 4)))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag1, 2, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!(((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) == 4) || (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) == 4)) || (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) == 4)))return;
 ;
                 }
-atomic_store_explicit(&flag1, 4, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!(atomic_load_explicit(&flag0, memory_order_acquire) < 2))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag1, 4, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!(atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) < 2))return;
 ;
-atomic_store_explicit(&_cc_x, 1, memory_order_release);
-MODEL_ASSERT(atomic_load_explicit(&_cc_x, memory_order_acquire) == 1);
-if(!((((atomic_load_explicit(&flag2, memory_order_acquire) != 3) && (atomic_load_explicit(&flag2, memory_order_acquire) != 2)) && (atomic_load_explicit(&flag3, memory_order_acquire) != 3)) && (atomic_load_explicit(&flag3, memory_order_acquire) != 2)))return;
+atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_release);
+MODEL_ASSERT(atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire) == 1);
+if(!((((atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) != 3) && (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) != 2)) && (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) != 3)) && (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) != 2)))return;
 ;
-atomic_store_explicit(&flag1, 0, memory_order_release);
+atomic_store_explicit(__FILE__, __LINE__, &flag1, 0, memory_order_release);
         }
 }
 void t2(void *)
 {
 for(int l=0;l<LOOP;l++)
         {
-atomic_store_explicit(&flag2, 1, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!((((atomic_load_explicit(&flag0, memory_order_acquire) < 3) && (atomic_load_explicit(&flag1, memory_order_acquire) < 3)) && (atomic_load_explicit(&flag3, memory_order_acquire) < 3)) && 1))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag2, 1, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!((((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) < 3) && (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) < 3)) && (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) < 3)) && 1))return;
 ;
-atomic_store_explicit(&flag2, 3, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if ((atomic_load_explicit(&flag0, memory_order_acquire) == 1) || (atomic_load_explicit(&flag1, memory_order_acquire) == 1) || atomic_load_explicit(&flag3, memory_order_acquire) == 1)
+atomic_store_explicit(__FILE__, __LINE__, &flag2, 3, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if ((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) == 1) || (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) == 1) || atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) == 1)
                 {
-atomic_store_explicit(&flag2, 2, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!(((atomic_load_explicit(&flag0, memory_order_acquire) == 4) || (atomic_load_explicit(&flag1, memory_order_acquire) == 4)) || (atomic_load_explicit(&flag3, memory_order_acquire) == 4)))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag2, 2, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!(((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) == 4) || (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) == 4)) || (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) == 4)))return;
 ;
                 }
-atomic_store_explicit(&flag2, 4, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!((atomic_load_explicit(&flag0, memory_order_acquire) < 2) && (atomic_load_explicit(&flag1, memory_order_acquire) < 2)))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag2, 4, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) < 2) && (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) < 2)))return;
 ;
-atomic_store_explicit(&_cc_x, 1, memory_order_release);
-MODEL_ASSERT(atomic_load_explicit(&_cc_x, memory_order_acquire) == 2);
-if(!((atomic_load_explicit(&flag3, memory_order_acquire) != 3) && (atomic_load_explicit(&flag3, memory_order_acquire) != 2)))return;
+atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_release);
+MODEL_ASSERT(atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire) == 2);
+if(!((atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) != 3) && (atomic_load_explicit(__FILE__, __LINE__, &flag3, memory_order_acquire) != 2)))return;
 ;
-atomic_store_explicit(&flag2, 0, memory_order_release);
+atomic_store_explicit(__FILE__, __LINE__, &flag2, 0, memory_order_release);
         }
 }
 void t3(void *)
 {
 for(int l=0;l<LOOP;l++)
         {
-atomic_store_explicit(&flag3, 1, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!((((atomic_load_explicit(&flag0, memory_order_acquire) < 3) && (atomic_load_explicit(&flag1, memory_order_acquire) < 3)) && (atomic_load_explicit(&flag2, memory_order_acquire) < 3)) && 1))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag3, 1, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!((((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) < 3) && (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) < 3)) && (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) < 3)) && 1))return;
 ;
-atomic_store_explicit(&flag3, 3, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if ((atomic_load_explicit(&flag0, memory_order_acquire) == 1) || (atomic_load_explicit(&flag1, memory_order_acquire) == 1) || atomic_load_explicit(&flag2, memory_order_acquire) == 1)
+atomic_store_explicit(__FILE__, __LINE__, &flag3, 3, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if ((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) == 1) || (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) == 1) || atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) == 1)
                 {
-atomic_store_explicit(&flag3, 2, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!(((atomic_load_explicit(&flag0, memory_order_acquire) == 4) || (atomic_load_explicit(&flag1, memory_order_acquire) == 4)) || (atomic_load_explicit(&flag2, memory_order_acquire) == 4)))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag3, 2, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!(((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) == 4) || (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) == 4)) || (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) == 4)))return;
 ;
                 }
-atomic_store_explicit(&flag3, 4, memory_order_release);
-atomic_fetch_add_explicit(&__fence_var, 0, memory_order_acq_rel);
-if(!(((atomic_load_explicit(&flag0, memory_order_acquire) < 2) && (atomic_load_explicit(&flag1, memory_order_acquire) < 2)) && (atomic_load_explicit(&flag2, memory_order_acquire) < 2)))return;
+atomic_store_explicit(__FILE__, __LINE__, &flag3, 4, memory_order_release);
+atomic_fetch_add_explicit(__FILE__, __LINE__, &__fence_var, 0, memory_order_acq_rel);
+if(!(((atomic_load_explicit(__FILE__, __LINE__, &flag0, memory_order_acquire) < 2) && (atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire) < 2)) && (atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire) < 2)))return;
 ;
-atomic_store_explicit(&_cc_x, 3, memory_order_release);
-MODEL_ASSERT(atomic_load_explicit(&_cc_x, memory_order_acquire) == 3);
-atomic_store_explicit(&flag3, 0, memory_order_release);
+atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 3, memory_order_release);
+MODEL_ASSERT(atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire) == 3);
+atomic_store_explicit(__FILE__, __LINE__, &flag3, 0, memory_order_release);
         }
 }
 int user_main(int argc, char **argv)

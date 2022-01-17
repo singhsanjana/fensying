@@ -13,29 +13,29 @@ atomic_int __fence_var;
 void t0(void *)
 {
     int rflag2 = -1, rturn = -1, rx = -1;
-    atomic_store_explicit(&flag1, 1, memory_order_release);
-    atomic_store_explicit(&turn, 1, memory_order_release);
-    rflag2 = atomic_load_explicit(&flag2, memory_order_acquire);
-    rturn = atomic_load_explicit(&turn, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &flag1, 1, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &turn, 1, memory_order_release);
+    rflag2 = atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_acquire);
+    rturn = atomic_load_explicit(__FILE__, __LINE__, &turn, memory_order_acquire);
     if(!(rflag2!=1 || rturn!=1)) return;
-    atomic_store_explicit(&_cc_x, 0, memory_order_release);
-    rx = atomic_load_explicit(&_cc_x, memory_order_acquire);;
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 0, memory_order_release);
+    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire);;
     MODEL_ASSERT(rx<=0);
-    atomic_store_explicit(&flag1, 0, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &flag1, 0, memory_order_release);
 }
 
 void t1(void *)
 {
     int rflag1 = -1, rturn = -1, rx = -1;
-    atomic_store_explicit(&flag2, 1, memory_order_release);
-    atomic_store_explicit(&turn, 0, memory_order_release);
-    rflag1 = atomic_load_explicit(&flag1, memory_order_acquire);
-    rturn = atomic_load_explicit(&turn, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &flag2, 1, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &turn, 0, memory_order_release);
+    rflag1 = atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_acquire);
+    rturn = atomic_load_explicit(__FILE__, __LINE__, &turn, memory_order_acquire);
     if (!(rflag1!=1 || rturn!=0)) return; 
-    atomic_store_explicit(&_cc_x, 1, memory_order_release);
-    rx = atomic_load_explicit(&_cc_x, memory_order_acquire);;
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_release);
+    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire);;
     MODEL_ASSERT(rx>=1);
-    atomic_store_explicit(&flag2, 0, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &flag2, 0, memory_order_release);
 }
 
 int *propertyChecking(void* arg)
