@@ -8,6 +8,8 @@
 int user_main(int argc, char **argv)
 {
 	thrd_t id1, id2, id3;
+	atomic_init(&i, 1);
+	atomic_init(&j, 1);
 
 	thrd_create(&id2, (thrd_start_t)& t2, NULL);
 	thrd_create(&id1, (thrd_start_t)& t1, NULL);
