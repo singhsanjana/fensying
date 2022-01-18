@@ -53,7 +53,7 @@ class translate_cds:
 										cwd = fi.CDS_FOLDER_PATH,
 										stderr=subprocess.PIPE)			# get std output from CDS Checker
 			cds_end = time.time()
-			p = p.decode('utf-8')										# convert to string
+			p = p.decode('utf-8', errors='ignore')										# convert to string
 
 			self.cds_time = cds_end - cds_start
 			self.obtain_traces(p)
