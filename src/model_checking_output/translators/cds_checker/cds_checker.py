@@ -3,6 +3,7 @@
 # it into a required format.
 # --------------------------------------------------------
 
+from concurrent.futures import process
 import os
 import subprocess
 import shlex
@@ -47,20 +48,26 @@ class translate_cds:
 
 		cds_start = time.time()
 		signal.signal(signal.SIGALRM, time_handler)
-		signal.alarm(900)												# set timer for 15 minutes for CDSChecker
+		signal.alarm(900)	
 		try:
 			p = subprocess.check_output(cds_cmd,
 										cwd = fi.CDS_FOLDER_PATH,
-										stderr=subprocess.PIPE)			# get std output from CDS Checker
+										stderr=subprocess.STDOUT)		# get std output from CDS Checker
 			cds_end = time.time()
-			p = p.decode('utf-8')										# convert to string
-
+			p = p.decode('utf-8', errors='ignore')										# convert to string
+			
 			self.cds_time = cds_end - cds_start
 			self.obtain_traces(p)
 		except RuntimeError:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
+		except subprocess.CalledProcessError as exc:
+			self.error_string = "\n"
+			print(oc.FAIL, oc.BOLD, '\nError while model checking.', oc.ENDC)
+			str = exc.output[exc.output.find('Error:') + len('Error:') : ]
+			print(str)
+			print(oc.FAIL, oc.BOLD, '\nPlease resolve the error for fence synthesis to proceed.', oc.ENDC)
 		except:
-			self.error_string = "\nError while model checking.\nPlease check and resolve the error."
+			self.error_string = "\nError while model checking.\nPlease resolve the error for fence synthesis to proceed."
 		else:
 			signal.alarm(900)											# set timer for 15 minutes for the rest of the tool
 			self.no_buggy_execs = int(self.no_buggy_execs)
