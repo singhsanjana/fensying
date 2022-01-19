@@ -6,9 +6,12 @@
 
 #include "../dekker_rlx.cc"
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	thrd_t t1, t2;
+	atomic_init(&x, 0);
+	atomic_init(&y, 0);
+	atomic_init(&c, 0);
 
 	if (thrd_create(&t2, (thrd_start_t)& thread_two, NULL))
 		MODEL_ASSERT(0);

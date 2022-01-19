@@ -5,12 +5,11 @@
 #include <unistd.h>
 #include <stdatomic.h>
 #include <threads.h>
-#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	/* Create the file */
 	int fd = creat("foo", S_IRWXU);

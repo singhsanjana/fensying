@@ -1,10 +1,12 @@
 import os
 import subprocess
+import sys
+
+from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/litmus',
-    'tests/litmus/weak_fensying'
+    'tests/benchmarks/genmc_tests/wrong/'
 ]
 
 N = 3       # no. of runs per tests
@@ -85,6 +87,8 @@ def execute_test(filepath, t=0):
         process_command.append('-t')
         process_command.append(str(t))
 
+    print('executing: ', process_command)
+    
     _synthesized   = ''
     _strengthened  = ''
     _time_ceg      = ''
@@ -100,7 +104,7 @@ def execute_test(filepath, t=0):
         lines = process.stdout.readlines()
         
         status, synthesized, strengthened, time_ceg, time_z3, time_fensying = read_result(lines)
-
+        
         if status == 'NOBUG':
             return 'STOP', 'No buggy traces.' + ',,,,,,'
         if status == 'MCTO':
@@ -135,7 +139,7 @@ def execute_test(filepath, t=0):
         return 'OK', _synthesized + ',' + _strengthened + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
     return 'TO', 'Fensying TO (15m)' + ',,,,,,'
 
-def test_dir(dir_path):
+def write_csv_header(csv_file_name):
     csv_header = 'Test Name,#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
     for t in T:
         csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
@@ -143,42 +147,87 @@ def test_dir(dir_path):
         csv_header += (csv_header_t)
     csv_header = csv_header[:-1] + '\n'
 
-    res_file = 'result-' + str(dir_path).replace('/','_') + '.csv'
-    csv_file = open(os.path.join(res_dir, res_file), 'w')
+    csv_file = open(os.path.join(res_dir, csv_file_name), 'w')
     csv_file.write(csv_header)
+    csv_file.close()
+    return
 
+def run_single_test(dir_path, file):
+    print('Testing ' + dir_path + '/' + file[:-2])
+    filepath = '../' + os.path.join(dir_path, file)
+
+    csv_row = file + ','
+    for t in [0] + T:
+        os.chdir(cwd + '/src')
+        status, test_cols = execute_test(filepath, t)
+        os.chdir(cwd)
+
+        csv_row += test_cols
+        if status == 'STOP':
+            csv_row += '\n'
+            break
+    return csv_row
+
+def test_dir(dir_path, csv_file_name='', create_new_csv=True):
+    if create_new_csv:
+        csv_file_name = 'result-' + str(dir_path).replace('/','_') + '.csv'
+        write_csv_header(csv_file_name)
     for file in os.listdir(dir_path):
+        if os.path.isdir(os.path.join(dir_path, file)):
+            test_dir(os.path.join(dir_path, file), csv_file_name, False)
         if file[-2:] != '.o':
             continue 
         if '_fixed' in file:
             continue
-
-        print('Testing ' + dir_path + '/' + file[:-2])
-        filepath = '../' + os.path.join(dir_path, file)
-
-        csv_row = file + ','
-        for t in [0] + T:
-            os.chdir(cwd + '/src')
-            status, test_cols = execute_test(filepath, t)
-            os.chdir(cwd)
-
-            csv_row += test_cols
-            if status == 'STOP':
-                csv_row += '\n'
-                break
-
+              
+        if csv_file_name == '':
+            print('Something went wrong with result file name')
+            exit(0)
+        csv_file = open(os.path.join(res_dir, csv_file_name), 'w')
+        full_path = str(dir_path).replace('/','_')
+        test_name_for_csv = full_path[len(csv_file_name[len('result-'):-4]):]
+        csv_row = run_single_test(dir_path, file)
+        csv_row = test_name_for_csv + "/" + csv_row
         csv_row = csv_row[:-1] + '\n'
         csv_file.write(csv_row)
-        break
+        csv_file.close()
+    return 
+
+
+
+def run_tests_from_file (filename):
+    with open(filename, 'r') as file:
+        test_list = file.read().replace("'", "").strip().split(' ')
+    # print('test dir:', test_list)
+    # print('cwd: ', cwd)
+
+    csv_file = write_csv_header('result-' + os.path.splitext(os.path.basename(filename))[0] + '.csv')
+    for test in test_list:
+        filename, ext = os.path.splitext(os.path.basename(test))
+        if ext != '.o':
+            print('\033[0;36mModifying filename:', filename+ext, '-->', filename+'.o\033[0m')
+            ext = '.o'
+        csv_row = run_single_test(os.path.dirname(test), filename+ext)
+        csv_row = csv_row[:-1] + '\n'
+        csv_file.write(csv_row)
     
     csv_file.close()
+
 
 cwd = os.getcwd()
     
 if not os.path.exists(res_dir):
     os.system('mkdir ' + res_dir)
 
-for dir in test_dirs:
-    print('\nENTERING ' + dir)
-    test_dir(dir)
-    print('LEAVING ' + dir)    
+# if a filename is passed on command line, 
+# read list of tests to run from file
+# else run from testdir
+if len(sys.argv) == 2:
+    run_tests_from_file(sys.argv[1])
+    exit(0)
+else:
+    print ('No command line argument. Running testdirs')
+    for dir in test_dirs:
+        print('\nENTERING ' + dir)
+        test_dir(dir)
+        print('LEAVING ' + dir)

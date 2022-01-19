@@ -7,7 +7,7 @@ typedef atomic_int lock_t;
 void lock(lock_t *lock)
 {
 	int r = 0;
-	while (!atomic_compare_exchange_strong_explicit(__FILE__, __LINE__lock, &r, 1, memory_order_acquire,
+	while (!atomic_compare_exchange_strong_explicit(__FILE__, __LINE__, lock, &r, 1, memory_order_acquire,
 							memory_order_acquire))
 		r = 0;
 	return;

@@ -22,7 +22,7 @@ void *thread_1(void *unused)
 	stack.nodes[2][1].next = 2;
 	stack.nodes[3][1].value = 3;
 
-	if (x == 42) {
+	if (x.load(__FILE__, __LINE__) == 42) {
 		a[1][1] = 42;
 		a[0][0] = 17;
 	}

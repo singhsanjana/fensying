@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <stdatomic.h>
 #include <threads.h>
-#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -28,14 +27,13 @@ void __VERIFIER_recovery_routine(void)
 	return;
 }
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	char buf[8] = "11112222";
 
 	int fd = open("foo", O_CREAT|O_TRUNC|O_RDWR, S_IRWXU);
 	write(fd, buf, 4);
 
-	__VERIFIER_pbarrier();
 
 	write(fd, buf + 4, 4);
 	close(fd);

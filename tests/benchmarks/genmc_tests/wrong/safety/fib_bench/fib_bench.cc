@@ -1,7 +1,7 @@
 #include "librace.h" 
 #include "model-assert.h"
-atomic_int i = 1;
-atomic_int j = 1;
+atomic_int i ;
+atomic_int j ;
 
 #define NUM 5
 

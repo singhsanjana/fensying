@@ -6,7 +6,7 @@
 
 #include "../stack-uninit2.cc"
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	thrd_t t1, t2;
 

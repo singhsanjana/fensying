@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <stdatomic.h>
 #include <threads.h>
-#include <genmc.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -59,13 +58,12 @@ void __VERIFIER_recovery_routine(void)
 	return;
 }
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	thrd_t t1, t2;
 
 	int fd_x = open("x", O_CREAT|O_TRUNC|O_RDWR, S_IRWXU);
 
-	__VERIFIER_pbarrier();
 
 	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
 		MODEL_ASSERT(0);

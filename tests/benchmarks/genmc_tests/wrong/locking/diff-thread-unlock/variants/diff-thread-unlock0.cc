@@ -8,7 +8,7 @@
 
 #include "../diff-thread-unlock.cc"
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	thrd_t t[N];
 
@@ -23,7 +23,7 @@ int user_main()
 		MODEL_ASSERT (N == i);
 	}
 	for (intptr_t i = 0; i < N; i++)
-		pthread_join(t[i], NULL);
+		thrd_join(t[i]);
 
 	return 0;
 }

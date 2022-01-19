@@ -55,7 +55,11 @@ class translate_cds:
 										stderr=subprocess.STDOUT)		# get std output from CDS Checker
 			cds_end = time.time()
 			p = p.decode('utf-8', errors='ignore')										# convert to string
+<<<<<<< HEAD
 			
+=======
+
+>>>>>>> 84e06251fd7b6f156fde088112193aed95f466d5
 			self.cds_time = cds_end - cds_start
 			self.obtain_traces(p)
 		except RuntimeError:

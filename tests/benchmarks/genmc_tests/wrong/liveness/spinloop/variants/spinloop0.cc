@@ -8,13 +8,13 @@ atomic_int x;
 
 void *thread_1(void *unused)
 {
-	while (!x)
+	while (!x.load(__FILE__, __LINE__))
 		;
 	x = 42;
 	;
 }
 
-int user_main()
+int user_main(int argc, char **argv)
 {
 	thrd_t t1;
 
