@@ -63,7 +63,8 @@ class translate_cds:
 		except subprocess.CalledProcessError as exc:
 			self.error_string = "\n"
 			print(oc.FAIL, oc.BOLD, '\nError while model checking.', oc.ENDC)
-			str = exc.output[exc.output.find('Error:') + len('Error:') : ]
+			str = exc.output.decode('utf-8', errors='ignore')
+			str = str[str.find('Error:') : ]
 			print(str)
 			print(oc.FAIL, oc.BOLD, '\nPlease resolve the error for fence synthesis to proceed.', oc.ENDC)
 		except:
