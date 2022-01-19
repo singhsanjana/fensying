@@ -3,14 +3,11 @@
 # it into a required format.
 # --------------------------------------------------------
 
-from concurrent.futures import process
 import os
 import subprocess
 import shlex
 import time
-import sys
 import signal
-from operator import itemgetter
 
 from .create_list import create_list
 from constants import file_info as fi
@@ -32,14 +29,14 @@ class translate_cds:
 		make = change_dir + ' && ' + 'make'
 
 		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filename[3:]
-
+		
 		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
 		if traces_batch_size:
 			cds_cmd += ' -c ' + str(traces_batch_size)
 		if cds_y_flag:
 			cds_cmd += ' -y'
 		cds_cmd = shlex.split(cds_cmd)
-		
+
 		if current_iteration > 1:
 			make_time_start = time.time()
 			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
@@ -55,11 +52,6 @@ class translate_cds:
 										stderr=subprocess.STDOUT)		# get std output from CDS Checker
 			cds_end = time.time()
 			p = p.decode('utf-8', errors='ignore')										# convert to string
-<<<<<<< HEAD
-			
-=======
-
->>>>>>> 84e06251fd7b6f156fde088112193aed95f466d5
 			self.cds_time = cds_end - cds_start
 			self.obtain_traces(p)
 		except RuntimeError:
@@ -67,12 +59,13 @@ class translate_cds:
 		except subprocess.CalledProcessError as exc:
 			self.error_string = "\n"
 			print(oc.FAIL, oc.BOLD, '\nError while model checking.', oc.ENDC)
-			str = exc.output.decode('utf-8', errors='ignore')
-			str = str[str.find('Error:') : ]
-			print(str)
+			outputstr = exc.output.decode('utf-8', errors='ignore')
+			outputstr = outputstr[outputstr.find('Error:') : ]
+			print(outputstr)
 			print(oc.FAIL, oc.BOLD, '\nPlease resolve the error for fence synthesis to proceed.', oc.ENDC)
-		except:
+		except Exception as e:
 			self.error_string = "\nError while model checking.\nPlease resolve the error for fence synthesis to proceed."
+			print(e)
 		else:
 			signal.alarm(900)											# set timer for 15 minutes for the rest of the tool
 			self.no_buggy_execs = int(self.no_buggy_execs)

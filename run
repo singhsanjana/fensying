@@ -32,8 +32,8 @@ run_from_list() {
 
 
 run_single_test() {
-    if [[ "$1" != "o" ]]; then
-        echo -e "${NOTE}Modifying filename: $1 --> $filename.o ${END_NOTE}"
+    if [[ "$2" != "o" ]]; then
+        echo -e "${NOTE}Modifying filename: $1.$2 --> $filename.o ${END_NOTE}"
     fi
 
     obj="$1.o"
@@ -46,7 +46,7 @@ run_single_test() {
     f="\.\.\/$obj"
 
     cd src
-    python3 main.py -f $f ${@:2}
+    python3 main.py -f $f ${@:3}
 }
 
 
@@ -62,5 +62,5 @@ if [[ "$ext" == "" ]]; then
     run_from_list $filename
     exit 0
 else
-    run_single_test $filename $ext
+    run_single_test $filename $ext ${@:2}
 fi
