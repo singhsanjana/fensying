@@ -13,6 +13,7 @@ tests/**/*.o
 tests/**/*.o.d
 tests/**/*_fixed.cc
 tests/test_scripts/result
+tests/**/Makefile
 backup
 
 # model checker files:
