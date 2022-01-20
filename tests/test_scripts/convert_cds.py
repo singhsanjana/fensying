@@ -38,18 +38,20 @@ def convert_many_patterns_in_a_line(line, pattern, start):
         line = converted_line + convert_action(remaining_line, pattern)
         l = remaining_line.find(pattern) + len(pattern) + len(converted_line)
         start = line.find(')',l)
-
-    print(line)
     return line
 
 def convert_load(line):
     if 'atomic_load_explicit' in line:
         return convert_many_patterns_in_a_line(line, 'atomic_load_explicit', 0)
+    elif '->load' in line:
+        return convert_many_patterns_in_a_line(line, '->load', 0)
     return convert_many_patterns_in_a_line(line, '.load', 0)
 
 def convert_store(line):
     if 'atomic_store_explicit' in line:
         return convert_action(line, 'atomic_store_explicit')
+    elif '->store' in line:
+        return convert_action(line, '->store')
     return convert_action(line, '.store')
 
 def convert_fetch_add(line):
@@ -302,9 +304,9 @@ def convert_files(root, files):
             #     end   = line.rfind('"')
             #     line = line[:start] + '.cc' + line[end:]
             # elif 'atomic_load_explicit' in line or '.load' in line:
-            if 'atomic_load_explicit' in line or '.load' in line:
+            if 'atomic_load_explicit' in line or '.load' in line or '->load' in line:
                 line = convert_load(line)
-            elif 'atomic_store_explicit' in line or '.store' in line:
+            elif 'atomic_store_explicit' in line or '.store' in line or '->store' in line:
                 line = convert_store(line)
             elif 'atomic_fetch_add_explicit' in line or '.fetch_add' in line:
                 line = convert_fetch_add(line)
@@ -376,7 +378,7 @@ def convert_files(root, files):
 
     return filecount, fileModcount
 
-base_dir = 'tests/benchmarks/VBMCbench'
+base_dir = 'tests/benchmarks/CDSbench'
 # base_dir = 'tests/benchmarks/genmc_tests'
 ignore = [] #['apr_1', 'apr_2']
 
