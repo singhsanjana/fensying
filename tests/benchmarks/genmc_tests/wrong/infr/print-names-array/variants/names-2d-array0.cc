@@ -9,6 +9,7 @@
 int user_main(int argc, char **argv)
 {
 	thrd_t t1, t2;
+	atomic_init(&x, 0);
 
 	if (thrd_create(&t1, (thrd_start_t)& thread_1, NULL))
 		MODEL_ASSERT(0);

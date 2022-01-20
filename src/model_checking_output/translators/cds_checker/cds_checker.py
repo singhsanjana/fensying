@@ -47,6 +47,7 @@ class translate_cds:
 		signal.signal(signal.SIGALRM, time_handler)
 		signal.alarm(900)	
 		try:
+			print(cds_cmd)
 			p = subprocess.check_output(cds_cmd,
 										cwd = fi.CDS_FOLDER_PATH,
 										stderr=subprocess.STDOUT)		# get std output from CDS Checker
@@ -58,9 +59,16 @@ class translate_cds:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
 		except subprocess.CalledProcessError as exc:
 			self.error_string = "\n"
-			print(oc.FAIL, oc.BOLD, '\nError while model checking.', oc.ENDC)
+			print(oc.FAIL, oc.BOLD, '\nCalledProcessError while model checking.', oc.ENDC)
 			outputstr = exc.output.decode('utf-8', errors='ignore')
-			outputstr = outputstr[outputstr.find('Error:') : ]
+			if 'Error:' in outputstr:
+				outputstr = outputstr[outputstr.find('Error:') : ]
+			elif 'Out of ' in outputstr:
+				outputstr = outputstr[outputstr.find('Out of ') : ]		
+			elif 'Segmentation fault' in outputstr:	
+				outputstr = outputstr[outputstr.find('Segmentation fault') : ]	
+			elif 'For debugging' in outputstr:
+				outputstr = outputstr[outputstr.find('For debugging') : ]		
 			print(outputstr)
 			print(oc.FAIL, oc.BOLD, '\nPlease resolve the error for fence synthesis to proceed.', oc.ENDC)
 		except Exception as e:
