@@ -3,7 +3,7 @@
 atomic_int i ;
 atomic_int j ;
 
-#define NUM 5
+#define NUM 2
 
 void *t1(void* arg)
 {
@@ -27,8 +27,9 @@ void *t2(void* arg)
 
 void *t3(void *arg)
 {
-	if (atomic_load_explicit(__FILE__, __LINE__, &i, memory_order_relaxed) >= 144 ||
-	    atomic_load_explicit(__FILE__, __LINE__, &j, memory_order_relaxed) >= 144)
+	int temp1 = atomic_load_explicit(__FILE__, __LINE__, &i, memory_order_relaxed) ;
+	int temp2 = atomic_load_explicit(__FILE__, __LINE__, &j, memory_order_relaxed);
+	if (temp1 >= 8 ||  temp2 >= 8)
 		MODEL_ASSERT(0);
 	;
 }
