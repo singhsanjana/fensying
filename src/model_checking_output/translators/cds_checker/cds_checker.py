@@ -47,7 +47,6 @@ class translate_cds:
 		signal.signal(signal.SIGALRM, time_handler)
 		signal.alarm(900)	
 		try:
-			print(cds_cmd)
 			p = subprocess.check_output(cds_cmd,
 										cwd = fi.CDS_FOLDER_PATH,
 										stderr=subprocess.STDOUT)		# get std output from CDS Checker
