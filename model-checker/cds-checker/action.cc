@@ -51,6 +51,9 @@ ModelAction::ModelAction(action_type_t type, memory_order order, void *loc,
 
 	Thread *t = thread ? thread : thread_current();
 	this->tid = t->get_id();
+
+	filename = "";
+	line_no = -1;
 }
 
 ModelAction::ModelAction(const char* file, int line_no, action_type_t type, memory_order order, void *loc,
@@ -618,7 +621,7 @@ void ModelAction::print() const
 		model_print("  %10s",filename);
 		model_print("  %d",line_no);
 	}
-	else if (line_no) {
+	else if (line_no != -1) {
 		model_print("       %10s",filename);
 		model_print("  %d",line_no);
 	}
