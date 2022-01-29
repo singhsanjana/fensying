@@ -38,6 +38,7 @@ class translate_cds:
 		cds_cmd = shlex.split(cds_cmd)
 
 		if current_iteration > 1:
+			print('making:', make)
 			make_time_start = time.time()
 			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
 			self.make_time = time.time() - make_time_start
