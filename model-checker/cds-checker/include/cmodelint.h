@@ -7,8 +7,6 @@
 #include <inttypes.h>
 #include "memoryorder.h"
 
-#include <string>
-
 #if __cplusplus
 using std::memory_order;
 extern "C" {

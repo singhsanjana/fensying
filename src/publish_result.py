@@ -68,7 +68,9 @@ def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count
 
         for i in range(len(modified_files)):
             filename = modified_files[i]
-            fenced_filename = filename[:filename.rfind('.')] + fi.OUTPUT_FILE_APPEND_STRING
+            fileext  = filename[ filename.rfind('.'): ]
+
+            fenced_filename = filename[ : -1*len(fileext)] + fi.OUTPUT_FILE_APPEND_STRING + fileext
             fixed_files.append(fenced_filename)
 
         if len(fixed_files) == 1:

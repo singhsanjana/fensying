@@ -12,6 +12,7 @@ compute_fences
 tests/**/*.o
 tests/**/*.o.d
 tests/**/*_fixed.cc
+tests/**/*_fixed.c
 tests/test_scripts/result
 tests/**/Makefile
 backup
