@@ -18,7 +18,9 @@ def insert(fence_tags_by_file, input_filename):
 	path = input_filename[:-1*len(input_filename.split('/')[-1])]
 	
 	for filename in fence_tags_by_file:
+		fileext  = filename[ filename.rfind('.'): ]
 		filepath = filename
+
 		if not filename.startswith(path):
 			filepath = path + filename
 		with open(filepath) as f:
@@ -29,8 +31,8 @@ def insert(fence_tags_by_file, input_filename):
 		if fi.OUTPUT_FILE_APPEND_STRING in filename:
 			filepath_new = filepath
 		else:
-			extension_length = -1*len(fi.FILE_EXTENSION)
-			filepath_new = filepath[:extension_length]+fi.OUTPUT_FILE_APPEND_STRING
+			extension_length = -1 * len(fileext)
+			filepath_new = filepath[:extension_length] + fi.OUTPUT_FILE_APPEND_STRING + fileext
 
 		if filepath[:-3] == input_filename[:-2]: # input file (.o) is object of current file (.cc)
 			input_filename = filepath_new[:-3] + '.o'

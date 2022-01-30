@@ -25,7 +25,7 @@ all: $(OBJECTS)
 	$(CXX) -MMD -MF $(@D)/.$(@F).d -o $@ $< $(CPPFLAGS) -L$(BASE) -l$(LIB_NAME)
 
 clean:
-	rm -f *.o *_fixed.cc 
+	rm -f *.o *_fixed.cc  *_fixed.c
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir clean; \
 	done

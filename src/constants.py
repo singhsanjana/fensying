@@ -42,9 +42,8 @@ class f_tags:
 # files and CDS Checker related constants
 class file_info:
 	Z3_FILE = "compute_fences"
-	FILE_EXTENSION = ".cc"
 	CDS_MADE_FILE_EXTENSIONS = [".o", ".o.d"]
-	OUTPUT_FILE_APPEND_STRING = "_fixed"+FILE_EXTENSION
+	OUTPUT_FILE_APPEND_STRING = "_fixed"
 	FENCE_INSTRUCTIONS = {
 		f_tags.sc	:	"atomic_thread_fence(__FILE__, __LINE__, memory_order_seq_cst);\n",
 		f_tags.a	:	"atomic_thread_fence(__FILE__, __LINE__, memory_order_acquire);\n",

@@ -21,7 +21,7 @@ def make_content():
     content += '%.o: %.cc\n'
     content += '\t-$(CXX) -MMD -MF $(@D)/.$(@F).d -o $@ $< $(CPPFLAGS) -L$(BASE) -l$(LIB_NAME)\n\n'
     content += 'clean:\n'
-    content += '\trm -f *.o *_fixed.cc \n'
+    content += '\trm -f *.o *_fixed.cc *_fixed.c \n'
     content += '\tfor dir in $(SUBDIRS); do \\\n'
     content += '\t\t$(MAKE) -C $$dir clean; \\\n'
     content += '\tdone'

@@ -12,8 +12,6 @@
 #include "memoryorder.h"
 #include "cmodelint.h"
 
-#include <string>
-
 #ifdef __cplusplus
 namespace std {
 #else
