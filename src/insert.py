@@ -1,61 +1,123 @@
-from operator import itemgetter
+from pathlib import Path
 from os import fwalk
 from constants import file_info as fi
 from constants import f_tags as ft
 from constants import *
 
-def fix_includes(lines, modified_files):
-	for i in range(len(lines)):
-		if '#include' in lines[i] and '"' in lines[i] and not '_fixed' in lines[i]:
-			line = lines[i][lines[i].find('"')+1:]
-			filename = line[:line.find('"')]
-			if filename in modified_files:
-				filename = filename[:filename.rfind('.')] + '_fixed' + filename[filename.rfind('.'):]
-				lines[i] = '#include "' + filename + '"\n'
-	return lines
+def file_write(filepath, lines):
+	file = open(filepath, 'w')
+	for line in lines:
+		file.write(line)
+	file.close()
 
-def insert(fence_tags_by_file, input_filename):
-	path = input_filename[:-1*len(input_filename.split('/')[-1])]
+def fix_includes(lines, include_fixes, modified_files):
+	modified_includes = False
+
+	for (i, filename, line_new) in include_fixes:
+		if filename in modified_files:
+			lines[i] = line_new
+			modified_includes = True
 	
-	for filename in fence_tags_by_file:
-		fileext  = filename[ filename.rfind('.'): ]
-		filepath = filename
+	return lines, modified_includes
 
-		if not filename.startswith(path):
-			filepath = path + filename
-		with open(filepath) as f:
-			lines = f.readlines()
+def list_includes(lines, path):
+	included_files = []
+	include_fixes = []
+	modified_includes = False
 
-		lines = fix_includes(lines, fence_tags_by_file.keys())
-		
-		if fi.OUTPUT_FILE_APPEND_STRING in filename:
-			filepath_new = filepath
-		else:
+	for i in range(len(lines)):
+		# if '#include' in lines[i] and '"' in lines[i] and not '_fixed' in lines[i]:
+		if '#include' in lines[i] and '"' in lines[i]:
+			line = lines[i][lines[i].find('"')+1:]
+			filename = line[:line.find('"')]   # extracted filename from include
+			
+			filepath = Path(path + filename)
+			if filepath.is_file():
+				included_files.append(filename)
+				if not '_fixed' in lines[i]:
+					filename_new = filename[:filename.rfind('.')] + '_fixed' + filename[filename.rfind('.'):]
+					line_new = '#include "' + filename_new + '"\n'
+					row = (i, filename, line_new)
+					include_fixes.append(row)				
+	
+	return included_files, include_fixes
+
+def add_fences_to_file(filename, lines, fence_tags_by_file):		
+	count_strengthened_fences = 0
+	is_modified = False
+
+	for f, order_req in fence_tags_by_file[filename]:
+		already_has_fence, is_strengthened, fen_index, order = get_fence_to_insert(f, order_req, lines)
+
+		# insert the fence
+		if not already_has_fence:
+			# Synthesize fence
+			lines[fen_index] += fi.FENCE_INSTRUCTIONS[order]
+			is_modified = True
+		elif is_strengthened:
+			# Strengthen order of existing fence
+			count_strengthened_fences += 1
+			lines[fen_index] = fi.FENCE_INSTRUCTIONS[order]
+			is_modified = True
+
+	return lines, count_strengthened_fences, is_modified
+
+def recursive_insert(filename, path, fence_tags_by_file, modified_files, done_files):
+	fence_files = fence_tags_by_file.keys()
+	
+	filepath = path + filename
+	fileext  = filename[ filename.rfind('.'): ]
+
+	with open(filepath) as f:
+		lines = f.readlines()
+
+	included_files, include_fixes = list_includes(lines, path)
+	count_strengthened_fences = 0
+
+	# first fix included files
+	for file in included_files:
+		if file in done_files: # included files already updated
+			continue
+
+		c,m,d = recursive_insert(file, path, fence_tags_by_file, modified_files, done_files)
+		count_strengthened_fences += c
+		modified_files = m
+		done_files = d
+
+	# fix current file
+	lines, this_modified = fix_includes(lines, include_fixes, modified_files)
+
+	lines, this_count_strengthened_fences, added_fence = add_fences_to_file(filename, lines, fence_tags_by_file)
+	this_modified = this_modified or added_fence
+	count_strengthened_fences += this_count_strengthened_fences
+
+	filepath_new = filepath
+	
+	if this_modified:
+		if not fi.OUTPUT_FILE_APPEND_STRING in filename:
 			extension_length = -1 * len(fileext)
 			filepath_new = filepath[:extension_length] + fi.OUTPUT_FILE_APPEND_STRING + fileext
 
-		if filepath[:-3] == input_filename[:-2]: # input file (.o) is object of current file (.cc)
-			input_filename = filepath_new[:-3] + '.o'
+		file_write(filepath_new, lines)
+		modified_files.append(filename)
+	done_files.append(filename)
 
-		output_file = open(filepath_new,'w')
-		
-		count_modified_fences = 0
-		for f, order_req in fence_tags_by_file[filename]:
-			already_has_fence, fen_index, order = get_fence_to_insert(f, order_req, lines)
+	return count_strengthened_fences, modified_files, done_files
 
-			# insert the fence
-			if not already_has_fence:
-				# Synthesize fence
-				lines[fen_index] += fi.FENCE_INSTRUCTIONS[order]
-			else:
-				# Strengthen order of existing fence
-				count_modified_fences += 1
-				lines[fen_index] = fi.FENCE_INSTRUCTIONS[order]
+def insert(fence_tags_by_file, filename, input_ext): # filename has path and extn .o
+	path = filename[ : -1*len(filename.split('/')[-1])]
+	input_filename = filename[ -1*len(filename.split('/')[-1]) : ]
+	input_filename = input_filename[ : input_filename.rfind('.')+1 ] + input_ext
+	
+	count_strengthened_fences, modified_files, d = recursive_insert(input_filename, path, fence_tags_by_file, [], [])
 
-		for w in lines:
-			output_file.writelines(w)
+	filename_new = filename
+	if input_filename in modified_files:
+		if not fi.OUTPUT_FILE_APPEND_STRING in filename:
+			extension_length = -1 * len('.o')
+			filename_new = filename[:extension_length] + fi.OUTPUT_FILE_APPEND_STRING + '.o'
 
-	return (input_filename, count_modified_fences)
+	return filename_new, count_strengthened_fences, modified_files
 
 def get_fence_to_insert(f, order_req, lines):
 	line_no = int(f[f.rfind('_')+1:])
@@ -68,10 +130,16 @@ def get_fence_to_insert(f, order_req, lines):
 	elif 'at' in f:
 		prgm_fen_index = line_no -1
 		index_to_insert = prgm_fen_index	
+
 	has_prgm_fence, prgm_fence_ord = get_prgm_fence_at_line_no(lines[prgm_fen_index])
+	is_strengthened = False
+
 	if has_prgm_fence:
 		order_req = get_updated_fence_order(order_req, prgm_fence_ord)
-	return has_prgm_fence, index_to_insert, order_req
+		if order_req != prgm_fence_ord:
+			is_strengthened = True
+
+	return has_prgm_fence, is_strengthened, index_to_insert, order_req
 
 def get_updated_fence_order(order_req, prgm_fence_ord):
 	if order_req == prgm_fence_ord:
@@ -105,8 +173,3 @@ def get_prgm_fence_ord(line):
 		return ft.ar
 	else:
 		print('ERROR: line', line, 'is not a fence instruction')
-
-
-	
-
-# TO FIX:
