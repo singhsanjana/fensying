@@ -10,6 +10,7 @@
 
 extern int model_out;
 extern int switch_alloc;
+extern int dumping_graph;
 
 #define model_print(fmt, ...) do { switch_alloc = 1; dprintf(model_out, fmt, ##__VA_ARGS__); switch_alloc = 0; } while (0)
 
