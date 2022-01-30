@@ -1,12 +1,13 @@
 import os
 import subprocess
 import sys
+import glob
 
 from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/genmc_tests/wrong/'
+    'tests/benchmarks/VBMCbench'
 ]
 
 N = 3       # no. of runs per tests
@@ -156,10 +157,15 @@ def run_single_test(dir_path, file):
     print('Testing ' + dir_path + '/' + file[:-2])
     filepath = '../' + os.path.join(dir_path, file)
 
+    input_file = glob.glob(dir_path + '/' + file[:-2]+'.c*')[0]
+    input_ext  = input_file[ input_file.rfind('.')+1 : ]
+
+    f = filepath + '$' + input_ext
+
     csv_row = file + ','
     for t in [0] + T:
         os.chdir(cwd + '/src')
-        status, test_cols = execute_test(filepath, t)
+        status, test_cols = execute_test(f, t)
         os.chdir(cwd)
 
         csv_row += test_cols
