@@ -12,7 +12,8 @@ void *t1(void* arg)
 		int prevJ = atomic_load_explicit(__FILE__, __LINE__, &j, memory_order_relaxed);
 		atomic_store_explicit(__FILE__, __LINE__, &i, prevI + prevJ, memory_order_relaxed);
 	}
-	;
+	
+	return NULL;
 }
 
 void *t2(void* arg)
@@ -22,7 +23,8 @@ void *t2(void* arg)
 		int prevJ = atomic_load_explicit(__FILE__, __LINE__, &j, memory_order_relaxed);
 		atomic_store_explicit(__FILE__, __LINE__, &j, prevI + prevJ, memory_order_relaxed);
 	}
-	;
+	
+	return NULL;
 }
 
 void *t3(void *arg)
@@ -31,5 +33,6 @@ void *t3(void *arg)
 	int temp2 = atomic_load_explicit(__FILE__, __LINE__, &j, memory_order_relaxed);
 	if (temp1 >= 8 ||  temp2 >= 8)
 		MODEL_ASSERT(0);
-	;
+	
+	return NULL;
 }

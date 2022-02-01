@@ -13,10 +13,12 @@ int user_main(int argc, char **argv)
 	atomic_init(&y, 0);
 	atomic_init(&c, 0);
 
-	if (thrd_create(&t1, (thrd_start_t)& thread_one, NULL))
-		MODEL_ASSERT(0);
-	if (thrd_create(&t2, (thrd_start_t)& thread_two, NULL))
-		MODEL_ASSERT(0);
+	thrd_create(&t1, (thrd_start_t)& thread_one, NULL);
+	// if (thrd_create(&t1, (thrd_start_t)& thread_one, NULL))
+	// 	MODEL_ASSERT(0);
+	thrd_create(&t2, (thrd_start_t)& thread_two, NULL);
+	// if (thrd_create(&t2, (thrd_start_t)& thread_two, NULL))
+	// 	MODEL_ASSERT(0);
 
 	return 0;
 }
