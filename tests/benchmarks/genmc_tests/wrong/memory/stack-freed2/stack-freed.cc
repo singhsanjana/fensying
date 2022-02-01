@@ -5,7 +5,8 @@ atomic<int*> p;
 void exit_thread(int *loc)
 {
 	p.store(__FILE__, __LINE__, loc);
-	pthread_exit(NULL);
+	// pthread_exit(NULL);
+	exit(0);
 }
 
 void *thread1(void *unused)
