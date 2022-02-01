@@ -189,7 +189,7 @@ def test_dir(dir_path, csv_file_name='', create_new_csv=True):
         if csv_file_name == '':
             print('Something went wrong with result file name')
             exit(0)
-        csv_file = open(os.path.join(res_dir, csv_file_name), 'w')
+        csv_file = open(os.path.join(res_dir, csv_file_name), 'a')
         full_path = str(dir_path).replace('/','_')
         test_name_for_csv = full_path[len(csv_file_name[len('result-'):-4]):]
         csv_row = run_single_test(dir_path, file)
