@@ -87,9 +87,10 @@ def recursive_insert(filename, path, fence_tags_by_file, modified_files, done_fi
 	# fix current file
 	lines, this_modified = fix_includes(lines, include_fixes, modified_files)
 
-	lines, this_count_strengthened_fences, added_fence = add_fences_to_file(filename, lines, fence_tags_by_file)
-	this_modified = this_modified or added_fence
-	count_strengthened_fences += this_count_strengthened_fences
+	if filename in fence_files:
+		lines, this_count_strengthened_fences, added_fence = add_fences_to_file(filename, lines, fence_tags_by_file)
+		this_modified = this_modified or added_fence
+		count_strengthened_fences += this_count_strengthened_fences
 
 	filepath_new = filepath
 	

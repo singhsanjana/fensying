@@ -15,7 +15,7 @@ from constants import time_handler
 from constants import output_colours as oc
 
 class translate_cds:
-	def __init__(self, filename, traces_batch_size, current_iteration, cds_y_flag):
+	def __init__(self, filepath, traces_batch_size, current_iteration, cds_y_flag):
 
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
@@ -25,10 +25,7 @@ class translate_cds:
 		self.make_time = 0
 		self.buggy_trace_no = []										# no of buggy traces, required for mo file name
 
-		change_dir = 'cd ' + fi.CDS_FOLDER_PATH
-		make = change_dir + ' && ' + 'make'
-
-		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filename[3:] # "../filename"[3:] = "filename"
+		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filepath[3:] # "../filepath"[3:] = "filepath"
 		
 		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
 		if traces_batch_size:
@@ -38,6 +35,11 @@ class translate_cds:
 		cds_cmd = shlex.split(cds_cmd)
 
 		if current_iteration > 1:
+			filename = filepath.split('/')[-1]
+			make_path = filepath[: -1*len(filename) ]
+			change_dir = 'cd ' + make_path
+			make = change_dir + ' && ' + 'make'
+
 			print('making:', make)
 			make_time_start = time.time()
 			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
