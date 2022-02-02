@@ -22,7 +22,7 @@ void *thread_1(void *unused)
 		/* end critical section */
 		p1 = false;
 	}
-	;
+	return NULL;
 }
 
 void *thread_2(void *unused)
@@ -37,7 +37,7 @@ void *thread_2(void *unused)
 		/* end critical section */
 		p2 = false;
 	}
-	;
+	return NULL;
 }
 
 int user_main(int argc, char **argv)

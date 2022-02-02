@@ -43,10 +43,11 @@ max_iter = args.max_iter										# gets the input maximum number of iterations
 print_synthesis_summary = args.print_synthesis_summary          # print summarya of synthesis if set
 cds_y_flag = args.cds_y_flag
 
-
-if not os.path.exists(filename):
-	print(oc.BOLD + oc.FAIL + "\nInput file not found.\n" + oc.ENDC)
-	sys.exit(0)
+input_ext = filename.split('$')[1]
+filename  = filename.split('$')[0]
+# if not os.path.exists(filename): [snj]: checked in run script
+# 	print(oc.BOLD + oc.FAIL + "\nInput file not found.\n" + oc.ENDC)
+# 	sys.exit(0)
 if max_iter is not None and no_traces is None:
 	print(oc.BOLD + oc.FAIL + "\nPlease specify the batch size of traces (-t).\n" + oc.ENDC)
 	sys.exit(0)
@@ -63,6 +64,7 @@ fence_tags_final = {}
 total_iter = 0
 error_string = ""
 synthesis_summary = ""
+modified_files = []
 
 def fn_main(filename):
 	global mc_total
@@ -72,8 +74,10 @@ def fn_main(filename):
 	global fences_added
 	global fences_modified
 	global fence_tags_final
+	global modified_files
 	global total_iter
 	global error_string
+	global input_ext
 
 	z3_time = 0
 	pre_calc_total = 0
@@ -105,11 +109,12 @@ def fn_main(filename):
 			# print('mi-model', req_fences)
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
 			# print('solution', fence_tags)
-			(new_filename, count_modified_fences) = insert(fence_tags, filename) # insert fences into the source file at the required locations
+			(new_filename, count_modified_fences, iter_modified_files) = insert(fence_tags, filename, input_ext) # insert fences into the source file at the required locations
 
 			fences_added += len(req_fences)
 			fences_modified += count_modified_fences
 			fence_tags_final.update(fence_tags)
+			modified_files = modified_files + list(set(iter_modified_files) - set(modified_files)) # set of modified files
 
 	mc_total += mc_time
 	mc_make_total += mc_make_time
@@ -131,4 +136,4 @@ except RuntimeError:
 	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
-res.final_result_summary((end-start-mc_make_total), (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, no_traces, total_iter, print_synthesis_summary, fence_tags_final)
+res.final_result_summary((end-start-mc_make_total), (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, no_traces, total_iter, print_synthesis_summary, fence_tags_final, modified_files)

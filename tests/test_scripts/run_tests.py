@@ -1,12 +1,13 @@
 import os
 import subprocess
 import sys
+import glob
 
 from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/genmc_tests/wrong/'
+    'tests/benchmarks/VBMCbench'
 ]
 
 N = 3       # no. of runs per tests
@@ -156,10 +157,15 @@ def run_single_test(dir_path, file):
     print('Testing ' + dir_path + '/' + file[:-2])
     filepath = '../' + os.path.join(dir_path, file)
 
+    input_file = glob.glob(dir_path + '/' + file[:-2]+'.c*')[0]
+    input_ext  = input_file[ input_file.rfind('.')+1 : ]
+
+    f = filepath + '$' + input_ext
+
     csv_row = file + ','
     for t in [0] + T:
         os.chdir(cwd + '/src')
-        status, test_cols = execute_test(filepath, t)
+        status, test_cols = execute_test(f, t)
         os.chdir(cwd)
 
         csv_row += test_cols
@@ -183,7 +189,7 @@ def test_dir(dir_path, csv_file_name='', create_new_csv=True):
         if csv_file_name == '':
             print('Something went wrong with result file name')
             exit(0)
-        csv_file = open(os.path.join(res_dir, csv_file_name), 'w')
+        csv_file = open(os.path.join(res_dir, csv_file_name), 'a')
         full_path = str(dir_path).replace('/','_')
         test_name_for_csv = full_path[len(csv_file_name[len('result-'):-4]):]
         csv_row = run_single_test(dir_path, file)
