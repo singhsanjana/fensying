@@ -1,29 +1,41 @@
 from constants import f_tags as ft
 
+def mo_score(mo):
+	if mo == ft.a:
+		return 1
+	if mo == ft.r:
+		return 1
+	if mo == ft.ar:
+		return 2
+	if mo == ft.sc:
+		return 3
+
 def max_order(order1, order2):
 	if order1 == order2:
 		return order1
-	if fence_score(order1) > fence_score(order2):
+	if mo_score(order1) > mo_score(order2):
 		return order1
-	if fence_score(order1) < fence_score(order2):
+	if mo_score(order1) < mo_score(order2):
 		return order2
-	if fence_score(order1) == fence_score(order2): # wkt order1 != order2
+	if mo_score(order1) == mo_score(order2): # wkt order1 != order2
 		return ft.ar
 
-def fence_score(fence_order):
-	if fence_order == ft.a:
-		return 1
-	if fence_order == ft.r:
-		return 1
-	if fence_order == ft.ar:
-		return 2
-	if fence_order == ft.sc:
-		return 3
+def fence_score(fence, fence_order):
+	order_score = mo_score(fence_order)
+
+	if '_at_' in fence:
+		fence_prog_order = fence[2 : fence.find(')')]
+		prog_order_score = mo_score(fence_prog_order)
+		if prog_order_score > order_score or fence_order == fence_prog_order:
+			return 0
+
+	return order_score
 
 def cycle_score(tagged_cycle):
 	score = 0
-	for order in tagged_cycle.values():
-		score += fence_score(order)
+	for fence in tagged_cycle:
+		order = tagged_cycle[fence]
+		score += fence_score(fence, order)
 	return score
 
 def reduce(cycles_list):

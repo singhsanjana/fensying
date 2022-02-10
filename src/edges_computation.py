@@ -17,14 +17,14 @@ class edges_computation:
 		self.compute_all_edges(all_events_by_thread, fences_thread)
 	
 	def compute_all_edges(self, all_events_by_thread, fences_thread):
-		print()
 		self.sw_fences(all_events_by_thread, fences_thread)
 		self.so_fences_from_mofr(fences_thread)
 	
 	def get(self):
 		self.swdob_edges = list(set(self.swdob_edges))
 		self.so_edges    = list(set(self.so_edges))
-		return self.swdob_edges, self.so_edges
+		self.fr_edges    = list(set(self.fr_edges))
+		return self.swdob_edges, self.fr_edges, self.so_edges
 
 	def sw_fences(self, all_events_by_thread, fences_thread):
 		for wr2_index in range(len(self.reads)): # self.reads includes reads + the fence above and below the reads

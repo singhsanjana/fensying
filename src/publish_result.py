@@ -37,7 +37,9 @@ def synthesis_summary(fences_and_tags_by_files, modified_files):
 
         for (fence_pos, mo) in fences_and_tags_by_files[file]:
             if '_at_' in fence_pos:
-                mod_list.append( (fence_pos, mo) )
+                original_mo = fence_pos[ 2 : fence_pos.find(')') ]
+                if not original_mo == mo:
+                    mod_list.append( (fence_pos, mo) )
                 continue
 
             pt.add_row([file, pretty_pos(fence_pos), pretty_mo(mo), 'synthesized'])
@@ -81,6 +83,7 @@ def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count
         print(oc.OKBLUE, oc.BOLD, 'Fixed input file(s) at:', str(fixed_files).replace("'", ""), '\n', oc.ENDC)
 
 def print_trace(trace):
+    trace.sort(key = lambda x:x[0])
     for i in range(len(trace)):
         event = trace[i]
         if event[TYPE] == 'read' or event[TYPE] == 'rmw':

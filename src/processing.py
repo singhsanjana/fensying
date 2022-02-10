@@ -1,7 +1,7 @@
 from model_checking_output.pre_calculator.pre_calculations import pre_calculations
 from preprocessing import preprocessing
 from edges_computation import edges_computation
-from cycle import Cycles
+from cycle import cycles
 from publish_result import print_trace
 from weak_fensying import weak_fensying
 from compute_cycles_tags import compute_relaxed_tags, compute_strong_tags
@@ -69,7 +69,7 @@ class Processing:
 
 			# CALC EDGES
 			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, so_edges)
-			swdob_edges, so_edges = calc_edges.get()
+			swdob_edges, fr_edges, so_edges = calc_edges.get()
 			hb_edges = hb_edges + swdob_edges
 			# print('done edge computation')
 			# print("swdob = ", swdob_edges)
@@ -81,7 +81,7 @@ class Processing:
 			# print("so = ", so_edges)
 			
 			# WEAK FENSYING
-			wf = weak_fensying(hb_edges, mo_edges, rf_edges, rfinv_edges)
+			wf = weak_fensying(hb_edges, mo_edges, rf_edges, fr_edges)
 			# print('done weak fensying')
 			if wf.has_weak_cycles():
 				candidate_cycles = wf.get()
@@ -89,7 +89,7 @@ class Processing:
 			# print ('done weak fence tagging')
 				
 			# STRONG FENSYING
-			strong_cycles = Cycles(so_edges)
+			strong_cycles = cycles(so_edges)
 			candidate_cycles += strong_cycles
 			# print('done strong fensying')
 			candidate_cycles_tags += compute_strong_tags(strong_cycles)
@@ -115,6 +115,10 @@ class Processing:
 				return
 
 	def fence(self, trace):
+		def ord(mo):
+			mo_short = {'release':f_tags.r, 'acquire':f_tags.a, 'acq_rel':f_tags.ar, 'seq_cst':f_tags.sc}
+			return mo_short[mo]
+
 		order = []                # trace with fences
 		events_in_thread = []     # list events of a thread
 		fences_in_thread = []     # list of fences of a thread
@@ -131,7 +135,7 @@ class Processing:
 
 			if trace[i][TYPE] == FENCE:
 				# note: no candidate-fences before and after program fences  
-				fence_name = 'F_at_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				fence_name = 'F(' + ord(trace[i][MO]) +')_at_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
 				order.append(fence_name)
 				events_in_thread.append(fence_name)
 				fences_in_thread.append(fence_name) 

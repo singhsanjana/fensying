@@ -106,7 +106,7 @@ def fn_main(filename):
 
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
-			# print('mi-model', req_fences)
+			# print('min-model', req_fences)
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
 			# print('solution', fence_tags)
 			(new_filename, count_modified_fences, iter_modified_files) = insert(fence_tags, filename, input_ext) # insert fences into the source file at the required locations
