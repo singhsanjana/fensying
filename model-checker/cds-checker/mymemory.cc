@@ -17,6 +17,7 @@ size_t allocatedReqs[REQUESTS_BEFORE_ALLOC] = { 0 };
 int nextRequest = 0;
 int howManyFreed = 0;
 int switch_alloc = 0;
+int dumping_graph = 0;
 #if !USE_MPROTECT_SNAPSHOT
 static mspace sStaticSpace = NULL;
 #endif
@@ -184,7 +185,7 @@ void *malloc(size_t size)
 			return model_malloc(size);
 		}
 		/* Only perform user allocations from user context */
-		// ASSERT(!model || thread_current()); // [snj]: removed, was failing not sure why
+		ASSERT(dumping_graph || !model || thread_current()); 
 		return user_malloc(size);
 	} else
 		return HandleEarlyAllocationRequest(size);

@@ -47,17 +47,12 @@ class translate_cds:
 			print('time of model checker MAKE = ', round(self.make_time, 2))
 
 		cds_start = time.time()
-		signal.signal(signal.SIGALRM, time_handler)
-		signal.alarm(900)	
 		try:
 			p = subprocess.check_output(cds_cmd,
 										cwd = fi.CDS_FOLDER_PATH,
-										stderr=subprocess.STDOUT)		# get std output from CDS Checker
-			cds_end = time.time()
-			p = p.decode('utf-8', errors='ignore')										# convert to string
-			self.cds_time = cds_end - cds_start
-			self.obtain_traces(p)
-		except RuntimeError:
+										stderr=subprocess.STDOUT,
+										timeout=900)		# get std output from CDS Checker
+		except subprocess.TimeoutExpired:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
 		except subprocess.CalledProcessError as exc:
 			self.error_string = "\n"
@@ -77,7 +72,10 @@ class translate_cds:
 			self.error_string = "\nError while model checking.\nPlease resolve the error for fence synthesis to proceed."
 			print(e)
 		else:
-			signal.alarm(900)											# set timer for 15 minutes for the rest of the tool
+			cds_end = time.time()
+			p = p.decode('utf-8', errors='ignore')										# convert to string
+			self.cds_time = cds_end - cds_start
+			self.obtain_traces(p)
 			self.no_buggy_execs = int(self.no_buggy_execs)
 			if self.no_buggy_execs == 0:
 				if current_iteration == 1: 

@@ -2751,11 +2751,13 @@ void ModelExecution::dumpGraph(char *filename) const
 void ModelExecution::print_summary() const
 {
 #if SUPPORT_MOD_ORDER_DUMP
+	dumping_graph = 1;
 	char buffername[100];
 	sprintf(buffername, "exec%04u", get_execution_number());
 	mo_graph->dumpGraphToFile(buffername);
 	sprintf(buffername, "graph%04u", get_execution_number());
 	dumpGraph(buffername);
+	dumping_graph = 0;
 #endif
 
 	model_print("Execution trace %d:", get_execution_number());

@@ -1,6 +1,6 @@
 import os
 
-BASE_DIR = 'tests/benchmarks/VBMCbench/'
+BASE_DIR = 'tests/benchmarks/tracer_benchmarks/'
 IGNORE_DIR = ['test_scripts']
 
 def make_content():
@@ -21,7 +21,7 @@ def make_content():
     content += '%.o: %.cc\n'
     content += '\t-$(CXX) -MMD -MF $(@D)/.$(@F).d -o $@ $< $(CPPFLAGS) -L$(BASE) -l$(LIB_NAME)\n\n'
     content += 'clean:\n'
-    content += '\trm -f *.o *_fixed.cc *_fixed.c \n'
+    content += '\trm -f *.o *_fixed.cc *_fixed.c .*.o.d \n'
     content += '\tfor dir in $(SUBDIRS); do \\\n'
     content += '\t\t$(MAKE) -C $$dir clean; \\\n'
     content += '\tdone'
