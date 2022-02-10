@@ -1,3 +1,5 @@
+// optimal solution: 1 rel fence b/w 19.20, 1 acq fence b/w 24,25
+
 #include <iostream>
 #include <threads.h>
 #include <atomic>

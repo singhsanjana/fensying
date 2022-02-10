@@ -1,3 +1,5 @@
+// optimal sol'n : 1 rel b/w 16,17
+
 #include <stdio.h>
 #include <threads.h>
 #include <stdatomic.h>
