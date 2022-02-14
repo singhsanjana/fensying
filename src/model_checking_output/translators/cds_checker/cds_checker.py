@@ -73,6 +73,7 @@ class translate_cds:
 			print(e)
 		else:
 			cds_end = time.time()
+			signal.signal(signal.SIGALRM, time_handler)
 			signal.alarm(900)								# set timer for 15 minutes for the rest of the tool
 			p = p.decode('utf-8', errors='ignore')			# convert to string
 			self.cds_time = cds_end - cds_start
