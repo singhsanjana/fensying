@@ -27,31 +27,45 @@ from model_checking_output.translators.cds_checker.delete_file import delete_gen
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", "-f", type=str, required=True, 
 					help="File path of object file.")
-parser.add_argument("--traces", "-t", type=int, required=False, dest="no_traces",
+parser.add_argument("--traces", "-t", type=int, required=False, dest="batch_size",
 					help="Batch buggy traces (non-optimal).")
 parser.add_argument("--max-iter", "-m", type=int, required=False, dest="max_iter",
 					help="Max number of batches. Used with -t flag.")
+parser.add_argument("--fence-bound", "-n", type=int, required=False, dest="max_fence",
+					help="Max number of fences in cycles.")
+parser.add_argument("--max-depth", "-d", type=int, required=False, dest="max_depth",
+					help="Max depth when lookign for cycles.")
 parser.add_argument("--synthesis-summary", "-s", required=False, action='store_true', dest="print_synthesis_summary",
 					help="Print the file wise summary of fences synthesized and strengthened.")
 parser.add_argument("--yield", "-y", required=False, action='store_true', dest="cds_y_flag",
 					help="Pass yield flag to model checker.")
 
 args = parser.parse_args()
-filename = args.file											# gets the input file name
-no_traces = args.no_traces										# gets the input number of traces to be checked
-max_iter = args.max_iter										# gets the input maximum number of iterations
+filename   = args.file											# gets the input file name
+batch_size = args.batch_size									# gets the input number of traces to be checked
+max_iter   = args.max_iter										# gets the input maximum number of iterations
+max_fences = args.max_fence										# max number of fences to be passed to cycle detection
+max_depth  = args.max_depth										# max search depth for cycle finding DFS
 print_synthesis_summary = args.print_synthesis_summary          # print summarya of synthesis if set
 cds_y_flag = args.cds_y_flag
+
+batching    = (batch_size is not None)				# true if batch_size is set
+iter_bound  = (max_iter is not None)				# true if max_iter is set
+fence_bound = (max_fences is not None)				# true if max_fences is set
+depth_bound = (max_depth is not None)				# true if max_depth is 
+
+flags = {'batching':batching, 'iter_bound':iter_bound, 'fence_bound':fence_bound, 'depth_bound':depth_bound}
+bounds = {'batch_size':batch_size, 'max_iter':max_iter, 'max_fences':max_fences, 'max_depth':max_depth}
 
 input_ext = filename.split('$')[1]
 filename  = filename.split('$')[0]
 # if not os.path.exists(filename): [snj]: checked in run script
 # 	print(oc.BOLD + oc.FAIL + "\nInput file not found.\n" + oc.ENDC)
 # 	sys.exit(0)
-if max_iter is not None and no_traces is None:
+if iter_bound and not batching:
 	print(oc.BOLD + oc.FAIL + "\nPlease specify the batch size of traces (-t).\n" + oc.ENDC)
 	sys.exit(0)
-elif no_traces == 0 or max_iter == 0:
+elif batch_size == 0 or max_iter == 0:
 	print(oc.BOLD + oc.FAIL + "\nFlag values cannot be 0. (-t or -m)\n" + oc.ENDC)
 	sys.exit(0)
 
@@ -82,22 +96,22 @@ def fn_main(filename):
 	z3_time = 0
 	pre_calc_total = 0
 
-	if max_iter and total_iter == max_iter:
+	if iter_bound and total_iter == max_iter:
 		return
 	
 	total_iter += 1
-	if no_traces:
+	if batching:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
-	traces, mc_time, mc_make_time, no_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, no_traces, total_iter, cds_y_flag)
+	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, batch_size, total_iter, cds_y_flag)
 	# print('after model_checking_output, buggy_trace_no:', buggy_trace_no)
 
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
 		sys.exit(0)
 
-	elif no_buggy_execs: # has buggy traces
-		get_p = Processing(traces, buggy_trace_no)
+	elif cnt_buggy_execs: # has buggy traces
+		get_p = Processing(traces, buggy_trace_no, flags, bounds)
 		z3vars, disjunctions, error_string, pre_calc_total, cycles_tags_by_trace = get_p.get()				# runs and returns locations
 		
 		if error_string:
@@ -119,11 +133,11 @@ def fn_main(filename):
 	mc_total += mc_time
 	mc_make_total += mc_make_time
 	z3_total += z3_time
-	if no_traces:
-		if no_buggy_execs and not error_string:
+	if batching:
+		if cnt_buggy_execs and not error_string:
 			res.iteration_result_summary((mc_time+pre_calc_total), z3_time, len(req_fences), count_modified_fences)
 
-	if no_traces and no_buggy_execs and not error_string:
+	if batching and cnt_buggy_execs and not error_string:
 		fn_main(new_filename)
 
 	return
@@ -136,4 +150,4 @@ except RuntimeError:
 	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
-res.final_result_summary((end-start-mc_make_total), (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, no_traces, total_iter, print_synthesis_summary, fence_tags_final, modified_files)
+res.final_result_summary((end-start-mc_make_total), (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, batch_size, total_iter, print_synthesis_summary, fence_tags_final, modified_files)

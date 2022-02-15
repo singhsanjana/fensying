@@ -19,7 +19,7 @@ class translate_cds:
 
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
-		self.no_buggy_execs = 0											# number of buggy executions for this run
+		self.cnt_buggy_execs = 0											# number of buggy executions for this run
 		self.error_string = None										# handle error in CDS Checker
 		self.cds_time = 0
 		self.make_time = 0
@@ -78,16 +78,16 @@ class translate_cds:
 			p = p.decode('utf-8', errors='ignore')			# convert to string
 			self.cds_time = cds_end - cds_start
 			self.obtain_traces(p)
-			self.no_buggy_execs = int(self.no_buggy_execs)
-			if self.no_buggy_execs == 0:
+			self.cnt_buggy_execs = int(self.cnt_buggy_execs)
+			if self.cnt_buggy_execs == 0:
 				if current_iteration == 1: 
 					print(oc.OKGREEN, oc.BOLD, 'No buggy traces. Nothing to do.', oc.ENDC)
 					exit(0)
 				else:
 					print('No more buggy traces.')
-			# print("\n\nBuggy executions:\t",self.no_buggy_execs)
+			# print("\n\nBuggy executions:\t",self.cnt_buggy_execs)
 
-			if self.no_buggy_execs != 0:
+			if self.cnt_buggy_execs != 0:
 				self.create_structure()
 				# self.print_traces()
 		# finally:
@@ -97,10 +97,10 @@ class translate_cds:
 	def get(self):
 		# print('traces:', self.traces)
 		# print('cds_time: ', self.cds_time)
-		# print('no_buggy_execs: ', self.no_buggy_execs)
+		# print('cnt_buggy_execs: ', self.cnt_buggy_execs)
 		# print('error_string: ', self.error_string)
 		# print('buggy_trace_no', self.buggy_trace_no)
-		return self.traces, self.cds_time, self.make_time, self.no_buggy_execs, self.error_string, self.buggy_trace_no
+		return self.traces, self.cds_time, self.make_time, self.cnt_buggy_execs, self.error_string, self.buggy_trace_no
 
 	# to differentiate and obtain each trace from the std output in the terminal
 	def obtain_traces(self,p):
@@ -128,7 +128,7 @@ class translate_cds:
 
 			# print number of buggy executions
 			if "Number of buggy executions" in line:
-				self.no_buggy_execs = line[28:len(line)]
+				self.cnt_buggy_execs = line[28:len(line)]
 			
 	# to convert each trace into a structure
 	def create_structure(self):

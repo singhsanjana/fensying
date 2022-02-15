@@ -13,7 +13,7 @@ import time
 
 # IDEA: any var with _thread at the end means that it is an array of arrays separated by thread number
 class Processing:
-	def __init__(self, traces, buggy_trace_no):
+	def __init__(self, traces, buggy_trace_no, flags, bounds):
 		self.z3vars  = []										# list of all z3 variables ie fences
 		self.formula = []										# list of disjunctions for the z3 formula
 		self.error_string = ''
@@ -81,7 +81,7 @@ class Processing:
 			# print("so = ", so_edges)
 			
 			# WEAK FENSYING
-			wf = weak_fensying(hb_edges, mo_edges, rf_edges, fr_edges)
+			wf = weak_fensying(flags, bounds, hb_edges, mo_edges, rf_edges, fr_edges)
 			# print('done weak fensying')
 			if wf.has_weak_cycles():
 				candidate_cycles = wf.get()
@@ -89,7 +89,7 @@ class Processing:
 			# print ('done weak fence tagging')
 				
 			# STRONG FENSYING
-			strong_cycles = cycles(so_edges)
+			strong_cycles = cycles(flags, bounds, so_edges)
 			candidate_cycles += strong_cycles
 			# print('done strong fensying')
 			candidate_cycles_tags += compute_strong_tags(strong_cycles)
@@ -122,7 +122,7 @@ class Processing:
 		order = []                # trace with fences
 		events_in_thread = []     # list events of a thread
 		fences_in_thread = []     # list of fences of a thread
-		current_thread = 1
+		current_thread = 1      
 		
 		for i in range(len(trace)):
 			if trace[i][T_NO] != current_thread: # done with events of a thread
@@ -132,7 +132,7 @@ class Processing:
 				events_in_thread = []
 				fences_in_thread = []
 				current_thread = current_thread + 1
-
+				
 			if trace[i][TYPE] == FENCE:
 				# note: no candidate-fences before and after program fences  
 				fence_name = 'F(' + ord(trace[i][MO]) +')_at_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
@@ -146,7 +146,7 @@ class Processing:
 				order.append(fence_name)
 				events_in_thread.append(fence_name)
 				fences_in_thread.append(fence_name)
-				
+			
 				# add event itself
 				order.append(trace[i])
 				events_in_thread.append(trace[i])
@@ -156,7 +156,6 @@ class Processing:
 				order.append(fence_name)
 				events_in_thread.append(fence_name)
 				fences_in_thread.append(fence_name)
-
 				continue
 
 			# not a fence or read or write

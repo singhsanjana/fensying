@@ -2,7 +2,10 @@ from cycle import cycles
 import time
 
 class weak_fensying:
-	def __init__(self, hb_edges, mo_edges, rf_edges, fr_edges):
+	def __init__(self, flags, bounds, hb_edges, mo_edges, rf_edges, fr_edges):
+		self.flags  = flags
+		self.bounds = bounds
+
 		self.mo_hb_rf_rfinv_cycles = []
 		self.hb_edges = hb_edges
 		self.mo_edges = mo_edges
@@ -20,7 +23,7 @@ class weak_fensying:
 		self.weak_cycles.extend(self.mo_rf_hb_rfinv_cycles())
 
 	def hb_cycles(self):
-		return cycles(self.hb_edges)
+		return cycles(self.flags, self.bounds, self.hb_edges)
 
 	def rf_hb_cycles(self):	
 		rf_hb_cycles_final = [] # rf_hb_cycles \ hb_cycles \rf;hb;rf;hb... cycles
@@ -30,7 +33,7 @@ class weak_fensying:
 				continue
 		
 			rf_hb_edges = self.hb_edges[:] + [ (e1,e2) ]
-			rf_hb_cycles = cycles(rf_hb_edges)
+			rf_hb_cycles = cycles(self.flags, self.bounds, rf_hb_edges)
 			
 			for cycle in rf_hb_cycles:
 				has_rf_edge = False          # not all hb cycle
@@ -64,7 +67,7 @@ class weak_fensying:
 					continue
 				
 				mo_rf_hb_edges = self.hb_edges[:] + [ (e1,e2), (e2,e3) ]
-				mo_rf_hb_cycles = cycles(mo_rf_hb_edges)
+				mo_rf_hb_cycles = cycles(self.flags, self.bounds, mo_rf_hb_edges)
 		
 				for cycle in mo_rf_hb_cycles:
 					has_rf_edge = False          # not mo U hb cycle
@@ -112,7 +115,7 @@ class weak_fensying:
 				continue
 			
 			mo_hb_edges = self.hb_edges[:] + [ (e1,e2) ]
-			mo_hb_cycles = cycles(mo_hb_edges)		
+			mo_hb_cycles = cycles(self.flags, self.bounds, mo_hb_edges)		
 
 			for cycle in mo_hb_cycles:
 				has_mo_edge = False # not hb cycle
@@ -141,7 +144,7 @@ class weak_fensying:
 					continue
 
 			mo_hb_rfinv_edges  = self.hb_edges[:] + [ (e1,e2) ] # added rfinv;mo edge
-			mo_hb_rfinv_cycles = cycles(mo_hb_rfinv_edges)
+			mo_hb_rfinv_cycles = cycles(self.flags, self.bounds, mo_hb_rfinv_edges)
 
 			for cycle in mo_hb_rfinv_cycles:
 				has_fr_edge = False            # not hb cycle
@@ -172,7 +175,7 @@ class weak_fensying:
 						continue
 				
 				mo_rf_hb_rfinv_edges  = self.hb_edges[:] + [ (e1,e2), (e2,e3) ]
-				mo_rf_hb_rfinv_cycles = cycles(mo_rf_hb_rfinv_edges)
+				mo_rf_hb_rfinv_cycles = cycles(self.flags, self.bounds, mo_rf_hb_rfinv_edges)
 				
 				for cycle in mo_rf_hb_rfinv_cycles:
 					has_fr_edge = False
