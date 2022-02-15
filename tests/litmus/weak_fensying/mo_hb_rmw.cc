@@ -1,3 +1,5 @@
+// optimal: 1 rel b/w 19-20
+
 #include <stdio.h>
 #include <threads.h>
 #include <stdatomic.h>

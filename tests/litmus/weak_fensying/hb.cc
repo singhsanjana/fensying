@@ -1,6 +1,4 @@
-/**
- * misc - eg1-sw
-*/
+// optimal solution: 1 acq b/w 16,17 and 1 acq-rel b/w 27,28
 
 #include <iostream>
 #include <threads.h>
@@ -15,7 +13,7 @@ atomic<int> z;
 int a,b,c;
 
 static void t1(void *arg) {
-  a = z.load(__FILE__, __LINE__, memory_order_relaxed);
+  a = z.load(__FILE__, __LINE__, memory_order_relaxed); 
   x.store(__FILE__, __LINE__, 1, memory_order_relaxed);
 }
 
