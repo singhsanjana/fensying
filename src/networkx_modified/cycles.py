@@ -96,7 +96,7 @@ def cycle_basis(G, root=None):
 
 
 @not_implemented_for("undirected")
-def simple_cycles(G, flags, bounds):
+def simple_cycles(G, flags, bounds, essential=None):
     """Find simple cycles (elementary circuits) of a directed graph.
 
     A `simple cycle`, or `elementary circuit`, is a closed path where
@@ -208,6 +208,10 @@ def simple_cycles(G, flags, bounds):
     while sccs or _scc_:
         if not _scc_:
             scc = sccs.pop()
+            if essential: # essential edge (every cycle must have this edge) is provided
+                if len([edge for edge in essential if not edge[0] in scc or not edge[1] in scc]) > 0:
+                    # if essential edges(s) are missing from scc
+                    continue # skip this scc
         
             if flags['fence_bound']:
                 _scc_ = scc_meta_bundle(scc)

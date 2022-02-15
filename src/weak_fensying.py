@@ -33,7 +33,7 @@ class weak_fensying:
 				continue
 		
 			rf_hb_edges = self.hb_edges[:] + [ (e1,e2) ]
-			rf_hb_cycles = cycles(self.flags, self.bounds, rf_hb_edges)
+			rf_hb_cycles = cycles(self.flags, self.bounds, rf_hb_edges, [(e1,e2)])
 			
 			for cycle in rf_hb_cycles:
 				has_rf_edge = False          # not all hb cycle
@@ -67,7 +67,7 @@ class weak_fensying:
 					continue
 				
 				mo_rf_hb_edges = self.hb_edges[:] + [ (e1,e2), (e2,e3) ]
-				mo_rf_hb_cycles = cycles(self.flags, self.bounds, mo_rf_hb_edges)
+				mo_rf_hb_cycles = cycles(self.flags, self.bounds, mo_rf_hb_edges, [(e1,e2),(e2,e3)])
 		
 				for cycle in mo_rf_hb_cycles:
 					has_rf_edge = False          # not mo U hb cycle
@@ -115,7 +115,7 @@ class weak_fensying:
 				continue
 			
 			mo_hb_edges = self.hb_edges[:] + [ (e1,e2) ]
-			mo_hb_cycles = cycles(self.flags, self.bounds, mo_hb_edges)		
+			mo_hb_cycles = cycles(self.flags, self.bounds, mo_hb_edges, [(e1,e2)])		
 
 			for cycle in mo_hb_cycles:
 				has_mo_edge = False # not hb cycle
@@ -144,7 +144,7 @@ class weak_fensying:
 					continue
 
 			mo_hb_rfinv_edges  = self.hb_edges[:] + [ (e1,e2) ] # added rfinv;mo edge
-			mo_hb_rfinv_cycles = cycles(self.flags, self.bounds, mo_hb_rfinv_edges)
+			mo_hb_rfinv_cycles = cycles(self.flags, self.bounds, mo_hb_rfinv_edges, [(e1,e2)])
 
 			for cycle in mo_hb_rfinv_cycles:
 				has_fr_edge = False            # not hb cycle
@@ -175,7 +175,7 @@ class weak_fensying:
 						continue
 				
 				mo_rf_hb_rfinv_edges  = self.hb_edges[:] + [ (e1,e2), (e2,e3) ]
-				mo_rf_hb_rfinv_cycles = cycles(self.flags, self.bounds, mo_rf_hb_rfinv_edges)
+				mo_rf_hb_rfinv_cycles = cycles(self.flags, self.bounds, mo_rf_hb_rfinv_edges, [(e1,e2),(e2,e3)])
 				
 				for cycle in mo_rf_hb_rfinv_cycles:
 					has_fr_edge = False
