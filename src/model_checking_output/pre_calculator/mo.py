@@ -37,7 +37,7 @@ class mo:
  						y = int(line[index+4:-2])
  					mo_found.append((x, y))
 
- 					if (self.get_mem_order(x) == SEQ_CST and self.get_mem_order(y)):
+ 					if self.get_mem_order(x) == SEQ_CST and self.get_mem_order(y) == SEQ_CST:
  						self.so_edges.append((x, y))
 		return mo_found
 
