@@ -8,14 +8,16 @@ import subprocess
 import shlex
 import time
 import signal
+import math
 
 from .create_list import create_list
 from constants import file_info as fi
 from constants import time_handler
 from constants import output_colours as oc
+from constants import timeouts as TO
 
 class translate_cds:
-	def __init__(self, filepath, traces_batch_size, current_iteration, cds_y_flag):
+	def __init__(self, filepath, traces_batch_size, current_iteration, cds_y_flag, cds_total_time, tool_total_time):
 
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
@@ -40,18 +42,18 @@ class translate_cds:
 			change_dir = 'cd ' + make_path
 			make = change_dir + ' && ' + 'make'
 
-			print('making:', make)
 			make_time_start = time.time()
 			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
 			self.make_time = time.time() - make_time_start
 			print('time of model checker MAKE = ', round(self.make_time, 2))
 
 		cds_start = time.time()
+		timeout_value = TO.cds - cds_total_time # TO value for CDS - time used by CDS in prev iterations
 		try:
 			p = subprocess.check_output(cds_cmd,
 										cwd = fi.CDS_FOLDER_PATH,
 										stderr=subprocess.STDOUT,
-										timeout=900)		# get std output from CDS Checker
+										timeout=timeout_value)		# get std output from CDS Checker
 		except subprocess.TimeoutExpired:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
 		except subprocess.CalledProcessError as exc:
@@ -73,8 +75,10 @@ class translate_cds:
 			print(e)
 		else:
 			cds_end = time.time()
+			tool_timeout_value = math.ceil(TO.tool - tool_total_time)
 			signal.signal(signal.SIGALRM, time_handler)
-			signal.alarm(900)								# set timer for 15 minutes for the rest of the tool
+			signal.alarm(tool_timeout_value)			# timeout for the rest of the tool
+
 			p = p.decode('utf-8', errors='ignore')			# convert to string
 			self.cds_time = cds_end - cds_start
 			self.obtain_traces(p)

@@ -8,15 +8,12 @@
 # --------------------------------------------------------
 
 import argparse
-import os
-import subprocess
-import shlex
 import time
 import sys
 
 import publish_result as res
 from constants import output_colours as oc
-from constants import file_info as fi
+from constants import timeouts as TO
 from processing import Processing
 from z3run import z3run
 from allocate_fence_orders import allocate_fence_orders
@@ -69,9 +66,12 @@ elif batch_size == 0 or max_iter == 0:
 	print(oc.BOLD + oc.FAIL + "\nFlag values cannot be 0. (-t or -m)\n" + oc.ENDC)
 	sys.exit(0)
 
-mc_total = 0
+# processing times
+mc_total      = 0
 mc_make_total = 0
-z3_total = 0
+z3_total      = 0
+tool_total    = 0
+
 fences_added = 0
 fences_modified = 0
 fence_tags_final = {}
@@ -80,11 +80,12 @@ error_string = ""
 synthesis_summary = ""
 modified_files = []
 
-def fn_main(filename):
+def fn_main(filename, tool_timeout_value=TO.tool):
 	global mc_total
 	global mc_make_total
 	global pre_calc_total
 	global z3_total
+	global tool_total
 	global fences_added
 	global fences_modified
 	global fence_tags_final
@@ -92,6 +93,8 @@ def fn_main(filename):
 	global total_iter
 	global error_string
 	global input_ext
+
+	iteration_time_start = time.time()
 
 	z3_time = 0
 	pre_calc_total = 0
@@ -103,7 +106,7 @@ def fn_main(filename):
 	if batching:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
-	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, batch_size, total_iter, cds_y_flag)
+	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, batch_size, total_iter, cds_y_flag, mc_total, tool_total)
 	# print('after model_checking_output, buggy_trace_no:', buggy_trace_no)
 
 	if mc_error_string is not None:
@@ -130,9 +133,13 @@ def fn_main(filename):
 			fence_tags_final.update(fence_tags)
 			modified_files = modified_files + list(set(iter_modified_files) - set(modified_files)) # set of modified files
 
-	mc_total += mc_time
+	iteration_time_end = time.time()
+
+	mc_total      += mc_time
 	mc_make_total += mc_make_time
-	z3_total += z3_time
+	z3_total      += z3_time
+	tool_total    += (iteration_time_end-iteration_time_start) - mc_make_time - mc_time - z3_time
+
 	if batching:
 		if cnt_buggy_execs and not error_string:
 			res.iteration_result_summary((mc_time+pre_calc_total), z3_time, len(req_fences), count_modified_fences)

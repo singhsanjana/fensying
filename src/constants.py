@@ -66,3 +66,7 @@ class output_colours:
 
 def time_handler(signum, frame):
 	raise RuntimeError
+
+class timeouts:
+	cds  = 900   # model checking  timeout of 15 minutes
+	tool = 900   # tool processing timeout of 15 minutes (excludes time of model checker and SAT solver)
