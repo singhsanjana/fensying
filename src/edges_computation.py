@@ -37,6 +37,9 @@ class edges_computation:
 
 				wr1_thread = wr1[T_NO] -1
 				wr2_thread = wr2[T_NO] -1
+				
+				if wr1_thread == wr2_thread:
+					continue
 
 				if wr1[TYPE] == INIT: 
 					# INIT write's MO = relaxed, hence no sw with INIT
@@ -111,11 +114,16 @@ class edges_computation:
 			w1_thread = w1[T_NO] - 1
 			w2_thread = w2[T_NO] - 1
 
+			if w1_thread == w2_thread:
+				continue
+
 			# so from fr
 			for read_index in range(len(self.reads)):
 				read = self.reads[read_index]
 				if type(read) is list and read[RF] == w1[S_NO]:
 					# read --rf_inv--> w1 --mo--> w2 ==> read --fr--> w2
+					if read[T_NO] - 1 == w2_thread:		
+						continue
 					if read[S_NO] != w2[S_NO]: # S_NO could be same in case of type(w2) = rmw
 						self.fr_edges.append((read[S_NO], w2[S_NO]))
 					if read[MO] == SEQ_CST and w2[MO] == SEQ_CST:
@@ -156,7 +164,7 @@ class edges_computation:
 			f2_index = fences_thread[w2_thread].index(f2)
 
 			# so from mo
-			add_ef_edges = True 
+			add_ef_edges = True
 			for f1_in_sb_index in range(0, f1_index+1): # fences po before f1 (including f1)
 				if w2[MO] == SEQ_CST:
 					edge_FE = (fences_thread[w1_thread][f1_in_sb_index], w2[S_NO])
@@ -170,3 +178,4 @@ class edges_computation:
 					
 					edge_FF = (fences_thread[w1_thread][f1_in_sb_index], fences_thread[w2_thread][f2_in_sb_index])
 					self.so_edges.append(edge_FF)
+					
