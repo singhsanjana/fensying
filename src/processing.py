@@ -26,9 +26,7 @@ class Processing:
 		for trace in traces:									# run for each trace
 			self.all_events_by_thread = []						# list of all events separated by threads
 			self.fences_by_thread     = []						# list of fences in each thread
-			
-			candidate_cycles      = []                        	# list of all cycles in this trace
-			candidate_cycles_tags = []
+			candidate_cycles_tags     = []							# list of all cycles in this trace with fence tags
 			
 			trace_no += 1
 			# print("---------Trace",trace_no,"---------")
@@ -56,9 +54,9 @@ class Processing:
 			# print("all_events_thread", self.all_events_by_thread)
 
 			# transitive SB calc, put into hb edges
-			sb_ret1, sb_ret2 = self.sb()
-			hb_edges += sb_ret1
-			so_edges += sb_ret2
+			sb_edges, so_edges_from_sb = self.sb()
+			hb_edges += sb_edges
+			so_edges += so_edges_from_sb
 			# print("hb-post-fences=" + str(hb_edges))
 			# print("so-of-sb-post-fences=" + str(so_edges))
 
@@ -84,25 +82,25 @@ class Processing:
 			wf = weak_fensying(flags, bounds, hb_edges, mo_edges, rf_edges, fr_edges)
 			# print('done weak fensying')
 			if wf.has_weak_cycles():
-				candidate_cycles = wf.get()
-				candidate_cycles_tags = compute_relaxed_tags(candidate_cycles, swdob_edges)
+				weak_cycles = wf.get()
+				candidate_cycles_tags = compute_relaxed_tags(weak_cycles, swdob_edges)
 			# print ('done weak fence tagging')
 				
 			# STRONG FENSYING
+			# print('#so_edges', len(so_edges))
 			strong_cycles = cycles(flags, bounds, so_edges)
-			candidate_cycles += strong_cycles
 			# print('done strong fensying')
-			candidate_cycles_tags += compute_strong_tags(strong_cycles)
+			candidate_cycles_tags += compute_strong_tags(strong_cycles, sb_edges)
 			# print('done strong fence tagging')
 
-			# print('candidate cycles=', candidate_cycles)
-			if (len(candidate_cycles) > 0):
+			# print('candidate cycles=', candidate_cycles_tags)
+			if (len(candidate_cycles_tags) > 0):
 				self.cycles_tags_by_trace.append(candidate_cycles_tags)
 
 				cycles_of_candidate_fences = []
-				for c in candidate_cycles:
-					cycles_of_candidate_fences.append([e for e in c if (type(e) is str) and ('_at' not in e)])
-
+				for c in candidate_cycles_tags:
+					cycles_of_candidate_fences.append([f for f in c.keys() if ('_at_' not in f)])
+				
 				get_translation = z3translate(cycles_of_candidate_fences)
 				formula_variables, formula = get_translation.get()
 
@@ -134,15 +132,17 @@ class Processing:
 				current_thread = current_thread + 1
 				
 			if trace[i][TYPE] == FENCE:
-				# note: no candidate-fences before and after program fences  
-				fence_name = 'F(' + ord(trace[i][MO]) +')_at_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				# note: no candidate-fences before and after program fences
+				fence_name  = 'F(' + ord(trace[i][MO]) +')_at_'
+				fence_name += str(trace[i][S_NO]) + '-' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
 				order.append(fence_name)
 				events_in_thread.append(fence_name)
 				fences_in_thread.append(fence_name) 
 				continue
 
 			if trace[i][LINE_NO] != 'NA': # is a read or a write or an rmw event
-				fence_name = 'F_before_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				fence_name  = 'F_before_'
+				fence_name += str(trace[i][S_NO]) + '-' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
 				order.append(fence_name)
 				events_in_thread.append(fence_name)
 				fences_in_thread.append(fence_name)
@@ -152,7 +152,8 @@ class Processing:
 				events_in_thread.append(trace[i])
 
 				# add fence after the read/write event
-				fence_name = 'F_after_' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				fence_name  = 'F_after_'
+				fence_name += str(trace[i][S_NO]) + '-' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
 				order.append(fence_name)
 				events_in_thread.append(fence_name)
 				fences_in_thread.append(fence_name)
@@ -174,7 +175,7 @@ class Processing:
 		sb_edges = []
 		so_edges = []
 		for thread_events in self.all_events_by_thread: # events of one thread at a time
-			last_sc_event = [] 
+			last_sc_event = None
 
 			for i in range(1, len(thread_events)): # 1 event at a time, 1st event skipped because it has no sb before
 				is_sc = False
@@ -190,7 +191,7 @@ class Processing:
 
 				# if seq_cst ordered add so edge
 				if is_sc:
-					if last_sc_event != []: # some sc event has been found before this event
+					if last_sc_event != None: # some sc event has been found before this event
 						so_edges.append((last_sc_event, event))
 					last_sc_event = event
 
