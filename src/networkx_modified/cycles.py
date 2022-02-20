@@ -157,6 +157,9 @@ def simple_cycles(G, flags, bounds, essential=None):
     cycle_basis
     """
 
+    if type(essential) == tuple:
+        essential = [essential]
+
     class scc_meta_bundle:
         def __init__(self, scc):
             self.fences = [f for f in scc if type(f) == str]
@@ -215,7 +218,9 @@ def simple_cycles(G, flags, bounds, essential=None):
         
             if flags['fence_bound']:
                 _scc_ = scc_meta_bundle(scc)
-                if _scc_.count_fences > bounds['max_fences']:
+                if _scc_.count_fences < bounds['max_fences']:
+                    _scc_ = None # no bound proceed normally
+                else:
                     scc_iter_fences = _scc_.fences[0:bounds['max_fences']] # _scc_.fences at [0, 1, ..., fence_bound-1]
                     scc = set(_scc_.events + scc_iter_fences) # 1st set all_events + 1st combination of fences
                     idx = list(range(bounds['max_fences']))  # [0, 1, ..., fence_bound-1]

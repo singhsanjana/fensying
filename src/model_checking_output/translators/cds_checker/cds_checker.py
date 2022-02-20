@@ -21,13 +21,13 @@ class translate_cds:
 
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
-		self.cnt_buggy_execs = 0											# number of buggy executions for this run
+		self.cnt_buggy_execs = 0										# number of buggy executions for this run
 		self.error_string = None										# handle error in CDS Checker
 		self.cds_time = 0
 		self.make_time = 0
-		self.buggy_trace_no = []										# no of buggy traces, required for mo file name
+		self.buggy_trace_no = []										# no of buggy traces (for mo file name)
 
-		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filepath[3:] # "../filepath"[3:] = "filepath"
+		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filepath[3:]   # "../filepath"[3:] = "filepath"
 		
 		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
 		if traces_batch_size:
@@ -43,12 +43,12 @@ class translate_cds:
 			make = change_dir + ' && ' + 'make'
 
 			make_time_start = time.time()
-			os.system(make + "> /dev/null 2>&1")												# make/compile into object file for CDS Checker
+			os.system(make + "> /dev/null 2>&1")				# make/compile into object file for CDS Checker
 			self.make_time = time.time() - make_time_start
 			print('time of model checker MAKE = ', round(self.make_time, 2))
 
 		cds_start = time.time()
-		timeout_value = TO.cds - cds_total_time # TO value for CDS - time used by CDS in prev iterations
+		timeout_value = TO.cds - cds_total_time         # TO value for CDS - time used by CDS in prev iterations
 		try:
 			p = subprocess.check_output(cds_cmd,
 										cwd = fi.CDS_FOLDER_PATH,

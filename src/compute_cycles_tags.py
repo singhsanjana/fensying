@@ -122,7 +122,6 @@ def reduce(cycles, sb_edges):
 	# non-minimal cycle: cycles with a --so--> b --so--> c where a --sb--> b --sb--> c
 	cycles_to_remove = []
 	for cycle in cycles:
-		to_remove = False
 		for i in range(len(cycle)):
 			prev = cycle[(i-1)%len(cycle)] #(i-1)th fence
 			curr = cycle[i]                #(i)th fence
