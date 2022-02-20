@@ -1,17 +1,20 @@
+from cProfile import run
 import os
 import subprocess
 import sys
 import glob
+import math
 
 from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/VBMCbench'
+    'tests/litmus/weak_fensying'
 ]
 
 N = 3       # no. of runs per tests
-T = [1, 2]  # values to be passed to -t flags
+T = [1, math.inf]  # values to be passed to -t flags
+Parallel = False
 
 def add(val1, val2):
     if val1 == '':
@@ -82,16 +85,23 @@ def read_result(lines):
 
     return status, synthesized, strengthened, time_ceg, time_z3, time_fensying
 
-def execute_test(filepath, t=0):
-    process_command = ['python3', 'main.py', '-f', filepath]
-    if t > 0:
+def execute_test(filepath, t=math.inf, d=math.inf, f=math.inf):
+    process_command = ['python3', 'main.py', filepath]
+    if t != math.inf:
         process_command.append('-t')
         process_command.append(str(t))
-
+    if d != math.inf:
+        process_command.append('-d')
+        process_command.append(str(d))
+    if f != math.inf:
+        process_command.append('-f')
+        process_command.append(str(f))
+    if Parallel:
+        process_command.append('-p')
     print('executing: ', process_command)
     
-    _synthesized   = ''
-    _strengthened  = ''
+    _synthesized   = 0
+    _strengthened  = 0
     _time_ceg      = ''
     _time_z3       = ''
     _time_fensying = ''
@@ -119,13 +129,12 @@ def execute_test(filepath, t=0):
         _aborted = _aborted or status == 'ABORT'
         _result_generated = _result_generated or status == 'OK' or status == 'ABORT'
 
-        if _synthesized != '' and _synthesized != synthesized:
-            return 'STOP', 'Synthesized mismatch (' + _synthesized + ', ' + synthesized + ')'
-        if _strengthened != '' and _strengthened != strengthened:
-            return 'STOP', 'Strengthened mismatch (' + _synthesized + ', ' + synthesized + ')'
+        # take avg of synthesized and strengthened for all itr
+        if synthesized != '':
+            _synthesized = _synthesized + int(synthesized)
+        if strengthened != '':
+            _strengthened = _strengthened + int(strengthened)
 
-        _synthesized  = synthesized
-        _strengthened = strengthened
         _time_ceg = add(_time_ceg, time_ceg)
         _time_z3  = add(_time_z3, time_z3)
         _time_fensying = add(_time_fensying, time_fensying)
@@ -137,14 +146,93 @@ def execute_test(filepath, t=0):
         _time_z3  = avg(_time_z3)
         _time_fensying = avg(_time_fensying)
         _time_total = add(_time_ceg, add(_time_z3, _time_fensying))
-        return 'OK', _synthesized + ',' + _strengthened + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
+        return 'OK', str(_synthesized/N) + ',' + str(_strengthened/N) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
     return 'TO', 'Fensying TO (15m)' + ',,,,,,'
 
+def run_all_config(filename):
+    os.chdir(cwd + '/src')
+    csv_row = ''
+    f3_succ = True
+    f5_succ = True
+    d7_succ = True
+    d10_succ = True
+    f3d10_succ = True
+    t_succ = True
+
+    # for t=1 and 0
+    for t_conf in T: 
+        # config1: -f 3
+        if f3_succ:
+            status, test_cols = execute_test(filename, t=t_conf, f=3)
+            csv_row += test_cols
+            if status == 'STOP':
+                f3_succ = False
+                f5_succ = False
+
+        # config2: -f 5
+        # run only if worked with -t 1 -f 3
+        if f3_succ and f5_succ:
+            status, test_cols = execute_test(filename, t=t_conf, f=5)
+            csv_row += test_cols
+            if status == 'STOP':
+                f5_succ = False
+
+        # config3: -d 7
+        if d7_succ:
+            status, test_cols = execute_test(filename, t=t_conf, d=7)
+            csv_row += test_cols
+            if status == 'STOP':
+                d7_succ = False
+                d10_succ = False
+        
+        # config4: -d 10
+        if d7_succ and d10_succ:
+            status, test_cols = execute_test(filename, t=t_conf, d=10)
+            csv_row += test_cols
+            if status == 'STOP':
+                d10_succ = False
+        
+        # config5: -f 3 -d 10
+        if f3d10_succ:
+            status, test_cols = execute_test(filename, t=t_conf, f=3, d=10)
+            csv_row += test_cols
+            if status == 'STOP':
+                f3d10_succ = False
+        
+        # config6: no fence and depth bounding
+        if f5_succ and d10_succ and f3d10_succ and t_succ:
+            status, test_cols = execute_test(filename, t=t_conf)
+            csv_row += test_cols
+            if status == 'STOP':
+                t_succ = False
+        
+    os.chdir(cwd)
+    csv_row += '\n'
+    return csv_row
+        
+
 def write_csv_header(csv_file_name):
-    csv_header = 'Test Name,#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
+    csv_header = 'Test Name,'
     for t in T:
+        for f_val in [3,5]:
+            csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
+            csv_header_t = csv_header_t.replace(',', 
+                            '(t=' + str(t) + '&f=' + str(f_val) + '),')
+            csv_header += (csv_header_t)
+        for d_val in [7,10]:
+            csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
+            csv_header_t = csv_header_t.replace(',', 
+                            '(t=' + str(t) + '&d=' + str(d_val) + '),')
+            csv_header += (csv_header_t)
+        # for -f 3 -d 10
         csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-        csv_header_t = csv_header_t.replace(',', '(t=' + str(t) + '),')
+        csv_header_t = csv_header_t.replace(',', 
+                        '(t=' + str(t) + '&f=3&d=10),')
+        csv_header += (csv_header_t)
+        # for no fence and depth bounding
+        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
+        csv_header_t = csv_header_t.replace(',', 
+                        '(t=' + str(t) + '),')
         csv_header += (csv_header_t)
     csv_header = csv_header[:-1] + '\n'
 
@@ -162,16 +250,16 @@ def run_single_test(dir_path, file):
 
     f = filepath + '$' + input_ext
 
-    csv_row = file + ','
-    for t in [0] + T:
-        os.chdir(cwd + '/src')
-        status, test_cols = execute_test(f, t)
-        os.chdir(cwd)
+    csv_row = file + ',' + run_all_config(f)
+    # for t in [0] + T:
+    #     os.chdir(cwd + '/src')
+    #     status, test_cols = execute_test(f, t)
+    #     os.chdir(cwd)
 
-        csv_row += test_cols
-        if status == 'STOP':
-            csv_row += '\n'
-            break
+    #     csv_row += test_cols
+    #     if status == 'STOP':
+    #         csv_row += '\n'
+    #         break
     return csv_row
 
 def test_dir(dir_path, csv_file_name='', create_new_csv=True):
