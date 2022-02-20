@@ -51,7 +51,7 @@ run_single_test() {
     f="../$obj\$$fileext"
 
     cd src
-    python3 main.py -f $f ${@:4}
+    python3 main.py $f ${@:4}
 }
 
 

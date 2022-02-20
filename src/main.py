@@ -22,13 +22,14 @@ from model_checking_output.model_checking_output import model_checking_output
 from model_checking_output.translators.cds_checker.delete_file import delete_generated_file
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--file", "-f", type=str, required=True, 
+
+parser.add_argument('file', type=str,
 					help="File path of object file.")
 parser.add_argument("--traces", "-t", type=int, required=False, dest="batch_size",
 					help="Batch buggy traces (non-optimal).")
 parser.add_argument("--max-iter", "-m", type=int, required=False, dest="max_iter",
 					help="Max number of batches. Used with -t flag.")
-parser.add_argument("--fence-bound", "-n", type=int, required=False, dest="max_fence",
+parser.add_argument("--fence-bound", "-f", type=int, required=False, dest="max_fence",
 					help="Max number of fences in cycles.")
 parser.add_argument("--max-depth", "-d", type=int, required=False, dest="max_depth",
 					help="Max depth when lookign for cycles.")
