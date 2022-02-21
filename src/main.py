@@ -37,6 +37,8 @@ parser.add_argument("--synthesis-summary", "-s", required=False, action='store_t
 					help="Print the file wise summary of fences synthesized and strengthened.")
 parser.add_argument("--yield", "-y", required=False, action='store_true', dest="cds_y_flag",
 					help="Pass yield flag to model checker.")
+parser.add_argument("--parallel", "-p", required=False, action='store_true', dest="parallel",
+					help="Use multiprocessing for cycle detection in coherece conditions.")
 
 args = parser.parse_args()
 filename   = args.file											# gets the input file name
@@ -45,14 +47,15 @@ max_iter   = args.max_iter										# gets the input maximum number of iteration
 max_fences = args.max_fence										# max number of fences to be passed to cycle detection
 max_depth  = args.max_depth										# max search depth for cycle finding DFS
 print_synthesis_summary = args.print_synthesis_summary          # print summarya of synthesis if set
-cds_y_flag = args.cds_y_flag
+cds_y_flag = args.cds_y_flag									# pass -y flag to cds (when inout program uses yield())
+parallel   = args.parallel										# use multi-processing to parallel detect cycles of separate sccs
 
 batching    = (batch_size is not None)				# true if batch_size is set
 iter_bound  = (max_iter is not None)				# true if max_iter is set
 fence_bound = (max_fences is not None)				# true if max_fences is set
 depth_bound = (max_depth is not None)				# true if max_depth is 
 
-flags = {'batching':batching, 'iter_bound':iter_bound, 'fence_bound':fence_bound, 'depth_bound':depth_bound}
+flags = {'batching':batching, 'iter_bound':iter_bound, 'fence_bound':fence_bound, 'depth_bound':depth_bound, 'parallel':parallel}
 bounds = {'batch_size':batch_size, 'max_iter':max_iter, 'max_fences':max_fences, 'max_depth':max_depth}
 
 input_ext = filename.split('$')[1]

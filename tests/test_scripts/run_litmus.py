@@ -26,8 +26,7 @@ tests = cc_tests
 tests.update(c_tests)
 
 # min -d 10 and -n 3 to pass all tests
-# flags =[[], ['-t 1']]
-flags = [['-d 9']]
+flags =[[], ['-t 1'], ['-p'], ['-t 1', '-p'], ['-f 3', '-t 1'], ['-p', '-d 10']]
 
 passed_tests = []
 failed_tests = []
@@ -37,7 +36,7 @@ for test in tests:
     if test in c_tests:
         filepath = test_base + test + '.o$c'
 
-    process_command = ['python3', 'main.py', '-f', filepath]
+    process_command = ['python3', 'main.py', filepath]
 
     for exn_flags in flags:
         if not exn_flags == []:

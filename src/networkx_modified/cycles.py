@@ -5,9 +5,12 @@ Cycle finding algorithms
 """
 
 from collections import defaultdict
+from itertools import cycle
 
 import networkx as nx
 from networkx.utils import not_implemented_for, pairwise
+
+import multiprocessing as mp
 
 __all__ = [
     "cycle_basis",
@@ -156,6 +159,9 @@ def simple_cycles(G, flags, bounds, essential=None):
     --------
     cycle_basis
     """
+    if flags['parallel']:
+        print('Module not extended for parallel processing')
+        return
 
     if type(essential) == tuple:
         essential = [essential]
@@ -224,14 +230,14 @@ def simple_cycles(G, flags, bounds, essential=None):
                     scc_iter_fences = _scc_.fences[0:bounds['max_fences']] # _scc_.fences at [0, 1, ..., fence_bound-1]
                     scc = set(_scc_.events + scc_iter_fences) # 1st set all_events + 1st combination of fences
                     idx = list(range(bounds['max_fences']))  # [0, 1, ..., fence_bound-1]
-         
+        
         else:
             scc_iter_fences = next_fences(_scc_.count_fences, bounds['max_fences'], idx, _scc_.fences)
             if scc_iter_fences == []: # no more combinations
                 _scc_ = None
                 continue
             scc = set(_scc_.events + scc_iter_fences)
-        
+
         sccG = subG.subgraph(scc)
         # order of scc determines ordering of nodes
         startnode = scc.pop()
@@ -270,10 +276,10 @@ def simple_cycles(G, flags, bounds, essential=None):
                 stack.pop()
                 #                assert path[-1] == thisnode
                 path.pop()
+
         # done processing this node
         H = subG.subgraph(scc)  # make smaller to avoid work in SCC routine
         sccs.extend(scc for scc in nx.strongly_connected_components(H) if len(scc) > 1)
-
 
 @not_implemented_for("undirected")
 def recursive_simple_cycles(G):
