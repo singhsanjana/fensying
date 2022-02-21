@@ -9,7 +9,7 @@ from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/litmus/weak_fensying'
+    'tests/benchmarks/VBMCbench/Table1'
 ]
 
 N = 3       # no. of runs per tests
@@ -146,6 +146,13 @@ def execute_test(filepath, t=math.inf, d=math.inf, f=math.inf):
         _time_z3  = avg(_time_z3)
         _time_fensying = avg(_time_fensying)
         _time_total = add(_time_ceg, add(_time_z3, _time_fensying))
+        if _aborted:
+            _synthesized = 'Cannot fix.'
+            return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
+
+        print('syn:', _synthesized, 'type:', type(_synthesized))
+        sy = str(_synthesized/N)
+        st = str(_strengthened/N)
         return 'OK', str(_synthesized/N) + ',' + str(_strengthened/N) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
     return 'TO', 'Fensying TO (15m)' + ',,,,,,'
 
