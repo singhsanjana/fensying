@@ -3,17 +3,17 @@ import os
 import subprocess
 import sys
 import glob
-import math
+from math import inf
 
 from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/VBMCbench/Table1'
+    'tests/litmus'
 ]
 
 N = 3       # no. of runs per tests
-T = [1, math.inf]  # values to be passed to -t flags
+T = [1, inf]  # values to be passed to -t flags. should be in increasing order
 Parallel = False
 
 def add(val1, val2):
@@ -85,15 +85,15 @@ def read_result(lines):
 
     return status, synthesized, strengthened, time_ceg, time_z3, time_fensying
 
-def execute_test(filepath, t=math.inf, d=math.inf, f=math.inf):
+def execute_test(filepath, t=inf, d=inf, f=inf):
     process_command = ['python3', 'main.py', filepath]
-    if t != math.inf:
+    if t != inf:
         process_command.append('-t')
         process_command.append(str(t))
-    if d != math.inf:
+    if d != inf:
         process_command.append('-d')
         process_command.append(str(d))
-    if f != math.inf:
+    if f != inf:
         process_command.append('-f')
         process_command.append(str(f))
     if Parallel:
@@ -140,19 +140,14 @@ def execute_test(filepath, t=math.inf, d=math.inf, f=math.inf):
         _time_fensying = add(_time_fensying, time_fensying)
 
     if _result_generated:
-        if _aborted:
-            _synthesized = 'Cannot fix.'
         _time_ceg = avg(_time_ceg)
         _time_z3  = avg(_time_z3)
         _time_fensying = avg(_time_fensying)
         _time_total = add(_time_ceg, add(_time_z3, _time_fensying))
         if _aborted:
             _synthesized = 'Cannot fix.'
-            return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
+            return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' +_time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
 
-        print('syn:', _synthesized, 'type:', type(_synthesized))
-        sy = str(_synthesized/N)
-        st = str(_strengthened/N)
         return 'OK', str(_synthesized/N) + ',' + str(_strengthened/N) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
     return 'TO', 'Fensying TO (15m)' + ',,,,,,'
 
