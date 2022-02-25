@@ -22,10 +22,15 @@ class translate_cds:
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
 		self.cnt_buggy_execs = 0										# number of buggy executions for this run
+		
 		self.error_string = None										# handle error in CDS Checker
 		self.cds_time = 0
 		self.make_time = 0
+		
 		self.buggy_trace_no = []										# no of buggy traces (for mo file name)
+		self.has_data_race_bug = False									# data race in input program (cannot process)
+		self.has_initialization_bug = False								# missing initiaization in input program (cannot process)
+		self.bug_report = ''											# details of race/missing initialization (if any)
 
 		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filepath[3:]   # "../filepath"[3:] = "filepath"
 		
@@ -36,7 +41,6 @@ class translate_cds:
 			cds_cmd += ' -y'
 		if cds_flags['m']:
 			cds_cmd += ' -m ' + str(cds_flags['m'])
-		print(cds_cmd)
 		cds_cmd = shlex.split(cds_cmd)
 
 		if current_iteration > 1:
@@ -87,6 +91,19 @@ class translate_cds:
 			self.cds_time = cds_end - cds_start
 			self.obtain_traces(p)
 			self.cnt_buggy_execs = int(self.cnt_buggy_execs)
+
+			if self.has_data_race_bug:
+				print(oc.FAIL, oc.BOLD, 'Data race detected. Program behavior undefined.', oc.ENDC)
+				print(self.bug_report)
+				print(oc.FAIL, oc.BOLD, 'Remove race to proceed.', oc.ENDC)
+				exit(0)
+
+			if self.has_initialization_bug:
+				print(oc.FAIL, oc.BOLD, 'Unitialized atomic detected.', oc.ENDC)
+				print(self.bug_report)
+				print(oc.WARNING, oc.BOLD, 'All atomic accesses must be initialized.', oc.ENDC)
+				exit(0)
+
 			if self.cnt_buggy_execs == 0:
 				if current_iteration == 1: 
 					print(oc.OKGREEN, oc.BOLD, 'No buggy traces. Nothing to do.', oc.ENDC)
@@ -112,31 +129,55 @@ class translate_cds:
 
 	# to differentiate and obtain each trace from the std output in the terminal
 	def obtain_traces(self,p):
-		f=0                                                         	# flag for finding execution trace
-		for line in p.split('\n'):
-			tmp_index = line.find('Execution trace ')					# find execution number for buggy traces
-			if tmp_index != -1:											# this line gives us number of this trace
-				# print(line[tmp_index+len('Execution trace '):line.find(':')])
-				self.buggy_trace_no.append(int(line[tmp_index+len('Execution trace '):line.find(':')]))
+		# assert violations are reported by CDSchecker when NA race is detected
+		# ie output would either have buggy data-race traces or buggy assert-violating traces
+		lines = p.split('\n')
+		cnt_lines = len(lines)
 
-			if f==2:
-				if "HASH" in line:                                  	# indicates end of one execution trace
-					f=0
-					self.traces_raw.append(trace_list)
-				else:
-					trace_list.append(line.split())                 	# collect data from execution trace and convert to list structure
+		assert_violation_bug = False
+		bug_details = []
 
-			if f==1:
-				f=2
+		i = 0
+		while i < cnt_lines:
+			if not 'Bug report:' in lines[i]:
+				i += 1 # skip till next buggy trace data starts
+				continue
+			i += 1 # next line after line with 'Bug report:'
 
-            # the start of a trace/assertion violation case
-			if 'Rf' in line:
-				trace_list = []
-				f=1
+			while not 'Execution trace' in lines[i]:
+				if self.has_data_race_bug or self.has_initialization_bug:
+					bug_details.append(lines[i])
 
-			# print number of buggy executions
-			if "Number of buggy executions" in line:
-				self.cnt_buggy_execs = line[28:len(line)]
+				if '[BUG]' in lines[i]:
+					if 'hit assertion' in lines[i]:
+						assert_violation_bug = True
+					elif 'Data race detected' in lines[i]:
+						self.has_data_race_bug = True
+						bug_details.append(lines[i])
+					elif 'read from uninitialized atomic' in lines[i]:
+						self.has_initialization_bug = True
+						bug_details.append(lines[i])
+				i += 1
+
+			if not assert_violation_bug:
+				self.bug_report = '\n'.join(bug_details)
+				break 				# bugs other than assert violations not handled
+
+			trace_id_index = lines[i].find('Execution trace ') # execution id
+			if trace_id_index != -1:
+				self.buggy_trace_no.append(int(lines[i][trace_id_index+len('Execution trace '):lines[i].find(':')]))
+			i += 4 # skipping trace header to reach trace events
+
+			trace_list = [] # list of trace events
+			while not 'HASH' in lines[i]: # 'HASH' marks the end of trace events
+				trace_list.append(lines[i].split()) # collect trace events as a list
+				i += 1
+
+			# end of trace
+			self.traces_raw.append(trace_list) # list of list of trace events
+			i += 1
+
+		self.cnt_buggy_execs = len(self.traces_raw)	
 			
 	# to convert each trace into a structure
 	def create_structure(self):
