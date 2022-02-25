@@ -23,8 +23,10 @@ from model_checking_output.translators.cds_checker.delete_file import delete_gen
 
 parser = argparse.ArgumentParser()
 
+# input file
 parser.add_argument('file', type=str,
 					help="File path of object file.")
+# bounds
 parser.add_argument("--traces", "-t", type=int, required=False, dest="batch_size",
 					help="Batch buggy traces (non-optimal).")
 parser.add_argument("--max-iter", "-m", type=int, required=False, dest="max_iter",
@@ -33,28 +35,38 @@ parser.add_argument("--fence-bound", "-f", type=int, required=False, dest="max_f
 					help="Max number of fences in cycles.")
 parser.add_argument("--max-depth", "-d", type=int, required=False, dest="max_depth",
 					help="Max depth when lookign for cycles.")
+
+# print options
 parser.add_argument("--synthesis-summary", "-s", required=False, action='store_true', dest="print_synthesis_summary",
 					help="Print the file wise summary of fences synthesized and strengthened.")
-parser.add_argument("--yield", "-y", required=False, action='store_true', dest="cds_y_flag",
-					help="Pass yield flag to model checker.")
+
+# parallelization
 parser.add_argument("--parallel", "-p", required=False, action='store_true', dest="parallel",
 					help="Use multiprocessing for cycle detection in coherece conditions.")
 
+# CDSchecker flags
+parser.add_argument("--yield", "-y", required=False, action='store_true', dest="cds_y_flag",
+					help="Pass yield flag to model checker.")
+parser.add_argument("--liveness", "-l", type=int, required=False, dest="cds_m_flag",
+					help="Pass liveness flag to model checker.")
+
 args = parser.parse_args()
-filename   = args.file											# gets the input file name
-batch_size = args.batch_size									# gets the input number of traces to be checked
-max_iter   = args.max_iter										# gets the input maximum number of iterations
-max_fences = args.max_fence										# max number of fences to be passed to cycle detection
-max_depth  = args.max_depth										# max search depth for cycle finding DFS
-print_synthesis_summary = args.print_synthesis_summary          # print summarya of synthesis if set
-cds_y_flag = args.cds_y_flag									# pass -y flag to cds (when inout program uses yield())
-parallel   = args.parallel										# use multi-processing to parallel detect cycles of separate sccs
+filename   = args.file									# gets the input file name
+batch_size = args.batch_size							# gets the input number of traces to be checked
+max_iter   = args.max_iter								# gets the input maximum number of iterations
+max_fences = args.max_fence								# max number of fences to be passed to cycle detection
+max_depth  = args.max_depth								# max search depth for cycle finding DFS
+print_synthesis_summary = args.print_synthesis_summary  # print summarya of synthesis if set
+parallel   = args.parallel								# use multi-processing to parallel detect cycles of separate sccs
+cds_y_flag = args.cds_y_flag							# pass -y flag to cds (when input program uses yield())
+cds_m_flag = args.cds_m_flag							# pass -m N flag (with value N) to cds
 
 batching    = (batch_size is not None)				# true if batch_size is set
 iter_bound  = (max_iter is not None)				# true if max_iter is set
 fence_bound = (max_fences is not None)				# true if max_fences is set
 depth_bound = (max_depth is not None)				# true if max_depth is 
 
+cds_flags = {'y':cds_y_flag, 'm':cds_m_flag}
 flags = {'batching':batching, 'iter_bound':iter_bound, 'fence_bound':fence_bound, 'depth_bound':depth_bound, 'parallel':parallel}
 bounds = {'batch_size':batch_size, 'max_iter':max_iter, 'max_fences':max_fences, 'max_depth':max_depth}
 
@@ -110,7 +122,7 @@ def fn_main(filename, tool_timeout_value=TO.tool):
 	if batching:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
-	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, batch_size, total_iter, cds_y_flag, mc_total, tool_total)
+	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, batch_size, total_iter, cds_flags, mc_total, tool_total)
 	# print('after model_checking_output, buggy_trace_no:', buggy_trace_no)
 
 	if mc_error_string is not None:

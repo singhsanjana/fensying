@@ -6,9 +6,9 @@ def collapse_mo(mo1, mo2):
 
 	if mo1 == mo2:
 		return mo1
-	if mo_score(mo1) > mo_score(mo2):
+	if mo_score[mo1] > mo_score[mo2]:
 		return mo1
-	if mo_score(mo2) > mo_score(mo1):
+	if mo_score[mo2] > mo_score[mo1]:
 		return mo2
 	return ft.ar # same score but mo not same ie ft.r and ft.a
 
@@ -49,7 +49,7 @@ def weak_collapse(cycle_tags):
 		for j in range(i+1, len(expanded_fences)):
 			if same_location_fences(expanded_fences[i], expanded_fences[j]):
 				mo = collapse_mo(mo, expanded_fences[j][4])
-				collapsed_indices[j]
+				collapsed_indices.append(j)
 
 		collapsed_fence = prefix + '_' + line_no + '@' + filename
 		final_cycle_tags[collapsed_fence] = mo

@@ -17,7 +17,7 @@ from constants import output_colours as oc
 from constants import timeouts as TO
 
 class translate_cds:
-	def __init__(self, filepath, traces_batch_size, current_iteration, cds_y_flag, cds_total_time, tool_total_time):
+	def __init__(self, filepath, traces_batch_size, current_iteration, cds_flags, cds_total_time, tool_total_time):
 
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
@@ -32,8 +32,11 @@ class translate_cds:
 		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
 		if traces_batch_size:
 			cds_cmd += ' -c ' + str(traces_batch_size)
-		if cds_y_flag:
+		if cds_flags['y']:
 			cds_cmd += ' -y'
+		if cds_flags['m']:
+			cds_cmd += ' -m ' + str(cds_flags['m'])
+		print(cds_cmd)
 		cds_cmd = shlex.split(cds_cmd)
 
 		if current_iteration > 1:
@@ -56,6 +59,7 @@ class translate_cds:
 										timeout=timeout_value)		# get std output from CDS Checker
 		except subprocess.TimeoutExpired:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
+			os.killpg(os.getpgid(p.pid), signal.SIGTERM)
 		except subprocess.CalledProcessError as exc:
 			self.error_string = "\n"
 			print(oc.FAIL, oc.BOLD, '\nCalledProcessError while model checking.', oc.ENDC)
