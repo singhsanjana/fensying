@@ -63,7 +63,6 @@ class translate_cds:
 										timeout=timeout_value)		# get std output from CDS Checker
 		except subprocess.TimeoutExpired:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
-			os.killpg(os.getpgid(p.pid), signal.SIGTERM)
 		except subprocess.CalledProcessError as exc:
 			self.error_string = "\n"
 			print(oc.FAIL, oc.BOLD, '\nCalledProcessError while model checking.', oc.ENDC)
@@ -89,7 +88,7 @@ class translate_cds:
 
 			p = p.decode('utf-8', errors='ignore')			# convert to string
 			self.cds_time = cds_end - cds_start
-			self.obtain_traces(p)
+			self.obtain_traces(p.split('\n'))
 			self.cnt_buggy_execs = int(self.cnt_buggy_execs)
 
 			if self.has_data_race_bug:
@@ -115,9 +114,6 @@ class translate_cds:
 			if self.cnt_buggy_execs != 0:
 				self.create_structure()
 				# self.print_traces()
-		# finally:
-			#return
-
 
 	def get(self):
 		# print('traces:', self.traces)
@@ -128,10 +124,9 @@ class translate_cds:
 		return self.traces, self.cds_time, self.make_time, self.cnt_buggy_execs, self.error_string, self.buggy_trace_no
 
 	# to differentiate and obtain each trace from the std output in the terminal
-	def obtain_traces(self,p):
+	def obtain_traces(self, lines):
 		# assert violations are reported by CDSchecker when NA race is detected
 		# ie output would either have buggy data-race traces or buggy assert-violating traces
-		lines = p.split('\n')
 		cnt_lines = len(lines)
 
 		assert_violation_bug = False
