@@ -1,5 +1,11 @@
 from constants import f_tags as ft
 
+def get_prog_mo(fence):
+	if '_at_' in fence:
+		fence_prog_order = fence[2 : fence.find(')')]
+		return fence_prog_order
+	return ''
+
 def mo_score(mo):
 	if mo == ft.a:
 		return 1
@@ -24,10 +30,12 @@ def fence_score(fence, fence_order):
 	order_score = mo_score(fence_order)
 
 	if '_at_' in fence:
-		fence_prog_order = fence[2 : fence.find(')')]
+		fence_prog_order = get_prog_mo(fence)
 		prog_order_score = mo_score(fence_prog_order)
 		if prog_order_score > order_score or fence_order == fence_prog_order:
 			return 0
+		else: # strengthened program fence
+			return (order_score - prog_order_score)
 
 	return order_score
 
@@ -37,6 +45,28 @@ def cycle_score(tagged_cycle):
 		order = tagged_cycle[fence]
 		score += fence_score(fence, order)
 	return score
+
+def preference(tagged_cycle):
+	synthesized  = False
+	strengthened = False
+
+	for fence in tagged_cycle:
+		if '_at_' in fence:
+			current_mo_score = mo_score( get_prog_mo(fence) )
+			new_mo_score = mo_score( tagged_cycle[fence] )
+			if new_mo_score > current_mo_score:
+				strengthened = True
+		else:
+			synthesized = True
+
+		if synthesized and strengthened: # nothing left to discover
+			break
+
+	if synthesized and strengthened:
+		return 0
+	if strengthened:
+		return 1
+	return 2 # only synthesized
 
 def reduce(cycles_list):
 	reduced_list = [i for i in range(len(cycles_list))]
@@ -81,6 +111,21 @@ def get_min_cycles_of_trace(min_model, trace_cycles):
 
 	return min_cycles
 
+def weakest(solutions):
+	weakest_solution = solutions[0]
+	weakest_score    = cycle_score(solutions[0])
+	
+	for i in range(1,len(solutions)):
+		solution_score = cycle_score(solutions[i])
+		if solution_score < weakest_score:
+			weakest_solution = solutions[i]
+			weakest_score    = solution_score
+		elif solution_score == weakest_score and preference(solutions[i]) > preference(weakest_solution): 
+			weakest_solution = solutions[i]
+			weakest_score    = solution_score
+
+	return weakest_solution
+
 def solution_by_files(solution): # solution dict: fence -> mo
 	solution_files = {}
 	for fence in solution:
@@ -122,4 +167,4 @@ def allocate_fence_orders(min_model, cycles_tags_by_trace):
 
 		candidate_solutions = reduce(new_candidate_solutions)
 
-	return solution_by_files(candidate_solutions[0]) # if there are >1 solutions return any 1
+	return solution_by_files(weakest(candidate_solutions)) # if there are >1 solutions return the weakest
