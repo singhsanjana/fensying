@@ -296,8 +296,9 @@ def run_tests_from_file (filename):
         test_list = file.read().replace("'", "").strip().split(' ')
     # print('test dir:', test_list)
     # print('cwd: ', cwd)
+    csv_file_name = 'result-' + os.path.splitext(os.path.basename(filename))[0] + '.csv'
 
-    csv_file = write_csv_header('result-' + os.path.splitext(os.path.basename(filename))[0] + '.csv')
+    write_csv_header(csv_file_name)
     for test in test_list:
         filename, ext = os.path.splitext(os.path.basename(test))
         if ext != '.o':
@@ -305,9 +306,11 @@ def run_tests_from_file (filename):
             ext = '.o'
         csv_row = run_single_test(os.path.dirname(test), filename+ext)
         csv_row = csv_row[:-1] + '\n'
+        csv_file = open(os.path.join(res_dir, csv_file_name), 'a')
+        
         csv_file.write(csv_row)
+        csv_file.close()
     
-    csv_file.close()
 
 
 cwd = os.getcwd()

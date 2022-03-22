@@ -22,6 +22,11 @@ def operation(operator,vars):
 
 # to return a conjunction of given variables
 def conjunct(vars):
+	if len(vars) == 0:
+		# calling conjuct with 0 vars
+		# possibly cycle of program fences
+		# Need to return 1 or True
+		return " #b1 "
 	cnf = operation("bvand",vars)
 	return cnf
 
