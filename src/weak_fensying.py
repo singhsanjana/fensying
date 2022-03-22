@@ -121,9 +121,9 @@ class weak_fensying:
 				has_mo_edge = False # not hb cycle
 				has_single_mo_edge = True # not mo;hb;mo;hb... cycle
 				for i in range(len(cycle)):
-					e1 = cycle[i]
-					e2 = cycle[(i+1)%len(cycle)]
-					if (e1,e2) in self.mo_edges:
+					e1_ = cycle[i]
+					e2_ = cycle[(i+1)%len(cycle)]
+					if (e1_,e2_) in self.mo_edges:
 						if has_mo_edge:
 							has_single_mo_edge = False
 							break

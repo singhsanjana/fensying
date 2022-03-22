@@ -79,7 +79,7 @@ class translate_cds:
 			print(oc.FAIL, oc.BOLD, '\nPlease resolve the error for fence synthesis to proceed.', oc.ENDC)
 		except Exception as e:
 			self.error_string = "\nError while model checking.\nPlease resolve the error for fence synthesis to proceed."
-			print(e)
+			print('error',e)
 		else:
 			cds_end = time.time()
 			tool_timeout_value = math.ceil(TO.tool - tool_total_time)
