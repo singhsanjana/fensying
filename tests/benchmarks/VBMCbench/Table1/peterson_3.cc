@@ -15,22 +15,22 @@ void t0(void *)
 {
   int rwaiting = -1, rlevel1 = -1, rlevel2 = -1, rx = -1;
     for(int i=0;i<LOOP;i++) {
-    atomic_store_explicit(__FILE__, __LINE__, &level0, 0, memory_order_release);
-    atomic_store_explicit(__FILE__, __LINE__, &waiting0, 0, memory_order_release);
-    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting0, memory_order_acquire);
-    rlevel1 = atomic_load_explicit(__FILE__, __LINE__, &level1, memory_order_acquire);
-    rlevel2 = atomic_load_explicit(__FILE__, __LINE__, &level2, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &level0, 0, memory_order_seq_cst); //memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &waiting0, 0, memory_order_seq_cst); //memory_order_release);
+    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting0, memory_order_seq_cst); //memory_order_acquire);
+    rlevel1 = atomic_load_explicit(__FILE__, __LINE__, &level1, memory_order_seq_cst); //memory_order_acquire);
+    rlevel2 = atomic_load_explicit(__FILE__, __LINE__, &level2, memory_order_seq_cst); //memory_order_acquire);
     if(!(rwaiting != 0 || (rlevel1 < 0 && rlevel2 < 0))) return;
-    atomic_store_explicit(__FILE__, __LINE__, &level0, 1, memory_order_release);
-    atomic_store_explicit(__FILE__, __LINE__, &waiting1, 0, memory_order_release);
-    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting1, memory_order_acquire);
-    rlevel1 = atomic_load_explicit(__FILE__, __LINE__, &level1, memory_order_acquire);
-    rlevel2 = atomic_load_explicit(__FILE__, __LINE__, &level2, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &level0, 1, memory_order_seq_cst); //memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &waiting1, 0, memory_order_seq_cst); //memory_order_release);
+    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting1, memory_order_seq_cst); //memory_order_acquire);
+    rlevel1 = atomic_load_explicit(__FILE__, __LINE__, &level1, memory_order_seq_cst); //memory_order_acquire);
+    rlevel2 = atomic_load_explicit(__FILE__, __LINE__, &level2, memory_order_seq_cst); //memory_order_acquire);
     if(!(rwaiting != 0 || (rlevel1 < 1 && rlevel2 < 1))) return;
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 0, memory_order_release);
-    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire);
-    MODEL_ASSERT(rx==0);
-    atomic_store_explicit(__FILE__, __LINE__, &level0, 0, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 2, memory_order_seq_cst); //memory_order_release);
+    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_seq_cst); //memory_order_acquire);
+    MODEL_ASSERT(rx==2);
+    atomic_store_explicit(__FILE__, __LINE__, &level0, 0, memory_order_seq_cst); //memory_order_release);
   }
 }
 
@@ -38,22 +38,22 @@ void t1(void *)
 {
   int rwaiting = -1, rlevel0 = -1, rlevel2 = -1, rx = -1;
     for(int i=0;i<LOOP;i++) {
-    atomic_store_explicit(__FILE__, __LINE__, &level1, 0, memory_order_release);
-    atomic_store_explicit(__FILE__, __LINE__, &waiting0, 1, memory_order_release);
-    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting0, memory_order_acquire);
-    rlevel2 = atomic_load_explicit(__FILE__, __LINE__, &level2, memory_order_acquire);
-    rlevel0 = atomic_load_explicit(__FILE__, __LINE__, &level0, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &level1, 0, memory_order_seq_cst); //memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &waiting0, 1, memory_order_seq_cst); //memory_order_release);
+    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting0, memory_order_seq_cst); //memory_order_acquire);
+    rlevel2 = atomic_load_explicit(__FILE__, __LINE__, &level2, memory_order_seq_cst); //memory_order_acquire);
+    rlevel0 = atomic_load_explicit(__FILE__, __LINE__, &level0, memory_order_seq_cst); //memory_order_acquire);
     if(!(rwaiting != 1 || (rlevel2 < 0 && rlevel0 < 0))) return;
-    atomic_store_explicit(__FILE__, __LINE__, &level1, 1, memory_order_release);
-    atomic_store_explicit(__FILE__, __LINE__, &waiting1, 1, memory_order_release);
-    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting1, memory_order_acquire);
-    rlevel2 = atomic_load_explicit(__FILE__, __LINE__, &level2, memory_order_acquire);
-    rlevel0 = atomic_load_explicit(__FILE__, __LINE__, &level0, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &level1, 1, memory_order_seq_cst); //memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &waiting1, 1, memory_order_seq_cst); //memory_order_release);
+    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting1, memory_order_seq_cst); //memory_order_acquire);
+    rlevel2 = atomic_load_explicit(__FILE__, __LINE__, &level2, memory_order_seq_cst); //memory_order_acquire);
+    rlevel0 = atomic_load_explicit(__FILE__, __LINE__, &level0, memory_order_seq_cst); //memory_order_acquire);
     if(!(rwaiting != 1 || (rlevel2 < 1 && rlevel0 < 1))) return;
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_release);
-    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_seq_cst); //memory_order_release);
+    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_seq_cst); //memory_order_acquire);
     MODEL_ASSERT(rx==1);
-    atomic_store_explicit(__FILE__, __LINE__, &level1, 0, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &level1, 0, memory_order_seq_cst); //memory_order_release);
   }
 }
 
@@ -62,22 +62,22 @@ void t2(void * )
 {
   int rwaiting = -1, rlevel0 = -1, rlevel1 = -1, rx = -1;
     for(int i=0;i<LOOP;i++) {
-    atomic_store_explicit(__FILE__, __LINE__, &level2, 0, memory_order_release);
-    atomic_store_explicit(__FILE__, __LINE__, &waiting0, 2, memory_order_release);
-    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting0, memory_order_acquire);
-    rlevel1 = atomic_load_explicit(__FILE__, __LINE__, &level1, memory_order_acquire);
-    rlevel0 = atomic_load_explicit(__FILE__, __LINE__, &level0, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &level2, 0, memory_order_seq_cst); //memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &waiting0, 2, memory_order_seq_cst); //memory_order_release);
+    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting0, memory_order_seq_cst); //memory_order_acquire);
+    rlevel1 = atomic_load_explicit(__FILE__, __LINE__, &level1, memory_order_seq_cst); //memory_order_acquire);
+    rlevel0 = atomic_load_explicit(__FILE__, __LINE__, &level0, memory_order_seq_cst); //memory_order_acquire);
     if(!(rwaiting != 2 || (rlevel1 < 0 && rlevel0 < 0))) return;
-    atomic_store_explicit(__FILE__, __LINE__, &level2, 1, memory_order_release);
-    atomic_store_explicit(__FILE__, __LINE__, &waiting1, 2, memory_order_release);
-    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting1, memory_order_acquire);
-    rlevel1 = atomic_load_explicit(__FILE__, __LINE__, &level1, memory_order_acquire);
-    rlevel0 = atomic_load_explicit(__FILE__, __LINE__, &level0, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &level2, 1, memory_order_seq_cst); //memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &waiting1, 2, memory_order_seq_cst); //memory_order_release);
+    rwaiting = atomic_load_explicit(__FILE__, __LINE__, &waiting1, memory_order_seq_cst); //memory_order_acquire);
+    rlevel1 = atomic_load_explicit(__FILE__, __LINE__, &level1, memory_order_seq_cst); //memory_order_acquire);
+    rlevel0 = atomic_load_explicit(__FILE__, __LINE__, &level0, memory_order_seq_cst); //memory_order_acquire);
     if(!(rwaiting != 2 || (rlevel1 < 1 && rlevel0 < 1))) return;
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 2, memory_order_release);
-    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 2, memory_order_seq_cst); //memory_order_release);
+    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_seq_cst); //memory_order_acquire);
     MODEL_ASSERT(rx==2);
-    atomic_store_explicit(__FILE__, __LINE__, &level2, 0, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &level2, 0, memory_order_seq_cst); //memory_order_release);
   }
 }
 

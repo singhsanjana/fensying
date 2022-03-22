@@ -17,11 +17,15 @@ void thread1(void *arg)
 {
 	for (int i=0; i<L; i++)
 		q->enqueue(i);
+
+	return NULL;
 }
 
 void thread2(void *arg)
 {
 	q->dequeue();
+
+	return NULL;
 }
 
 int user_main(int argc, char **argv)

@@ -10,7 +10,7 @@ class eventcount
 public:
 	eventcount() : waiters(0)
 	{
-		count = 0;
+		count.store(__FILE__, __LINE__, 0);
 	}
 
 	void signal_relaxed()
