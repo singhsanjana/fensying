@@ -159,18 +159,19 @@ def run_all_config(filename):
         status, test_cols = execute_test(filename, t=t_conf)
         csv_row += test_cols
         if status == 'STOP':
-            t_succ = False
+            # if 'STOP' for t=1, won't work for t=inf
+            break
             
-        if not t_succ:
-            # config2: -f 3
-            status, test_cols = execute_test(filename, t=t_conf, f=3)
-            csv_row += test_cols
+        # if not t_succ:
+        #     # config2: -f 3
+        #     status, test_cols = execute_test(filename, t=t_conf, f=3)
+        #     csv_row += test_cols
             
-            # config3: -d 10
-            status, test_cols = execute_test(filename, t=t_conf, d=10)
-            csv_row += test_cols
-        else: 
-            csv_row += ',,,,,,' * 2
+        #     # config3: -d 10
+        #     status, test_cols = execute_test(filename, t=t_conf, d=10)
+        #     csv_row += test_cols
+        # else: 
+        #     csv_row += ',,,,,,' * 2
                 
     os.chdir(cwd)
     csv_row += '\n'
