@@ -66,7 +66,7 @@ private:
 		node(T data = T())
 			: data(data)
 		{
-			next = 0;
+			next.store(__FILE__, __LINE__, 0);
 		}
 	};
 

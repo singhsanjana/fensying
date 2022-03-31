@@ -4,12 +4,13 @@ base = '../tests/'
 test_base = base + 'litmus/'
 
 cc_tests = {
-    'iriw'      : (0,0),
-    'mutex'     : (2,0),
-    'hb_3'      : (1,1),
-    'hb'        : (3,0),
-    'mod_fence' : (2,0),
-    'wrir_rmw'  : (2,0),
+    'iriw'         : (0,0),
+    'mutex'        : (2,0),
+    'hb_3'         : (1,1),
+    'hb'           : (3,0),
+    'mod_fence'    : (2,0),
+    'wrir_rmw'     : (2,0),
+    'no_synthesis' : (0,2),
     'weak_fensying/hb'             : (2,0),
     'weak_fensying/mo_hb'          : (1,0),
     'weak_fensying/mo_hb_rmw'      : (1,0),
@@ -40,7 +41,7 @@ for test in tests:
 
     for exn_flags in flags:
         if not exn_flags == []:
-            print('Testing ' + test + ' (' + ''.join(exn_flags) + ')')
+            print('Testing ' + test + ' (' + ' '.join(exn_flags) + ')')
             process_command += exn_flags
         else:
             print('Testing ' + test)
