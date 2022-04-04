@@ -96,7 +96,7 @@ error_string = ""
 synthesis_summary = ""
 modified_files = []
 
-def fn_main(filename, tool_timeout_value=TO.tool):
+def fn_main(workfilename, tool_timeout_value=TO.tool):
 	global mc_total
 	global mc_make_total
 	global pre_calc_total
@@ -122,8 +122,8 @@ def fn_main(filename, tool_timeout_value=TO.tool):
 	if batching:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 
-	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, batch_size, total_iter, cds_flags, mc_total, tool_total)
-	# print('after model_checking_output, buggy_trace_no:', buggy_trace_no)
+	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(workfilename, batch_size, total_iter, cds_flags, mc_total, tool_total)
+	# print('after model_checking_output, no. of buggy_traces:', len(buggy_trace_no))
 
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
@@ -135,7 +135,7 @@ def fn_main(filename, tool_timeout_value=TO.tool):
 		
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)
-			delete_generated_file(filename)
+			delete_generated_file(workfilename)
 
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
