@@ -150,15 +150,16 @@ def fn_main(filename, tool_timeout_value=TO.tool):
 			modified_files = modified_files + list(set(iter_modified_files) - set(modified_files)) # set of modified files
 
 	iteration_time_end = time.time()
+	tool_time = (iteration_time_end-iteration_time_start) - mc_make_time - mc_time - z3_time
 
 	mc_total      += mc_time
 	mc_make_total += mc_make_time
 	z3_total      += z3_time
-	tool_total    += (iteration_time_end-iteration_time_start) - mc_make_time - mc_time - z3_time
+	tool_total    += tool_time
 
 	if batching:
 		if cnt_buggy_execs and not error_string:
-			res.iteration_result_summary((mc_time+pre_calc_total), z3_time, len(req_fences), count_modified_fences)
+			res.iteration_result_summary((mc_time+pre_calc_total), z3_time, tool_time, len(req_fences), count_modified_fences)
 
 	if batching and cnt_buggy_execs and not error_string:
 		fn_main(new_filename)
