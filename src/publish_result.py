@@ -51,11 +51,16 @@ def synthesis_summary(fences_and_tags_by_files, modified_files):
     print(pt)
 
 def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count_modified_fences, 
-                        batching, total_iterations, print_synthesis_summary, fences_and_tags, modified_files):
+                        batching, total_iterations, print_synthesis_summary, fences_and_tags, modified_files, error):
+
+    aborted = False # can fix the input program
+    if 'ABORT' in error:
+        aborted = True # cannot fix the input program
     print(oc.OKBLUE + oc.BOLD + "\n\n================= RESULT SUMMARY =================" + oc.ENDC)
     
-    print(oc.OKGREEN, oc.BOLD, "Total fences synthesized:  \t", count_added_fences, oc.ENDC)
-    print(oc.OKGREEN, oc.BOLD, "Total fences strengthened: \t", count_modified_fences, oc.ENDC)
+    if not aborted:
+        print(oc.OKGREEN, oc.BOLD, "Total fences synthesized:  \t", count_added_fences, oc.ENDC)
+        print(oc.OKGREEN, oc.BOLD, "Total fences strengthened: \t", count_modified_fences, oc.ENDC)
 
     print("Time- CEG:\t\t",round(mc_time, 2)) # CDS time + relations cpmputation time
     print("Time- Z3:\t\t",round(z3_time, 2))
@@ -68,7 +73,7 @@ def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count
     if print_synthesis_summary:
         synthesis_summary(fences_and_tags, modified_files)
 
-    if z3_time > 0:
+    if z3_time > 0 and not aborted:
         fixed_files = []
 
         for i in range(len(modified_files)):
@@ -78,7 +83,8 @@ def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count
             fenced_filename = filename
             if not fi.OUTPUT_FILE_APPEND_STRING in filename:
                 fenced_filename = filename[ : -1*len(fileext)] + fi.OUTPUT_FILE_APPEND_STRING + fileext
-            fixed_files.append(fenced_filename)
+            if not fenced_filename in fixed_files:
+                fixed_files.append(fenced_filename)
 
         if len(fixed_files) == 1:
             print(oc.OKBLUE, oc.BOLD, 'Fixed input file(s) at:', fixed_files[0], '\n', oc.ENDC)
