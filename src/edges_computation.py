@@ -114,9 +114,6 @@ class edges_computation:
 			w1_thread = w1[T_NO] - 1
 			w2_thread = w2[T_NO] - 1
 
-			if w1_thread == w2_thread:
-				continue
-
 			# so from fr
 			for read_index in range(len(self.reads)):
 				read = self.reads[read_index]
@@ -156,6 +153,9 @@ class edges_computation:
 
 			if w1[TYPE] == INIT:
 				# no fences before INIT hence no so from mo involving INIT
+				continue
+
+			if w1_thread == w2_thread:
 				continue
 
 			f1 = self.writes[w1_index - 1] # fence before w1

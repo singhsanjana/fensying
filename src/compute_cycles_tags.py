@@ -135,7 +135,8 @@ def reduce(cycles, sb_edges):
 
 def compute_strong_tags(cycles, sb_edges):
 	cycles = strong_collapse(cycles) # remove s_no from fences of all cycles
-	reduce(cycles, sb_edges) # if a --so--> b --so--> c also a --sb--> b --sb--> c then remove the cycle from cycles
+	# if a --so--> b --so--> c also a --sb--> b --sb--> c then remove the cycle from cycles
+	# reduce(cycles, sb_edges) # not a useful optimization, was slowing down
 
 	all_cycles_tag = []
 	for cycle in cycles:
