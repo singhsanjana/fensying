@@ -157,7 +157,6 @@ class edges_computation:
 
 			if w1_thread == w2_thread:
 				continue
-
 			f1 = self.writes[w1_index - 1] # fence before w1
 			f1_index = fences_thread[w1_thread].index(f1)
 			f2 = self.writes[w2_index + 1] # fence after w2
