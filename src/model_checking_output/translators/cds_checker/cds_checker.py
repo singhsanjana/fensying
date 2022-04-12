@@ -47,7 +47,7 @@ class translate_cds:
 			filename = filepath.split('/')[-1]
 			make_path = filepath[: -1*len(filename) ]
 			change_dir = 'cd ' + make_path
-			make = change_dir + ' && ' + 'make'
+			make = change_dir + ' && ' + self.make_cmd(filename, filepath)
 
 			make_time_start = time.time()
 			os.system(make + "> /dev/null 2>&1")				# make/compile into object file for CDS Checker
@@ -114,6 +114,16 @@ class translate_cds:
 			if self.cnt_buggy_execs != 0:
 				self.create_structure()
 				# self.print_traces()
+
+	def make_cmd(self, filename, filepath):
+		test_name  = filename[:filename.rfind('.')] # filename without extension
+		path_depth = '../' * ( filepath.count('/')-1 ) 
+		cmd  = 'g++ -MMD -MF ./.' + test_name + '.o.d -o ' + test_name + '.o ' + test_name + '.cc '
+		cmd += '-Wall -g -O3 '
+		cmd += '-I' + path_depth + 'model-checker/cds-checker '
+		cmd += '-I' + path_depth + 'model-checker/cds-checker/include -fpermissive '
+		cmd += '-L' + path_depth + 'model-checker/cds-checker -lmodel'
+		return cmd
 
 	def get(self):
 		# print('traces:', self.traces)
