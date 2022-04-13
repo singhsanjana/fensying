@@ -9,7 +9,7 @@ from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/litmus'
+    'tests/benchmarks/VBMCbench/configs'
 ]
 
 N = 3       # no. of runs per tests
@@ -154,60 +154,28 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
 def run_all_config(filename):
     os.chdir(cwd + '/src')
     csv_row = ''
-    f3_succ = True
-    f5_succ = True
-    d7_succ = True
-    d10_succ = True
-    f3d10_succ = True
     t_succ = True
 
-    # for t=1 and 0
+    # for t=1 and inf
     for t_conf in T: 
-        # config1: -f 3
-        if f3_succ:
-            status, test_cols = execute_test(filename, t=t_conf, f=3)
-            csv_row += test_cols
-            if status == 'STOP':
-                f3_succ = False
-                f5_succ = False
-
-        # config2: -f 5
-        # run only if worked with -t 1 -f 3
-        if f3_succ and f5_succ:
-            status, test_cols = execute_test(filename, t=t_conf, f=5)
-            csv_row += test_cols
-            if status == 'STOP':
-                f5_succ = False
-
-        # config3: -d 7
-        if d7_succ:
-            status, test_cols = execute_test(filename, t=t_conf, d=7)
-            csv_row += test_cols
-            if status == 'STOP':
-                d7_succ = False
-                d10_succ = False
-        
-        # config4: -d 10
-        if d7_succ and d10_succ:
-            status, test_cols = execute_test(filename, t=t_conf, d=10)
-            csv_row += test_cols
-            if status == 'STOP':
-                d10_succ = False
-        
-        # config5: -f 3 -d 10
-        if f3d10_succ:
-            status, test_cols = execute_test(filename, t=t_conf, f=3, d=10)
-            csv_row += test_cols
-            if status == 'STOP':
-                f3d10_succ = False
-        
-        # config6: no fence and depth bounding
-        if f5_succ and d10_succ and f3d10_succ and t_succ:
-            status, test_cols = execute_test(filename, t=t_conf)
-            csv_row += test_cols
-            if status == 'STOP':
-                t_succ = False
-        
+        # config1: no fence and depth bounding
+        status, test_cols = execute_test(filename, t=t_conf)
+        csv_row += test_cols
+        if status == 'STOP':
+            # if 'STOP' for t=1, won't work for t=inf
+            break
+            
+        # if not t_succ:
+        #     # config2: -f 3
+        #     status, test_cols = execute_test(filename, t=t_conf, f=3)
+        #     csv_row += test_cols
+            
+        #     # config3: -d 10
+        #     status, test_cols = execute_test(filename, t=t_conf, d=10)
+        #     csv_row += test_cols
+        # else: 
+        #     csv_row += ',,,,,,' * 2
+                
     os.chdir(cwd)
     csv_row += '\n'
     return csv_row
@@ -215,22 +183,8 @@ def run_all_config(filename):
 
 def write_csv_header(csv_file_name):
     csv_header = 'Test Name,'
+    csv_header = 'Test Name,'
     for t in T:
-        for f_val in [3,5]:
-            csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-            csv_header_t = csv_header_t.replace(',', 
-                            '(t=' + str(t) + '&f=' + str(f_val) + '),')
-            csv_header += (csv_header_t)
-        for d_val in [7,10]:
-            csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-            csv_header_t = csv_header_t.replace(',', 
-                            '(t=' + str(t) + '&d=' + str(d_val) + '),')
-            csv_header += (csv_header_t)
-        # for -f 3 -d 10
-        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-        csv_header_t = csv_header_t.replace(',', 
-                        '(t=' + str(t) + '&f=3&d=10),')
-        csv_header += (csv_header_t)
         # for no fence and depth bounding
         csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
         csv_header_t = csv_header_t.replace(',', 
