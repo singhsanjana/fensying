@@ -1,4 +1,4 @@
-BASE := ../../../model-checker/cds-checker
+BASE := ../../../../model-checker/cds-checker
 
 SUBDIRS := $(wildcard */.)
 
@@ -9,12 +9,12 @@ include $(BASE)/common.mk
 
 DEPS := $(join $(addsuffix ., $(dir $(OBJECTS))), $(addsuffix .d, $(notdir $(OBJECTS))))
 
-CPPFLAGS += -I$(BASE) -I$(BASE)/include
+CPPFLAGS += -I$(BASE) -I$(BASE)/include -fpermissive
 
 all: $(OBJECTS)
-	for dir in $(SUBDIRS); do \
-		$(MAKE) -C $$dir; \
-	done
+	# for dir in $(SUBDIRS); do \
+	# 	$(MAKE) -C $$dir; \
+	# done
 
 -include $(DEPS)
 
@@ -26,6 +26,6 @@ all: $(OBJECTS)
 
 clean:
 	rm -f *.o *_fixed.cc 
-	for dir in $(SUBDIRS); do \
-		$(MAKE) -C $$dir clean; \
-	done
+	# for dir in $(SUBDIRS); do \
+	# 	$(MAKE) -C $$dir clean; \
+	# done
