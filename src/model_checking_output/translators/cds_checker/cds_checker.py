@@ -8,33 +8,35 @@ import subprocess
 import shlex
 import time
 import signal
-import math
 
 from .create_list import create_list
 from constants import file_info as fi
-from constants import time_handler
 from constants import output_colours as oc
-from constants import timeouts as TO
 
 class translate_cds:
-	def __init__(self, filepath, traces_batch_size, current_iteration, cds_flags, cds_total_time, tool_total_time):
+	def __init__(self, test_filepath, input_ext, current_iteration):
 
 		self.traces_raw = []											# list of all traces raw
 		self.traces = []												# list of processed traces
 		self.cnt_buggy_execs = 0										# number of buggy executions for this run
 		
 		self.error_string = None										# handle error in CDS Checker
-		self.cds_time = 0
+		self.mc_time   = 0
 		self.make_time = 0
 		
 		self.buggy_trace_no = []										# no of buggy traces (for mo file name)
 		self.has_data_race_bug = False									# data race in input program (cannot process)
 		self.has_initialization_bug = False								# missing initiaization in input program (cannot process)
 		self.bug_report = ''											# details of race/missing initialization (if any)
+		self.cds_output = ''
 
-		test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + filepath[3:]   # "../filepath"[3:] = "filepath"
-		
-		cds_cmd = './run.sh '+ test_file	# cmd to run cds checker
+		# has_more_buggy_traces = True
+		if current_iteration > 1:
+			# has_more_buggy_traces = self.run_genmc(input_filepath)
+			self.make_fixed_file(input_ext, test_filepath)
+
+	def run_cds(self, test_filepath_from_cds, traces_batch_size, cds_flags, timeout_value):
+		cds_cmd = './run.sh '+ test_filepath_from_cds	# cmd to run cds checker
 		if traces_batch_size:
 			cds_cmd += ' -c ' + str(traces_batch_size)
 		if cds_flags['y']:
@@ -43,19 +45,7 @@ class translate_cds:
 			cds_cmd += ' -m ' + str(cds_flags['m'])
 		cds_cmd = shlex.split(cds_cmd)
 
-		if current_iteration > 1:
-			filename = filepath.split('/')[-1]
-			make_path = filepath[: -1*len(filename) ]
-			change_dir = 'cd ' + make_path
-			make = change_dir + ' && ' + self.make_cmd(filename, filepath)
-
-			make_time_start = time.time()
-			os.system(make + "> /dev/null 2>&1")				# make/compile into object file for CDS Checker
-			self.make_time = time.time() - make_time_start
-			print('time of model checker MAKE = ', round(self.make_time, 2))
-
 		cds_start = time.time()
-		timeout_value = TO.cds - cds_total_time         # TO value for CDS - time used by CDS in prev iterations
 		try:
 			p = subprocess.check_output(cds_cmd,
 										cwd = fi.CDS_FOLDER_PATH,
@@ -65,7 +55,6 @@ class translate_cds:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
 		except subprocess.CalledProcessError as exc:
 			self.error_string = "\n"
-			print(oc.FAIL, oc.BOLD, '\nCalledProcessError while model checking.', oc.ENDC)
 			outputstr = exc.output.decode('utf-8', errors='ignore')
 			if 'Error:' in outputstr:
 				outputstr = outputstr[outputstr.find('Error:') : ]
@@ -74,21 +63,23 @@ class translate_cds:
 			elif 'Segmentation fault' in outputstr:	
 				outputstr = outputstr[outputstr.find('Segmentation fault') : ]	
 			elif 'For debugging' in outputstr:
-				outputstr = outputstr[outputstr.find('For debugging') : ]		
-			print(outputstr)
-			print(oc.FAIL, oc.BOLD, '\nPlease resolve the error for fence synthesis to proceed.', oc.ENDC)
+				outputstr = outputstr[outputstr.find('For debugging') : ]
+			if (outputstr):
+				print(oc.FAIL, oc.BOLD, '\nCalledProcessError while model checking.', oc.ENDC)
+				print(outputstr)
+				print(oc.FAIL, oc.BOLD, '\nPlease resolve the error for fence synthesis to proceed.', oc.ENDC)
+			else:
+				os.killpg(os.getpgid(p.pid), signal.SIGTERM)
 		except Exception as e:
 			self.error_string = "\nError while model checking.\nPlease resolve the error for fence synthesis to proceed."
 			print('error',e)
 		else:
 			cds_end = time.time()
-			tool_timeout_value = math.ceil(TO.tool - tool_total_time)
-			signal.signal(signal.SIGALRM, time_handler)
-			signal.alarm(tool_timeout_value)			# timeout for the rest of the tool
+			self.mc_time = cds_end - cds_start
+			self.cds_output = p.decode('utf-8', errors='ignore')	# convert to string
 
-			p = p.decode('utf-8', errors='ignore')			# convert to string
-			self.cds_time = cds_end - cds_start
-			self.obtain_traces(p.split('\n'))
+	def translate(self, current_iteration):			
+			self.obtain_traces(self.cds_output.split('\n'))
 			self.cnt_buggy_execs = int(self.cnt_buggy_execs)
 
 			if self.has_data_race_bug:
@@ -115,23 +106,34 @@ class translate_cds:
 				self.create_structure()
 				# self.print_traces()
 
-	def make_cmd(self, filename, filepath):
+	def get(self):
+		# print('traces:', self.traces)
+		# print('mc_time: ', self.mc_time)
+		# print('cnt_buggy_execs: ', self.cnt_buggy_execs)
+		# print('error_string: ', self.error_string)
+		# print('buggy_trace_no', self.buggy_trace_no)
+		return self.traces, self.mc_time, self.make_time, self.cnt_buggy_execs, self.error_string, self.buggy_trace_no
+
+	def make_cmd(self, filename, obj_filepath, input_ext):
 		test_name  = filename[:filename.rfind('.')] # filename without extension
-		path_depth = '../' * ( filepath.count('/')-1 ) 
-		cmd  = 'g++ -MMD -MF ./.' + test_name + '.o.d -o ' + test_name + '.o ' + test_name + '.cc '
+		path_depth = '../' * ( obj_filepath.count('/')-1 ) 
+		cmd  = 'g++ -MMD -MF ./.' + test_name + '.o.d -o ' + test_name + '.o ' + test_name + input_ext + ' '
 		cmd += '-Wall -g -O3 '
 		cmd += '-I' + path_depth + 'model-checker/cds-checker '
 		cmd += '-I' + path_depth + 'model-checker/cds-checker/include -fpermissive '
 		cmd += '-L' + path_depth + 'model-checker/cds-checker -lmodel'
 		return cmd
 
-	def get(self):
-		# print('traces:', self.traces)
-		# print('cds_time: ', self.cds_time)
-		# print('cnt_buggy_execs: ', self.cnt_buggy_execs)
-		# print('error_string: ', self.error_string)
-		# print('buggy_trace_no', self.buggy_trace_no)
-		return self.traces, self.cds_time, self.make_time, self.cnt_buggy_execs, self.error_string, self.buggy_trace_no
+	def make_fixed_file(self, obj_filepath, input_ext):
+		filename = obj_filepath.split('/')[-1]
+		make_path = obj_filepath[: -1*len(filename) ]
+		change_dir = 'cd ' + make_path
+		make = change_dir + ' && ' + self.make_cmd(filename, obj_filepath, input_ext)
+
+		make_time_start = time.time()
+		os.system(make + "> /dev/null 2>&1")				# make/compile into object file for CDS Checker
+		self.make_time = time.time() - make_time_start
+		print('time of model checker MAKE = ', round(self.make_time, 2))
 
 	# to differentiate and obtain each trace from the std output in the terminal
 	def obtain_traces(self, lines):

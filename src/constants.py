@@ -50,9 +50,13 @@ class file_info:
 		f_tags.r	:	"atomic_thread_fence(__FILE__, __LINE__, std::memory_order_release);\n",
 		f_tags.ar	:	"atomic_thread_fence(__FILE__, __LINE__, std::memory_order_acq_rel);\n"
 	}
-	CDS_FOLDER_PATH = "../model-checker/cds-checker"
+	GENMC_FOLDER_PATH = "../model-checker/genmc"
+	CDS_FOLDER_PATH   = "../model-checker/cds-checker"
+	
+
 	TEST_FOLDER_PATH = "test"
-	TEST_FOLDER_PATH_FROM_CDS = "../.."
+	TEST_FOLDER_PATH_FROM_CDS   = "../.."
+	TEST_FOLDER_PATH_FROM_GENMC = "../.."
 
 class output_colours:
 	HEADER = '\033[95m'
@@ -68,5 +72,5 @@ def time_handler(signum, frame):
 	raise RuntimeError
 
 class timeouts:
-	cds  = 900   # model checking  timeout of 15 minutes
+	mc   = 900   # model checking  timeout of 15 minutes
 	tool = 900   # tool processing timeout of 15 minutes (excludes time of model checker and SAT solver)

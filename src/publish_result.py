@@ -62,13 +62,15 @@ def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count
         print(oc.OKGREEN, oc.BOLD, "Total fences synthesized:  \t", count_added_fences, oc.ENDC)
         print(oc.OKGREEN, oc.BOLD, "Total fences strengthened: \t", count_modified_fences, oc.ENDC)
 
-    print("Time- CEG:\t\t",round(mc_time, 2)) # CDS time + relations cpmputation time
+    tool_time = total_time - (mc_time + z3_time)
+    print("Time- BTG:\t\t",round(mc_time, 2)) # CDS time + relations cpmputation time
     print("Time- Z3:\t\t",round(z3_time, 2))
-    # print("\nTime- Total:\t\t",round(total_time, 2))
-    print("Time- Fensying:\t\t",round(total_time - (mc_time + z3_time), 2), '\n\n')
+    print("Time- Fensying:\t\t",round(tool_time, 2), '\n\n')
     if batching:
-        print("Total iterations:\t",total_iterations)
-        print("Time- avg per iter:\t",round(total_time/total_iterations, 2), '\n\n')
+        print("Total iterations:\t",total_iterations-1)
+        print("Avg. Time- BTG avg:\t",round(mc_time/total_iterations, 2))
+        print("Avg. Time- Z3:\t\t",round(z3_time/(total_iterations-1), 2))
+        print("Avg. Time- Fensing:\t",round(tool_time/(total_iterations-1), 2), '\n\n')
 
     if print_synthesis_summary:
         synthesis_summary(fences_and_tags, modified_files)

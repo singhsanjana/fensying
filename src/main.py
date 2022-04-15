@@ -51,7 +51,7 @@ parser.add_argument("--liveness", "-l", type=int, required=False, dest="cds_m_fl
 					help="Pass liveness flag to model checker.")
 
 args = parser.parse_args()
-filename   = args.file									# gets the input file name
+filepath   = args.file									# gets the input file name
 batch_size = args.batch_size							# gets the input number of traces to be checked
 max_iter   = args.max_iter								# gets the input maximum number of iterations
 max_fences = args.max_fence								# max number of fences to be passed to cycle detection
@@ -70,9 +70,9 @@ cds_flags = {'y':cds_y_flag, 'm':cds_m_flag}
 flags = {'batching':batching, 'iter_bound':iter_bound, 'fence_bound':fence_bound, 'depth_bound':depth_bound, 'parallel':parallel}
 bounds = {'batch_size':batch_size, 'max_iter':max_iter, 'max_fences':max_fences, 'max_depth':max_depth}
 
-input_ext = filename.split('$')[1]
-filename  = filename.split('$')[0]
-# if not os.path.exists(filename): [snj]: checked in run script
+input_ext      = filepath.split('$')[1]
+obj_filepath   = filepath.split('$')[0]
+# if not os.path.exists(obj_filepath): [snj]: checked in run script
 # 	print(oc.BOLD + oc.FAIL + "\nInput file not found.\n" + oc.ENDC)
 # 	sys.exit(0)
 if iter_bound and not batching:
@@ -96,7 +96,7 @@ error_string = ""
 synthesis_summary = ""
 modified_files = []
 
-def fn_main(filename, tool_timeout_value=TO.tool):
+def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 	global mc_total
 	global mc_make_total
 	global pre_calc_total
@@ -121,10 +121,9 @@ def fn_main(filename, tool_timeout_value=TO.tool):
 	total_iter += 1
 	if batching:
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
-
-	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(filename, batch_size, total_iter, cds_flags, mc_total, tool_total)
-	# print('after model_checking_output, no. of buggy_traces:', len(buggy_trace_no))
-
+	
+	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(obj_filepath, input_ext, batch_size, total_iter, cds_flags, mc_total, tool_total)
+	
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
 		sys.exit(0)
@@ -135,14 +134,14 @@ def fn_main(filename, tool_timeout_value=TO.tool):
 		
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)
-			delete_generated_file(filename)
+			delete_generated_file(obj_filepath)
 
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
 			# print('min-model', req_fences)
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
 			# print('solution', fence_tags)
-			(new_filename, count_modified_fences, iter_modified_files) = insert(fence_tags, filename, input_ext) # insert fences into the source file at the required locations
+			(new_obj_filepath, count_modified_fences, iter_modified_files) = insert(fence_tags, obj_filepath, input_ext) # insert fences into the source file at the required locations
 
 			fences_added += len(req_fences)
 			fences_modified += count_modified_fences
@@ -162,13 +161,13 @@ def fn_main(filename, tool_timeout_value=TO.tool):
 			res.iteration_result_summary((mc_time+pre_calc_total), z3_time, tool_time, len(req_fences), count_modified_fences)
 
 	if batching and cnt_buggy_execs and not error_string:
-		fn_main(new_filename)
+		fn_main(new_obj_filepath)
 
 	return
 
 try:
 	start = time.time()
-	fn_main(filename)
+	fn_main(obj_filepath)
 	end = time.time()
 except RuntimeError:
 	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
