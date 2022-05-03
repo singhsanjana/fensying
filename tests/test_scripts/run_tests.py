@@ -1,3 +1,4 @@
+from ast import Pass
 from cProfile import run
 import os
 import subprocess
@@ -9,7 +10,7 @@ from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/litmus'
+    'tests/benchmarks/VBMCbench/configs/dekker'
 ]
 
 N = 3       # no. of runs per tests
@@ -23,10 +24,10 @@ def add(val1, val2):
         return val1
     return str(float(val1) + float(val2))
 
-def avg(val):
+def avg(val, num=N):
     if val == '':
         return '0'
-    return str( round(float(val) / 3, 2) )
+    return str( round(float(val) / N, 2) )
 
 def read_result(lines):
     synthesized   = ''
@@ -85,6 +86,32 @@ def read_result(lines):
 
     return status, synthesized, strengthened, time_ceg, time_z3, time_fensying
 
+
+def compute_total_times(_time_ceg, time_ceg, _time_z3, time_z3, _time_fensying, time_fensying):
+    _time_ceg = add(_time_ceg, time_ceg)
+    _time_z3  = add(_time_z3, time_z3)
+    _time_fensying = add(_time_fensying, time_fensying)
+    return _time_ceg, _time_z3, _time_fensying
+
+def compute_total_fences(_synthesized, synthesized, _strengthened, strengthened):
+    # take sum of synthesized and strengthened for all itr
+    if synthesized == '' or strengthened == '':
+        print('got empty string for #fence')
+        exit(0)
+    else:
+        _synthesized = _synthesized + int(synthesized)
+        _strengthened = _strengthened + int(strengthened)
+    return _synthesized, _strengthened
+
+def update_status(_aborted, _result_generated, _status, status):
+    """Compute the new values of status, abort and result generated based on older runs and current run"""
+    aborted = _aborted or _status == 'ABORT'
+    result_generated = _result_generated or status == 'OK' or status == 'ABORT'
+    # if program has already run once then status is older one
+    if _status == 'OK' and (status == 'MCTO' or status == 'FTO'):
+        status = 'OK'
+    return aborted, result_generated, status
+
 def execute_test(filepath, t=inf, d=inf, f=inf):
     process_command = ['python3', 'main.py', filepath]
     if t != inf:
@@ -106,10 +133,13 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
     _time_z3       = ''
     _time_fensying = ''
     _time_total    = ''
-
+    
+    _status = 'MCTO'
     _aborted = False            # could bot fix test (execution successful)
     _result_generated = False   # execution success
 
+    # n=0
+    num_completed_runs = 0
     for n in range(N): # avg of N runs
         process = subprocess.Popen(process_command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
         lines = process.stdout.readlines()
@@ -117,97 +147,87 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         status, synthesized, strengthened, time_ceg, time_z3, time_fensying = read_result(lines)
         
         if status == 'NOBUG':
-            return 'STOP', 'No buggy traces.' + ',,,,,,'
-        if status == 'MCTO':
-            return 'STOP', 'CDS TO (15m)' + ',,,,,,'
-        if status == 'FAIL':
-            return 'STOP', 'Failed to run.' + ',,,,,,'
-        if status == 'FTO':
-            continue
-
-        # status = OK or ABORT
-        _aborted = _aborted or status == 'ABORT'
-        _result_generated = _result_generated or status == 'OK' or status == 'ABORT'
-
-        # take avg of synthesized and strengthened for all itr
-        if synthesized != '':
-            _synthesized = _synthesized + int(synthesized)
-        if strengthened != '':
-            _strengthened = _strengthened + int(strengthened)
-
-        _time_ceg = add(_time_ceg, time_ceg)
-        _time_z3  = add(_time_z3, time_z3)
-        _time_fensying = add(_time_fensying, time_fensying)
+            return 'STOP', 'No buggy traces.' + ',,,,,,,'
+        elif status == 'FAIL':
+            return 'STOP', 'Failed to run.' + ',,,,,,,'
+        elif status == 'MCTO':
+            if t == inf:
+                return 'STOP', 'CDS TO (15m)' + ',,,,,,,'
+            else:
+                _time_ceg, _time_z3, _time_fensying = compute_total_times(
+                    _time_ceg, 900, 
+                    _time_z3, time_z3, 
+                    _time_fensying, time_fensying)
+                _aborted, _result_generated, _status = update_status(
+                    _aborted, _result_generated, 
+                    _status, status)
+            # return 'STOP', 'CDS TO (15m)' + ',,,,,,'
+        elif status == 'FTO':
+            if t == inf:
+                return 'STOP', 'Fensying TO (15m)' + ',,,,,,,'
+            else:
+                _time_ceg, _time_z3, _time_fensying = compute_total_times(
+                    _time_ceg, time_ceg, 
+                    _time_z3, time_z3, 
+                    _time_fensying, 900)
+                _aborted, _result_generated, _status = update_status(
+                    _aborted, _result_generated, 
+                    _status, status)
+        else:
+            _time_ceg, _time_z3, _time_fensying = compute_total_times(
+                _time_ceg, time_ceg, 
+                _time_z3, time_z3, 
+                _time_fensying, time_fensying)
+            _synthesized, _strengthened = compute_total_fences(
+                _synthesized, synthesized, 
+                _strengthened, strengthened)
+            _aborted, _result_generated, _status = update_status(
+                _aborted, _result_generated, 
+                _status, status)
+            num_completed_runs  = num_completed_runs + 1
 
     if _result_generated:
         _time_ceg = avg(_time_ceg)
         _time_z3  = avg(_time_z3)
         _time_fensying = avg(_time_fensying)
         _time_total = add(_time_ceg, add(_time_z3, _time_fensying))
+        _synthesized = avg(_synthesized, num=num_completed_runs)
+        _strengthened = avg(_strengthened, num=num_completed_runs)
         if _aborted:
             _synthesized = 'Cannot fix.'
-            return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' +_time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
-
-        return 'OK', str(_synthesized/N) + ',' + str(_strengthened/N) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ','
-    return 'TO', 'Fensying TO (15m)' + ',,,,,,'
+            return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' +_time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
+        if _status == 'MCTO':
+            return 'OK', 'CDS TO (15m)' + ',,,,,,,'
+        if _status == 'FTO':
+            return 'OK', 'Fensying TO (15m)' + ',,,,,,,'
+        return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
+    return 'TO', 'Fensying TO (15m)' + ',,,,,,,'
 
 def run_all_config(filename):
     os.chdir(cwd + '/src')
     csv_row = ''
-    f3_succ = True
-    f5_succ = True
-    d7_succ = True
-    d10_succ = True
-    f3d10_succ = True
     t_succ = True
 
-    # for t=1 and 0
+    # for t=1 and inf
     for t_conf in T: 
-        # config1: -f 3
-        if f3_succ:
-            status, test_cols = execute_test(filename, t=t_conf, f=3)
-            csv_row += test_cols
-            if status == 'STOP':
-                f3_succ = False
-                f5_succ = False
-
-        # config2: -f 5
-        # run only if worked with -t 1 -f 3
-        if f3_succ and f5_succ:
-            status, test_cols = execute_test(filename, t=t_conf, f=5)
-            csv_row += test_cols
-            if status == 'STOP':
-                f5_succ = False
-
-        # config3: -d 7
-        if d7_succ:
-            status, test_cols = execute_test(filename, t=t_conf, d=7)
-            csv_row += test_cols
-            if status == 'STOP':
-                d7_succ = False
-                d10_succ = False
-        
-        # config4: -d 10
-        if d7_succ and d10_succ:
-            status, test_cols = execute_test(filename, t=t_conf, d=10)
-            csv_row += test_cols
-            if status == 'STOP':
-                d10_succ = False
-        
-        # config5: -f 3 -d 10
-        if f3d10_succ:
-            status, test_cols = execute_test(filename, t=t_conf, f=3, d=10)
-            csv_row += test_cols
-            if status == 'STOP':
-                f3d10_succ = False
-        
-        # config6: no fence and depth bounding
-        if f5_succ and d10_succ and f3d10_succ and t_succ:
-            status, test_cols = execute_test(filename, t=t_conf)
-            csv_row += test_cols
-            if status == 'STOP':
-                t_succ = False
-        
+        # config1: no fence and depth bounding
+        status, test_cols = execute_test(filename, t=t_conf)
+        csv_row += test_cols
+        if status == 'STOP':
+            # if 'STOP' for t=1, won't work for t=inf
+            break
+            
+        # if not t_succ:
+        #     # config2: -f 3
+        #     status, test_cols = execute_test(filename, t=t_conf, f=3)
+        #     csv_row += test_cols
+            
+        #     # config3: -d 10
+        #     status, test_cols = execute_test(filename, t=t_conf, d=10)
+        #     csv_row += test_cols
+        # else: 
+        #     csv_row += ',,,,,,' * 2
+                
     os.chdir(cwd)
     csv_row += '\n'
     return csv_row
@@ -215,24 +235,10 @@ def run_all_config(filename):
 
 def write_csv_header(csv_file_name):
     csv_header = 'Test Name,'
+    csv_header = 'Test Name,'
     for t in T:
-        for f_val in [3,5]:
-            csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-            csv_header_t = csv_header_t.replace(',', 
-                            '(t=' + str(t) + '&f=' + str(f_val) + '),')
-            csv_header += (csv_header_t)
-        for d_val in [7,10]:
-            csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-            csv_header_t = csv_header_t.replace(',', 
-                            '(t=' + str(t) + '&d=' + str(d_val) + '),')
-            csv_header += (csv_header_t)
-        # for -f 3 -d 10
-        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-        csv_header_t = csv_header_t.replace(',', 
-                        '(t=' + str(t) + '&f=3&d=10),')
-        csv_header += (csv_header_t)
         # for no fence and depth bounding
-        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
+        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,#succ_run'
         csv_header_t = csv_header_t.replace(',', 
                         '(t=' + str(t) + '),')
         csv_header += (csv_header_t)
