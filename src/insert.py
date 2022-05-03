@@ -1,5 +1,4 @@
 from pathlib import Path
-from os import fwalk
 from constants import file_info as fi
 from constants import f_tags as ft
 from constants import *
@@ -23,8 +22,7 @@ def fix_includes(lines, include_fixes, modified_files):
 def list_includes(lines, path):
 	included_files = []
 	include_fixes = []
-	modified_includes = False
-
+	
 	for i in range(len(lines)):
 		# if '#include' in lines[i] and '"' in lines[i] and not '_fixed' in lines[i]:
 		if '#include' in lines[i] and '"' in lines[i]:

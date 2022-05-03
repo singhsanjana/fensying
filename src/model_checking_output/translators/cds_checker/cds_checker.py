@@ -30,10 +30,8 @@ class translate_cds:
 		self.bug_report = ''											# details of race/missing initialization (if any)
 		self.cds_output = ''
 
-		# has_more_buggy_traces = True
 		if current_iteration > 1:
-			# has_more_buggy_traces = self.run_genmc(input_filepath)
-			self.make_fixed_file(input_ext, test_filepath)
+			self.make_fixed_file(test_filepath, input_ext)
 
 	def run_cds(self, test_filepath_from_cds, traces_batch_size, cds_flags, timeout_value):
 		cds_cmd = './run.sh '+ test_filepath_from_cds	# cmd to run cds checker
@@ -117,7 +115,7 @@ class translate_cds:
 	def make_cmd(self, filename, obj_filepath, input_ext):
 		test_name  = filename[:filename.rfind('.')] # filename without extension
 		path_depth = '../' * ( obj_filepath.count('/')-1 ) 
-		cmd  = 'g++ -MMD -MF ./.' + test_name + '.o.d -o ' + test_name + '.o ' + test_name + input_ext + ' '
+		cmd  = 'g++ -MMD -MF ./.' + test_name + '.o.d -o ' + test_name + '.o ' + test_name + '.' + input_ext + ' '
 		cmd += '-Wall -g -O3 '
 		cmd += '-I' + path_depth + 'model-checker/cds-checker '
 		cmd += '-I' + path_depth + 'model-checker/cds-checker/include -fpermissive '

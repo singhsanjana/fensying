@@ -26,6 +26,7 @@ parser = argparse.ArgumentParser()
 # input file
 parser.add_argument('file', type=str,
 					help="File path of object file.")
+
 # bounds
 parser.add_argument("--traces", "-t", type=int, required=False, dest="batch_size",
 					help="Batch buggy traces (non-optimal).")
