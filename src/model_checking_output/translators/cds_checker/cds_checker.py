@@ -80,6 +80,9 @@ class translate_cds:
 			self.obtain_traces(self.cds_output.split('\n'))
 			self.cnt_buggy_execs = int(self.cnt_buggy_execs)
 
+			if self.error_string:
+				return
+
 			if self.has_data_race_bug:
 				print(oc.FAIL, oc.BOLD, 'Data race detected. Program behavior undefined.', oc.ENDC)
 				print(self.bug_report)
@@ -142,8 +145,13 @@ class translate_cds:
 		assert_violation_bug = False
 		bug_details = []
 
+		model_checking_completed = False
+
 		i = 0
 		while i < cnt_lines:
+			if 'Model-checking complete' in lines[i]:
+				model_checking_completed = True
+
 			if not 'Bug report:' in lines[i]:
 				i += 1 # skip till next buggy trace data starts
 				continue
@@ -182,6 +190,9 @@ class translate_cds:
 			self.traces_raw.append(trace_list) # list of list of trace events
 			i += 1
 
+		if not model_checking_completed:
+			self.error_string = "\nModel Checking time exceeded 15 minutes."
+			
 		self.cnt_buggy_execs = len(self.traces_raw)	
 			
 	# to convert each trace into a structure
