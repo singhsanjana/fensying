@@ -46,7 +46,7 @@ def error_message(errorcode, filename, line_no, program_order='', weaker_order='
         emsg  = '\033[91m' + 'Correctness fail (\'fixed program\' is buggy)' + '\033[0m \n' + emsg
     elif errorcode == -1:
         emsg  = '\033[91m' + 'Optimality fail (Fence too strong)' + '\033[0m \n' + emsg
-        emsg += 'program order:', program_order, 'correct order:', weaker_order
+        emsg += 'program order:' + str(program_order) + 'correct order:' + str(weaker_order)
     else:
         emsg  = '\033[91m' + 'Optimality fail (Redundant fence)' + '\033[0m \n' + emsg
         
