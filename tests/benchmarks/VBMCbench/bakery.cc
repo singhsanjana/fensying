@@ -11,8 +11,8 @@ atomic_int n2;
 atomic_int _cc_x;
 
 atomic_int barr;
-#define LOOPt0 3
-#define LOOPt1 2
+#define LOOPt0 4
+#define LOOPt1 4
 void t0(void *)
 {
   int rn1 = -1;
@@ -20,7 +20,7 @@ void t0(void *)
   int rc2 = -1;
   int rx = -1;
   for(int j=0;j<LOOPt0;j++){
-    atomic_store_explicit(__FILE__, __LINE__, &c1, 1, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &c1, 1, memory_order_seq_cst);
     rn2 = atomic_load_explicit(__FILE__, __LINE__, &n2, memory_order_seq_cst);
     rn1 = rn2 + 1;
     atomic_store_explicit(__FILE__, __LINE__, &n1, rn1, memory_order_seq_cst); // _relaxed);
@@ -31,8 +31,8 @@ void t0(void *)
     rn2 =  atomic_load_explicit(__FILE__, __LINE__, &n2, memory_order_seq_cst);
     if(!(rn2 == 0 || rn1 < rn2))
       return;
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 2, memory_order_release);
-    rx =  atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 2, memory_order_seq_cst);
+    rx =  atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_seq_cst);
     MODEL_ASSERT(rx==2);
     atomic_store_explicit(__FILE__, __LINE__, &n1, 0, memory_order_seq_cst); // _relaxed);
 
@@ -48,7 +48,7 @@ void t1(void *)
   int rc1 = -1;
   int rx = -1;
   for(int j=0;j<LOOPt1;j++){
-    atomic_store_explicit(__FILE__, __LINE__, &c2, 1, memory_order_release);
+    atomic_store_explicit(__FILE__, __LINE__, &c2, 1, memory_order_seq_cst);
     rn1=atomic_load_explicit(__FILE__, __LINE__, &n1, memory_order_seq_cst); // _relaxed);
     rn2 = rn1 + 1;
     atomic_store_explicit(__FILE__, __LINE__, &n2, rn2, memory_order_seq_cst); // _relaxed);
@@ -56,11 +56,11 @@ void t1(void *)
     rc1 = atomic_load_explicit(__FILE__, __LINE__, &c1, memory_order_seq_cst);
     if(!(rc1 == 0))
       return;
-    rn1= atomic_load_explicit(__FILE__, __LINE__, &n1, memory_order_seq_cst);
+    rn1= atomic_load_explicit(__FILE__, __LINE__, &n1, memory_order_relaxed);
     if(!(rn1 == 0 || rn2 <= rn1))
       return;
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_release); // _relaxed);
-    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_acquire); // _relaxed);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_seq_cst); // _relaxed);
+    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_seq_cst); // _relaxed);
     MODEL_ASSERT(rx==1);
     atomic_store_explicit(__FILE__, __LINE__, &n2, 0, memory_order_seq_cst); // _relaxed);
   }
@@ -84,21 +84,3 @@ int user_main(int argc, char **argv)
         thrd_create(&_t2, t1, 0);
       return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
