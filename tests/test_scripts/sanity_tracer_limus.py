@@ -19,6 +19,10 @@ def process_result(output):
             return 'Stronger Fence'
         elif 'Correctness fail' in line:
             return 'Correctness fail'
+        elif 'CalledProcessError' in line:
+            return 'CDS error'
+        elif 'FileNotFoundError' in line:
+            return 'FileNotFound'
     return 'Do not know'
 
 def sanity_check(pathname, filename):
