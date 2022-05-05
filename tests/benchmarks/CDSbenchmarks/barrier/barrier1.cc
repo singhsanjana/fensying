@@ -2,7 +2,7 @@
 
 #include <threads.h>
 
-#include "barrier.h"
+#include "barrier1.h"
 
 #include "librace.h"
 #include "model-assert.h"

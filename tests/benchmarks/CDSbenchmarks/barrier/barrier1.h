@@ -1,6 +1,7 @@
 #include <atomic>
 
-#define LOOP 10
+#define LOOP 5
+#define NUMREADERS 3
 
 class spinning_barrier {
  public:
@@ -10,13 +11,11 @@ class spinning_barrier {
 	}
 
 	bool wait() {
-atomic_thread_fence(__FILE__, __LINE__, std::memory_order_seq_cst);
 		unsigned int step = step_.load (__FILE__, __LINE__, std::memory_order_seq_cst);
 
 		if (nwait_.fetch_add (__FILE__, __LINE__, 1, std::memory_order_seq_cst) == n_ - 1) {
 			/* OK, last thread to come.  */
 			nwait_.store (__FILE__, __LINE__, 0, std::memory_order_seq_cst);
-atomic_thread_fence(__FILE__, __LINE__, std::memory_order_seq_cst);
 			step_.fetch_add (__FILE__, __LINE__, 1, std::memory_order_relaxed);
 			return true;
 		} else {
