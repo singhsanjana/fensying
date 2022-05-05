@@ -46,7 +46,7 @@ def error_message(errorcode, filename, line_no, program_order='', weaker_order='
         emsg  = '\033[91m' + 'Correctness fail (\'fixed program\' is buggy)' + '\033[0m \n' + emsg
     elif errorcode == -1:
         emsg  = '\033[91m' + 'Optimality fail (Fence too strong)' + '\033[0m \n' + emsg
-        emsg += 'program order:', program_order, 'correct order:', weaker_order
+        emsg += 'program order:' + str(program_order) + 'correct order:' + str(weaker_order)
     else:
         emsg  = '\033[91m' + 'Optimality fail (Redundant fence)' + '\033[0m \n' + emsg
         
@@ -176,11 +176,17 @@ def soundness_check_ok(fixed_program):
 
 failed = False
 
-ifile_content = open(filepath, 'r')
-ffile_content = open(fixed_filepath, 'r')
+input_program = ''
+fixed_program = ''
+try:
+    ifile_content = open(filepath, 'r')
+    ffile_content = open(fixed_filepath, 'r')
+    input_program = ifile_content.readlines()
+    fixed_program = ffile_content.readlines()
+except FileNotFoundError as e:
+    print('FileNotFoundError:', e)
+    exit()
 
-input_program = ifile_content.readlines()
-fixed_program = ffile_content.readlines()
 new_program = ''
 
 if soundness_check_ok(fixed_program):
