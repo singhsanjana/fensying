@@ -11,7 +11,7 @@ atomic_int turn;
 atomic_int _cc_x;
 atomic_int __fence_var;
 
-#define OLOOP 5
+#define OLOOP 4
 #define ILOOP 3
 
 void t0(void *)
@@ -20,7 +20,7 @@ void t0(void *)
 
   // if(!0)MODEL_ASSERT(0);
   for(int i =0;i<OLOOP;i++){
-    atomic_store_explicit(__FILE__, __LINE__, &flag1, 1, memory_order_seq_cst);
+    atomic_store_explicit(__FILE__, __LINE__, &flag1, 1, memory_order_release);
     rflag2 = atomic_load_explicit(__FILE__, __LINE__, &flag2, memory_order_seq_cst);
     
 	  int j = 0;
@@ -39,7 +39,7 @@ void t0(void *)
     }
     if(rflag2>=1)
         return;
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 2, memory_order_seq_cst);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 2, memory_order_release);
     rx =  atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_seq_cst);
     if(rx!=2) MODEL_ASSERT(0);
     atomic_store_explicit(__FILE__, __LINE__, &turn, 1, memory_order_seq_cst);
@@ -52,7 +52,7 @@ void t1(void *)
 {
   int rflag1 = -1, rturn_1 = -1, rturn_2 = -1, rx = -1;
     for(int i =0;i<OLOOP;i++){
-    atomic_store_explicit(__FILE__, __LINE__, &flag2, 1, memory_order_relaxed);
+    atomic_store_explicit(__FILE__, __LINE__, &flag2, 1, memory_order_seq_cst);
     rflag1 = atomic_load_explicit(__FILE__, __LINE__, &flag1, memory_order_seq_cst);
     int j =0;
     while (rflag1 >= 1 && j<ILOOP)
@@ -70,7 +70,7 @@ void t1(void *)
     }
     if(rflag1>=1)
         return;
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_seq_cst);
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_x, 1, memory_order_release);
     rx =  atomic_load_explicit(__FILE__, __LINE__, &_cc_x, memory_order_seq_cst);
     if(rx!=1) MODEL_ASSERT(0);
     atomic_store_explicit(__FILE__, __LINE__, &turn, 0, memory_order_seq_cst);
