@@ -68,18 +68,17 @@ def read_result(lines):
             strengthened = words[5]
             continue
 
-        if 'CEG:' in words:
+        if 'BTG:' in words and 'Avg.' not in words :
             time_ceg = words[2]
             continue
 
-        if 'Z3:' in words:
+        if 'Z3:' in words and 'Avg.' not in words :
             time_z3 = words[2]
             continue
 
-        if 'Fensying:' in words:
+        if 'Fensying:' in words and 'Avg.' not in words :
             time_fensying = words[2]
             continue
-
     return status, synthesized, strengthened, time_ceg, time_z3, time_fensying
 
 def execute_test(filepath, t=inf, d=inf, f=inf):
@@ -186,16 +185,6 @@ def write_csv_header(csv_file_name):
         csv_header_t = csv_header_t.replace(',', 
                         '(t=' + str(t) + '),')
         csv_header += (csv_header_t)
-        # for -f 3
-        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-        csv_header_t = csv_header_t.replace(',', 
-                        '(t=' + str(t) + '&f=3' + '),')
-        csv_header += (csv_header_t)
-        # for -d 10
-        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,'
-        csv_header_t = csv_header_t.replace(',', 
-                        '(t=' + str(t) + '&d=10' + '),')
-        csv_header += (csv_header_t)        
         
     csv_header = csv_header[:-1] + '\n'
 
@@ -205,8 +194,6 @@ def write_csv_header(csv_file_name):
     return
 
 def run_single_test(dir_path, file):
-    print('dir_path:', dir_path, 'file:', file)
-    print('Testing ' + dir_path + '/' + file[:-2])
     filepath = '../' + os.path.join(dir_path, file)
 
     input_file = glob.glob(dir_path + '/' + file[:-2]+'.c*')[0]
@@ -272,7 +259,6 @@ def run_tests_from_file (filename):
         
         csv_file.write(csv_row)
         csv_file.close()
-    
 
 
 cwd = os.getcwd()
