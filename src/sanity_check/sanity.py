@@ -176,11 +176,17 @@ def soundness_check_ok(fixed_program):
 
 failed = False
 
-ifile_content = open(filepath, 'r')
-ffile_content = open(fixed_filepath, 'r')
+input_program = ''
+fixed_program = ''
+try:
+    ifile_content = open(filepath, 'r')
+    ffile_content = open(fixed_filepath, 'r')
+    input_program = ifile_content.readlines()
+    fixed_program = ffile_content.readlines()
+except FileNotFoundError as e:
+    print('FileNotFoundError:', e)
+    exit()
 
-input_program = ifile_content.readlines()
-fixed_program = ffile_content.readlines()
 new_program = ''
 
 if soundness_check_ok(fixed_program):
