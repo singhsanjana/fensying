@@ -1,6 +1,7 @@
 #include <atomic>
 
-#define LOOP 10
+#define LOOP 6
+#define NUMREADERS 3
 
 class spinning_barrier {
  public:
