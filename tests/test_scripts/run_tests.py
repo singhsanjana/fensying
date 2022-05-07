@@ -72,15 +72,15 @@ def read_result(lines):
             strengthened = words[5]
             continue
 
-        if 'CEG:' in words:
+        if 'BTG:' in words and 'Avg.' not in words :
             time_ceg = words[2]
             continue
 
-        if 'Z3:' in words:
+        if 'Z3:' in words and 'Avg.' not in words :
             time_z3 = words[2]
             continue
 
-        if 'Fensying:' in words:
+        if 'Fensying:' in words and 'Avg.' not in words :
             time_fensying = words[2]
             continue
 
