@@ -190,7 +190,7 @@ class translate_cds:
 			self.traces_raw.append(trace_list) # list of list of trace events
 			i += 1
 
-		if not model_checking_completed:
+		if not model_checking_completed and not self.bug_report:
 			self.error_string = "\nModel Checking time exceeded 15 minutes."
 			
 		self.cnt_buggy_execs = len(self.traces_raw)	
