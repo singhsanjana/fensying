@@ -219,7 +219,6 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         print('something wrong. status:', status, 'res:', _result_generated)
         return 'TO', 'Fensying TO (15m)' + ',,,,,,,'
 
-
 def run_all_config(filename):
     os.chdir(cwd + '/src')
     csv_row = ''
