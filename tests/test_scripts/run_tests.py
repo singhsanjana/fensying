@@ -10,10 +10,10 @@ from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/VBMCbench/configs/dekker'
+    'tests/benchmarks/CDSbenchmarks/barrier'
 ]
 
-N = 3       # no. of runs per tests
+N = 2       # no. of runs per tests
 T = [1, inf]  # values to be passed to -t flags. should be in increasing order
 Parallel = False
 
@@ -145,6 +145,8 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         lines = process.stdout.readlines()
         
         status, synthesized, strengthened, time_ceg, time_z3, time_fensying = read_result(lines)
+        print('result of itr', n)
+        print(status, synthesized, strengthened, time_ceg, time_z3, time_fensying)
         
         if status == 'NOBUG':
             return 'STOP', 'No buggy traces.' + ',,,,,,,'
@@ -152,7 +154,8 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
             return 'STOP', 'Failed to run.' + ',,,,,,,'
         elif status == 'MCTO':
             if t == inf:
-                return 'STOP', 'CDS TO (15m)' + ',,,,,,,'
+                print('MCTO. returning')
+                return 'STOP', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
             else:
                 _time_ceg, _time_z3, _time_fensying = compute_total_times(
                     _time_ceg, 900, 
@@ -166,6 +169,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
             if t == inf:
                 return 'STOP', 'Fensying TO (15m)' + ',,,,,,,'
             else:
+                print('in FTO. Totals so far:')
                 _time_ceg, _time_z3, _time_fensying = compute_total_times(
                     _time_ceg, time_ceg, 
                     _time_z3, time_z3, 
@@ -173,6 +177,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
                 _aborted, _result_generated, _status = update_status(
                     _aborted, _result_generated, 
                     _status, status)
+                print('ceg:', _time_ceg, 'z3:', _time_z3, 'fen:', _time_fensying, 'aborted:', _aborted, 'res:', _result_generated, 'status:', _status)
         else:
             _time_ceg, _time_z3, _time_fensying = compute_total_times(
                 _time_ceg, time_ceg, 
@@ -187,6 +192,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
             num_completed_runs  = num_completed_runs + 1
 
     if _result_generated:
+        print('res gen:', _result_generated)
         _time_ceg = avg(_time_ceg)
         _time_z3  = avg(_time_z3)
         _time_fensying = avg(_time_fensying)
@@ -197,11 +203,22 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
             _synthesized = 'Cannot fix.'
             return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' +_time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
         if _status == 'MCTO':
-            return 'OK', 'CDS TO (15m)' + ',,,,,,,'
+            print('res gen:', _result_generated, 'MCTO. returning')
+            return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
         if _status == 'FTO':
+            print('res gen:', _result_generated, 'FTO. returning')
             return 'OK', 'Fensying TO (15m)' + ',,,,,,,'
         return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
-    return 'TO', 'Fensying TO (15m)' + ',,,,,,,'
+    print('res not generated. Returning')
+    if _status == 'MCTO':
+        print('res gen:', _result_generated, 'MCTO. returning')
+        return 'OK', 'CDS TO (15m)' + ',,,,,,,'
+    if _status == 'FTO':
+        return 'OK', 'Fensying TO (15m)' + ',,,,,,,'
+    else:
+        print('something wrong. status:', status, 'res:', _result_generated)
+        return 'TO', 'Fensying TO (15m)' + ',,,,,,,'
+
 
 def run_all_config(filename):
     os.chdir(cwd + '/src')
@@ -209,12 +226,13 @@ def run_all_config(filename):
     t_succ = True
 
     # for t=1 and inf
-    for t_conf in T: 
+    for i in range(len(T)): 
         # config1: no fence and depth bounding
+        t_conf = T[i]
         status, test_cols = execute_test(filename, t=t_conf)
         csv_row += test_cols
         if status == 'STOP':
-            # if 'STOP' for t=1, won't work for t=inf
+            # if 'STOP' for t=1, won't test for t=inf
             break
             
         # if not t_succ:
@@ -227,7 +245,8 @@ def run_all_config(filename):
         #     csv_row += test_cols
         # else: 
         #     csv_row += ',,,,,,' * 2
-                
+    for j in range(len(T)-i):
+        csv_row += ',,,,,,,'
     os.chdir(cwd)
     csv_row += '\n'
     return csv_row
@@ -238,7 +257,7 @@ def write_csv_header(csv_file_name):
     csv_header = 'Test Name,'
     for t in T:
         # for no fence and depth bounding
-        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,#succ_run'
+        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,#succ_run,'
         csv_header_t = csv_header_t.replace(',', 
                         '(t=' + str(t) + '),')
         csv_header += (csv_header_t)
