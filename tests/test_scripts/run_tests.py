@@ -10,7 +10,7 @@ from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/VBMCbench/configs/dekker'
+    'tests/benchmarks/VBMCbench/configs/bakery'
 ]
 
 N = 3       # no. of runs per tests
@@ -145,6 +145,8 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         lines = process.stdout.readlines()
         
         status, synthesized, strengthened, time_ceg, time_z3, time_fensying = read_result(lines)
+        # print('result of itr', n)
+        # print(status, synthesized, strengthened, time_ceg, time_z3, time_fensying)
         
         if status == 'NOBUG':
             return 'STOP', 'No buggy traces.' + ',,,,,,,'
@@ -166,6 +168,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
             if t == inf:
                 return 'STOP', 'Fensying TO (15m)' + ',,,,,,,'
             else:
+                # print('in FTO. avg:')
                 _time_ceg, _time_z3, _time_fensying = compute_total_times(
                     _time_ceg, time_ceg, 
                     _time_z3, time_z3, 
@@ -173,6 +176,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
                 _aborted, _result_generated, _status = update_status(
                     _aborted, _result_generated, 
                     _status, status)
+                # print('ceg:', _time_ceg, 'z3:', _time_z3, 'fen:', _time_fensying, 'aborted:', _aborted, 'res:', _result_generated, 'status:', _status)
         else:
             _time_ceg, _time_z3, _time_fensying = compute_total_times(
                 _time_ceg, time_ceg, 
@@ -187,6 +191,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
             num_completed_runs  = num_completed_runs + 1
 
     if _result_generated:
+        # print('res gen:', _result_generated)
         _time_ceg = avg(_time_ceg)
         _time_z3  = avg(_time_z3)
         _time_fensying = avg(_time_fensying)
@@ -201,7 +206,14 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         if _status == 'FTO':
             return 'OK', 'Fensying TO (15m)' + ',,,,,,,'
         return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
-    return 'TO', 'Fensying TO (15m)' + ',,,,,,,'
+    # print('res not generated. Returning', 'TO', 'Fensying TO (15m)' + ',,,,,,,')
+    if _status == 'MCTO':
+        return 'OK', 'CDS TO (15m)' + ',,,,,,,'
+    if _status == 'FTO':
+        return 'OK', 'Fensying TO (15m)' + ',,,,,,,'
+    else:
+        print('something wrong. status:', status, 'res:', _result_generated)
+        return 'TO', 'Fensying TO (15m)' + ',,,,,,,'
 
 def run_all_config(filename):
     os.chdir(cwd + '/src')
