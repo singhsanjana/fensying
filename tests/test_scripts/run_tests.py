@@ -8,9 +8,7 @@ from math import inf
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/VBMCbench/configs/burns',
-    'tests/benchmarks/VBMCbench/configs/bakery',
-    'tests/benchmarks/VBMCbench/configs/dekker'
+    'tests/benchmarks/VBMCbench/configs/lamport',
 ]
 
 N = 5       # no. of runs per tests
@@ -162,6 +160,8 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
             return 'STOP', 'No buggy traces.' + ',,,,,,,,,,,,,,'
         elif status == 'FAIL':
             return 'STOP', 'Failed to run.' + ',,,,,,,,,,,,,,'
+        elif status == 'ABORT':
+            return 'STOP', 'Cannot fix.' + ',,,,,,,,,,,,,,'
         elif status == 'MCTO':
             if t == inf:
                 # print('MCTO. returning')
