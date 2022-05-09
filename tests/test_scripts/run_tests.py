@@ -6,12 +6,10 @@ import sys
 import glob
 from math import inf
 
-from importlib_metadata import csv
-
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
     'tests/benchmarks/VBMCbench/configs/burns',
-    'tests/benchmarks/VBMCbench/configs/bakery'
+    'tests/benchmarks/VBMCbench/configs/bakery',
     'tests/benchmarks/VBMCbench/configs/dekker'
 ]
 
@@ -157,7 +155,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         lines = process.stdout.readlines()
         
         status, synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying = read_result(lines)
-        print('result of itr', n)
+        print('result of itr:', n, end=' ')
         print(status, synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying)
         
         if status == 'NOBUG':
@@ -306,7 +304,7 @@ def run_all_config(filename):
         #     csv_row += test_cols
         # else: 
         #     csv_row += ',,,,,,' * 2
-    for j in range(len(T)-i):
+    for j in range(len(T)-i-1):
         csv_row += ',,,,,,,,,,,,,,'
     os.chdir(cwd)
     csv_row += '\n'
