@@ -5,7 +5,7 @@ from tabulate import tabulate
 
 
 def iteration_result_summary(mc_time, z3_time, tool_time, count_added_fences, count_modified_fences):
-    print("Time- CEG:\t\t",round(mc_time, 2))        # CDS time + relations computation time
+    print("Time- BTG:\t\t",round(mc_time, 2))        # CDS time + relations computation time
     print("Time- Z3:\t\t",round(z3_time, 2))
     print("Time- Fensying:\t\t",round(tool_time, 2))
     print("Fences synthesized: \t",count_added_fences)

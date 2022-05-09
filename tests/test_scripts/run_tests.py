@@ -10,10 +10,12 @@ from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/CDSbenchmarks/barrier'
+    'tests/benchmarks/VBMCbench/configs/burns',
+    'tests/benchmarks/VBMCbench/configs/bakery'
+    'tests/benchmarks/VBMCbench/configs/dekker'
 ]
 
-N = 2       # no. of runs per tests
+N = 5       # no. of runs per tests
 T = [1, inf]  # values to be passed to -t flags. should be in increasing order
 Parallel = False
 
@@ -27,7 +29,7 @@ def add(val1, val2):
 def avg(val, num=N):
     if val == '':
         return '0'
-    return str( round(float(val) / N, 2) )
+    return str( round(float(val) / num, 2) )
 
 def read_result(lines):
     synthesized   = ''
@@ -35,6 +37,7 @@ def read_result(lines):
     time_ceg      = ''
     time_z3       = ''
     time_fensying = ''
+    iterations    = ''
     
     result_generated = False
     status = 'OK'
@@ -42,49 +45,43 @@ def read_result(lines):
     for i in range(len(lines)):
         if 'ABORT' in lines[i]:
             status = 'ABORT'
-
         if 'Model Checking time exceeded' in lines[i]:
-            return 'MCTO', synthesized, strengthened, time_ceg, time_z3, time_fensying
-
+            return 'MCTO', synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying
         if 'Tool time exceeded' in lines[i]:
-            return 'FTO', synthesized, strengthened, time_ceg, time_z3, time_fensying
-
+            return 'FTO', synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying
         if 'No buggy traces. Nothing to do.' in lines[i]:
-            return 'NOBUG', synthesized, strengthened, time_ceg, time_z3, time_fensying
-
+            return 'NOBUG', synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying
         if 'RESULT SUMMARY' in lines[i]:
             result_generated = True
             break
 
     if not result_generated:
-        return 'FAIL', synthesized, strengthened, time_ceg, time_z3, time_fensying
+        return 'FAIL', synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying
 
     for j in range(i,len(lines)): # remaining lines after line containing 'RESULT SUMMARY'
         words = lines[j].split()
         if len(words) == 0: # empty line
             continue
-
         if 'synthesized:' in words:
             synthesized = words[5]
             continue
-
         if 'strengthened:' in words:
             strengthened = words[5]
             continue
-
         if 'BTG:' in words and 'Avg.' not in words :
             time_ceg = words[2]
             continue
-
         if 'Z3:' in words and 'Avg.' not in words :
             time_z3 = words[2]
             continue
-
         if 'Fensying:' in words and 'Avg.' not in words :
             time_fensying = words[2]
+            continue   
+        if 'Total' in words and 'iterations:' in words:
+            iterations = int(words[2])
             continue
 
-    return status, synthesized, strengthened, time_ceg, time_z3, time_fensying
+    return status, synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying
 
 
 def compute_total_times(_time_ceg, time_ceg, _time_z3, time_z3, _time_fensying, time_fensying):
@@ -93,15 +90,23 @@ def compute_total_times(_time_ceg, time_ceg, _time_z3, time_z3, _time_fensying, 
     _time_fensying = add(_time_fensying, time_fensying)
     return _time_ceg, _time_z3, _time_fensying
 
-def compute_total_fences(_synthesized, synthesized, _strengthened, strengthened):
+def compute_total_fences(total_synthesized, min_synthesized, max_synthesized, synthesized, total_strengthened, min_strengthened, max_strengthened,  strengthened, total_iterations, min_iterations, max_iterations, iterations):
     # take sum of synthesized and strengthened for all itr
     if synthesized == '' or strengthened == '':
         print('got empty string for #fence')
         exit(0)
     else:
-        _synthesized = _synthesized + int(synthesized)
-        _strengthened = _strengthened + int(strengthened)
-    return _synthesized, _strengthened
+        total_synthesized = total_synthesized + int(synthesized)
+        min_synthesized = min(min_synthesized, int(synthesized))
+        max_synthesized = max(max_synthesized, int(synthesized))
+        total_strengthened = total_strengthened + int(strengthened)
+        min_strengthened = min(min_strengthened, int(strengthened))
+        max_strengthened = max(max_strengthened, int(strengthened))
+        if iterations != '':
+            total_iterations = total_iterations + int(iterations)
+            min_iterations = min(min_iterations, int(iterations))
+            max_iterations = max(max_iterations, int(iterations))
+    return total_synthesized, min_synthesized, max_synthesized, total_strengthened, max_strengthened, max_strengthened, total_iterations, min_iterations, max_iterations, 
 
 def update_status(_aborted, _result_generated, _status, status):
     """Compute the new values of status, abort and result generated based on older runs and current run"""
@@ -127,8 +132,15 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         process_command.append('-p')
     print('executing: ', process_command)
     
-    _synthesized   = 0
-    _strengthened  = 0
+    total_synthesized = 0
+    min_synthesized = inf
+    max_synthesized = 0
+    total_strengthened  = 0
+    min_strengthened  = inf
+    max_strengthened  = 0
+    total_iterations = 0
+    min_iterations = inf
+    max_iterations = 0
     _time_ceg      = ''
     _time_z3       = ''
     _time_fensying = ''
@@ -144,18 +156,31 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         process = subprocess.Popen(process_command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
         lines = process.stdout.readlines()
         
-        status, synthesized, strengthened, time_ceg, time_z3, time_fensying = read_result(lines)
+        status, synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying = read_result(lines)
         print('result of itr', n)
-        print(status, synthesized, strengthened, time_ceg, time_z3, time_fensying)
+        print(status, synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying)
         
         if status == 'NOBUG':
-            return 'STOP', 'No buggy traces.' + ',,,,,,,'
+            return 'STOP', 'No buggy traces.' + ',,,,,,,,,,,,,,'
         elif status == 'FAIL':
-            return 'STOP', 'Failed to run.' + ',,,,,,,'
+            return 'STOP', 'Failed to run.' + ',,,,,,,,,,,,,,'
         elif status == 'MCTO':
             if t == inf:
-                print('MCTO. returning')
-                return 'STOP', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
+                # print('MCTO. returning')
+                return 'OK', str(total_synthesized) + ',' \
+                    + str(min_synthesized) + ',' \
+                    + str(max_synthesized) + ',' \
+                    + str(total_strengthened) + ',' \
+                    + str(min_strengthened) + ',' \
+                    + str(max_strengthened) + ',' \
+                    + str(total_iterations) + ',' \
+                    + str(min_iterations) + ',' \
+                    + str(max_iterations) + ',' \
+                    +_time_ceg + ',' \
+                    + _time_z3 + ',' \
+                    + _time_fensying + ',' \
+                    + _time_total + ',' \
+                    + str(num_completed_runs) + ','
             else:
                 _time_ceg, _time_z3, _time_fensying = compute_total_times(
                     _time_ceg, 900, 
@@ -166,10 +191,11 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
                     _status, status)
             # return 'STOP', 'CDS TO (15m)' + ',,,,,,'
         elif status == 'FTO':
+            # print('in FTO. num_completed_runs', num_completed_runs)
             if t == inf:
-                return 'STOP', 'Fensying TO (15m)' + ',,,,,,,'
+                return 'STOP', 'Fensying TO (15m)' + ',,,,,,,,,,,,,,'
             else:
-                print('in FTO. Totals so far:')
+                # print('in FTO. Totals so far:')
                 _time_ceg, _time_z3, _time_fensying = compute_total_times(
                     _time_ceg, time_ceg, 
                     _time_z3, time_z3, 
@@ -177,47 +203,82 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
                 _aborted, _result_generated, _status = update_status(
                     _aborted, _result_generated, 
                     _status, status)
-                print('ceg:', _time_ceg, 'z3:', _time_z3, 'fen:', _time_fensying, 'aborted:', _aborted, 'res:', _result_generated, 'status:', _status)
         else:
             _time_ceg, _time_z3, _time_fensying = compute_total_times(
                 _time_ceg, time_ceg, 
                 _time_z3, time_z3, 
                 _time_fensying, time_fensying)
-            _synthesized, _strengthened = compute_total_fences(
-                _synthesized, synthesized, 
-                _strengthened, strengthened)
+            total_synthesized, min_synthesized, max_synthesized, total_strengthened, min_strengthened, max_strengthened,total_iterations, min_iterations, max_iterations = compute_total_fences(
+                total_synthesized, min_synthesized, max_synthesized,synthesized, 
+                total_strengthened, min_strengthened, max_strengthened, strengthened,
+                total_iterations, min_iterations, max_iterations, iterations)
             _aborted, _result_generated, _status = update_status(
                 _aborted, _result_generated, 
                 _status, status)
-            num_completed_runs  = num_completed_runs + 1
+            num_completed_runs  += 1
 
     if _result_generated:
-        print('res gen:', _result_generated)
         _time_ceg = avg(_time_ceg)
         _time_z3  = avg(_time_z3)
         _time_fensying = avg(_time_fensying)
         _time_total = add(_time_ceg, add(_time_z3, _time_fensying))
-        _synthesized = avg(_synthesized, num=num_completed_runs)
-        _strengthened = avg(_strengthened, num=num_completed_runs)
+        total_synthesized = avg(total_synthesized, num_completed_runs)
+        total_strengthened = avg(total_strengthened, num_completed_runs)
+        total_iterations = avg(total_iterations, num_completed_runs)
         if _aborted:
-            _synthesized = 'Cannot fix.'
-            return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' +_time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
+            total_synthesized = 'Cannot fix.'
+            return 'OK', str(total_synthesized) + ',' \
+                + str(min_synthesized) + ',' \
+                + str(max_synthesized) + ',' \
+                + str(total_strengthened) + ',' \
+                + str(min_strengthened) + ',' \
+                + str(max_strengthened) + ',' \
+                + str(total_iterations) + ',' \
+                + str(min_iterations) + ',' \
+                + str(max_iterations) + ',' \
+                +_time_ceg + ',' \
+                + _time_z3 + ',' \
+                + _time_fensying + ',' \
+                + _time_total + ',' \
+                + str(num_completed_runs) + ','
         if _status == 'MCTO':
-            print('res gen:', _result_generated, 'MCTO. returning')
-            return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
+            return 'OK', str(total_synthesized) + ',' \
+                + str(min_synthesized) + ',' \
+                + str(max_synthesized) + ',' \
+                + str(total_strengthened) + ',' \
+                + str(min_strengthened) + ',' \
+                + str(max_strengthened) + ',' \
+                + str(total_iterations) + ',' \
+                + str(min_iterations) + ',' \
+                + str(max_iterations) + ',' \
+                +_time_ceg + ',' \
+                + _time_z3 + ',' \
+                + _time_fensying + ',' \
+                + _time_total + ',' \
+                + str(num_completed_runs) + ','
         if _status == 'FTO':
-            print('res gen:', _result_generated, 'FTO. returning')
-            return 'OK', 'Fensying TO (15m)' + ',,,,,,,'
-        return 'OK', str(_synthesized) + ',' + str(_strengthened) + ',' + _time_ceg + ',' + _time_z3 + ',' + _time_fensying + ',' + _time_total + ',' + str(num_completed_runs) + ','
-    print('res not generated. Returning')
+            return 'OK', 'Fensying TO (15m)' + ',,,,,,,,,,,,,,'
+        
+        return 'OK', str(total_synthesized) + ',' \
+            + str(min_synthesized) + ',' \
+            + str(max_synthesized) + ',' \
+            + str(total_strengthened) + ',' \
+            + str(min_strengthened) + ',' \
+            + str(max_strengthened) + ',' \
+            + str(total_iterations) + ',' \
+            + str(min_iterations) + ',' \
+            + str(max_iterations) + ',' \
+            +_time_ceg + ',' \
+            + _time_z3 + ',' \
+            + _time_fensying + ',' \
+            + _time_total + ',' \
+            + str(num_completed_runs) + ','
     if _status == 'MCTO':
-        print('res gen:', _result_generated, 'MCTO. returning')
-        return 'OK', 'CDS TO (15m)' + ',,,,,,,'
+        return 'OK', 'CDS TO (15m)' + ',,,,,,,,,,,,,,'
     if _status == 'FTO':
-        return 'OK', 'Fensying TO (15m)' + ',,,,,,,'
+        return 'OK', 'Fensying TO (15m)' + ',,,,,,,,,,,,,,'
     else:
-        print('something wrong. status:', status, 'res:', _result_generated)
-        return 'TO', 'Fensying TO (15m)' + ',,,,,,,'
+        return 'TO', 'Fensying TO (15m)' + ',,,,,,,,,,,,,,'
 
 def run_all_config(filename):
     os.chdir(cwd + '/src')
@@ -230,6 +291,7 @@ def run_all_config(filename):
         t_conf = T[i]
         status, test_cols = execute_test(filename, t=t_conf)
         csv_row += test_cols
+        print(test_cols)
         if status == 'STOP':
             # if 'STOP' for t=1, won't test for t=inf
             break
@@ -245,7 +307,7 @@ def run_all_config(filename):
         # else: 
         #     csv_row += ',,,,,,' * 2
     for j in range(len(T)-i):
-        csv_row += ',,,,,,,'
+        csv_row += ',,,,,,,,,,,,,,'
     os.chdir(cwd)
     csv_row += '\n'
     return csv_row
@@ -256,7 +318,7 @@ def write_csv_header(csv_file_name):
     csv_header = 'Test Name,'
     for t in T:
         # for no fence and depth bounding
-        csv_header_t = '#synthesized,#strengthened,Time-CEG,Time-Z3,Time-fensying,Time-total,#succ_run,'
+        csv_header_t = 'avg_synthesized,min_synthesized, max_synthesized,avg_strengthened,min_strengthened,max_strengthened,tot_itr,min_itr, max_itr,Time-BTG,Time-Z3,Time-fensying,Time-total,#succ_run,'
         csv_header_t = csv_header_t.replace(',', 
                         '(t=' + str(t) + '),')
         csv_header += (csv_header_t)
