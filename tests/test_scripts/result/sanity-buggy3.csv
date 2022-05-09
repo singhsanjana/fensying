@@ -12,7 +12,7 @@ Z6.1+po+eieio+sync.cc,OK
 Z6.5+eieio+sync+po.cc,OK
 DETOUR0886.cc,OK
 MOREDETOUR0586.cc,OK
-WRR+2W+addr-fri-rfi-addr+lwsync.cc,Do not know
+WRR+2W+addr-fri-rfi-addr+lwsync.cc,FileNotFound
 SB+sync+po.cc,OK
 R0084.cc,OK
 R0118.cc,OK
@@ -23,12 +23,12 @@ R0077.cc,OK
 DETOUR1265.cc,OK
 2+2W0049.cc,OK
 Z6.1+rfi-data+rfi-data+sync.cc,OK
-RWC+ctrl+po.cc,Do not know
+RWC+ctrl+po.cc,FileNotFound
 MOREDETOUR0898.cc,OK
 Z6.1+po+sync+addr.cc,OK
 DETOUR1252.cc,OK
 MOREDETOUR0882.cc,OK
-WRW+2W+sync+po.cc,Do not know
+WRW+2W+sync+po.cc,FileNotFound
 DETOUR0633.cc,OK
 R0072.cc,OK
 W+RWC+lwsync+eieio+po.cc,OK
@@ -58,15 +58,15 @@ MOREDETOUR0593.cc,OK
 MOREDETOUR0408.cc,OK
 DETOUR1294.cc,OK
 MOREDETOUR0635.cc,OK
-o5ld.cc,Do not know
-IRIW+ctrlisync+addr.cc,Do not know
-RWC+addr-fri-rfi-addr+sync.cc,Do not know
+o5ld.cc,FileNotFound
+IRIW+ctrlisync+addr.cc,FileNotFound
+RWC+addr-fri-rfi-addr+sync.cc,FileNotFound
 Z6.1+po+po+lwsync.cc,OK
 2+2W0026.cc,OK
 DETOUR0563.cc,OK
-hh1.cc,Do not know
+hh1.cc,FileNotFound
 2+2W0033.cc,OK
-RWC+lwsync+po.cc,Do not know
+RWC+lwsync+po.cc,FileNotFound
 MOREDETOUR0378.cc,OK
 R0064.cc,OK
 SB0029.cc,OK
@@ -79,7 +79,7 @@ MOREDETOUR0683.cc,OK
 R0033.cc,OK
 DETOUR1260.cc,OK
 R0088.cc,OK
-W+RWC+po+addr+sync.cc,Do not know
+W+RWC+po+addr+sync.cc,CDS error
 MOREDETOUR0906.cc,OK
 DETOUR1267.cc,OK
 DETOUR1039.cc,OK
@@ -94,7 +94,7 @@ DETOUR1335.cc,OK
 SB0050.cc,OK
 MOREDETOUR0900.cc,OK
 DETOUR0556.cc,OK
-WRW+2W+po+sync.cc,Do not know
+WRW+2W+po+sync.cc,FileNotFound
 MOREDETOUR0579.cc,OK
 R0003.cc,OK
 Z6.3+po+eieio+addr.cc,OK
@@ -103,13 +103,13 @@ Z6.5+lwsync+sync+po.cc,OK
 DETOUR1317.cc,OK
 ppc-cookbook6.1-iwp2.3.a-amd4.cc,OK
 DETOUR0946.cc,OK
-IRIW+lwsync+addr.cc,Do not know
+IRIW+lwsync+addr.cc,FileNotFound
 Z6.0+sync+addr+rfi-addr.cc,OK
 Z6.0+eieio+lwsync+po.cc,OK
-W+RWC+po+po+eieio.cc,Do not know
+W+RWC+po+po+eieio.cc,CDS error
 DETOUR1003.cc,OK
 R0069.cc,OK
-Z6.3+rfi-data+sync+addr-fri-rfi-addr.cc,Do not know
+Z6.3+rfi-data+sync+addr-fri-rfi-addr.cc,FileNotFound
 R0105.cc,OK
 DETOUR0588.cc,OK
 MOREDETOUR0436.cc,OK
@@ -130,14 +130,14 @@ DETOUR0988.cc,OK
 SB0040.cc,OK
 DETOUR0619.cc,OK
 Z6.3+po+sync+eieio.cc,OK
-IRIW+ctrls.cc,Do not know
+IRIW+ctrls.cc,FileNotFound
 ppc-cookbook6.1.partbarrier.cc,OK
 DETOUR0992.cc,OK
 W+RWC+eieio+addr+po.cc,OK
 DETOUR1041.cc,OK
 DETOUR1042.cc,OK
 SB0026.cc,OK
-IRRWIW+addrs.cc,Do not know
+IRRWIW+addrs.cc,FileNotFound
 SB0061.cc,OK
 3.2W+lwsync+po+po.cc,OK
 MOREDETOUR0559.cc,OK
@@ -156,8 +156,8 @@ R0029.cc,OK
 2+2W0035.cc,OK
 DETOUR1311.cc,OK
 R0049.cc,OK
-IRRWIW+addr+eieio.cc,Do not know
-iriwv2.cc,Do not know
+IRRWIW+addr+eieio.cc,FileNotFound
+iriwv2.cc,FileNotFound
 MOREDETOUR0558.cc,OK
 Z6.0+lwsync+po+po.cc,OK
 DETOUR0881.cc,OK
@@ -174,7 +174,7 @@ DETOUR1281.cc,OK
 DETOUR0584.cc,OK
 MOREDETOUR0442.cc,OK
 MOREDETOUR0655.cc,OK
-WRW+2W+addr+po.cc,Do not know
+WRW+2W+addr+po.cc,FileNotFound
 MOREDETOUR0391.cc,OK
 SB+isync+po.cc,OK
 DETOUR1235.cc,OK
@@ -187,7 +187,7 @@ DETOUR0829.cc,OK
 Z6.3+rfi-data+rfi-data+sync.cc,OK
 SB0036.cc,OK
 Z6.4+sync+rfi-addr+sync.cc,OK
-WRW+2W+lwsync+po.cc,Do not know
+WRW+2W+lwsync+po.cc,FileNotFound
 SB0025.cc,OK
 DETOUR0638.cc,OK
 R0100.cc,OK
@@ -197,26 +197,26 @@ DETOUR0833.cc,OK
 DETOUR1322.cc,OK
 MOREDETOUR0881.cc,OK
 MOREDETOUR0663.cc,OK
-WRW+WR+lwsync+rfi-addr.cc,Do not know
+WRW+WR+lwsync+rfi-addr.cc,FileNotFound
 R0052.cc,OK
 DETOUR0894.cc,OK
-rfe005.cc,Do not know
+rfe005.cc,FileNotFound
 DETOUR0911.cc,OK
 2+2W0054.cc,OK
 R0106.cc,OK
 2+2W0037.cc,OK
 Z6.0+sync+addr+po.cc,OK
-IRIW+sync+po.cc,Do not know
+IRIW+sync+po.cc,FileNotFound
 3.2W+sync+sync+po.cc,OK
 R0109.cc,OK
 DETOUR1253.cc,OK
-WRR+2W+addr+lwsync.cc,Do not know
+WRR+2W+addr+lwsync.cc,FileNotFound
 R0034.cc,OK
 DETOUR1251.cc,OK
 Z6.0+po+eieio+po.cc,OK
 Z6.4+lwsync+sync+rfi-addr.cc,OK
 MOREDETOUR0877.cc,OK
-WRW+WR+sync+rfi-addr.cc,Do not know
+WRW+WR+sync+rfi-addr.cc,FileNotFound
 DETOUR1278.cc,OK
 DETOUR0553.cc,OK
 2+2W0005.cc,OK
@@ -226,9 +226,9 @@ DETOUR0553.cc,OK
 DETOUR1296.cc,OK
 DETOUR0836.cc,OK
 W+RWC+lwsync+addr+rfi-addr.cc,OK
-rfe006.cc,Do not know
+rfe006.cc,FileNotFound
 2+2W0038.cc,OK
-IRRWIW+addr+lwsync.cc,Do not know
+IRRWIW+addr+lwsync.cc,FileNotFound
 DETOUR1330.cc,OK
 DETOUR1017.cc,OK
 DETOUR0924.cc,OK
@@ -240,13 +240,13 @@ DETOUR0888.cc,OK
 2+2W0019.cc,OK
 DETOUR0944.cc,OK
 Z6.0.cc,OK
-IRIW+ctrlisync+ctrl.cc,Do not know
+IRIW+ctrlisync+ctrl.cc,FileNotFound
 MOREDETOUR0867.cc,OK
-WRW+WR+po+sync.cc,Do not know
+WRW+WR+po+sync.cc,FileNotFound
 Z6.5+rfi-data+rfi-data+rfi-addr.cc,OK
 R0042.cc,OK
 Z6.5+rfi-data+sync+sync.cc,OK
-WRR+2W+sync+rfi-data.cc,Do not know
+WRR+2W+sync+rfi-data.cc,FileNotFound
 DETOUR0997.cc,OK
 DETOUR1028.cc,OK
 R0113.cc,OK
@@ -259,7 +259,7 @@ DETOUR0554.cc,OK
 Z6.5+po+po+sync.cc,OK
 SB0048.cc,OK
 c3.cc,OK
-Z6.3+sync+rfi-data+addr-fri-rfi-addr.cc,Do not know
+Z6.3+sync+rfi-data+addr-fri-rfi-addr.cc,FileNotFound
 Z6.1+rfi-data+lwsync+lwsync.cc,OK
 Z6.0+rfi-data+data+sync.cc,OK
 Z6.5+sync+po+lwsync.cc,OK
@@ -271,19 +271,19 @@ MOREDETOUR0555.cc,OK
 DETOUR0512.cc,OK
 R0024.cc,OK
 W+RWC+rfi-data+addr+rfi-addr.cc,OK
-WRW+2W+addr+eieio.cc,Do not know
+WRW+2W+addr+eieio.cc,FileNotFound
 R0098.cc,OK
-RWC+addr+po.cc,Do not know
+RWC+addr+po.cc,FileNotFound
 DETOUR1030.cc,OK
-RWC+addr+sync.cc,Do not know
+RWC+addr+sync.cc,FileNotFound
 DETOUR0627.cc,OK
 SB0033.cc,OK
 DETOUR0945.cc,OK
 MOREDETOUR0652.cc,OK
 DETOUR1318.cc,OK
-WRW+WR+po+lwsync.cc,Do not know
-W+RWC+rfi-data+addr-fri-rfi-addr+rfi-addr.cc,Do not know
-IRRWIW+po+eieio.cc,Do not know
+WRW+WR+po+lwsync.cc,FileNotFound
+W+RWC+rfi-data+addr-fri-rfi-addr+rfi-addr.cc,FileNotFound
+IRRWIW+po+eieio.cc,FileNotFound
 DETOUR1040.cc,OK
 2+2W0025.cc,OK
 DETOUR0926.cc,OK
@@ -300,7 +300,7 @@ MOREDETOUR0675.cc,OK
 DETOUR1336.cc,OK
 R+lwsync+rfi-addr.cc,OK
 Z6.0+po+sync+po.cc,OK
-WRR+2W+addr+po.cc,Do not know
+WRR+2W+addr+po.cc,FileNotFound
 SB0001.cc,OK
 Z6.4+rfi-data+rfi-addr+rfi-addr.cc,OK
 R0101.cc,OK
@@ -314,7 +314,7 @@ Z6.5+eieio+po+eieio.cc,OK
 Z6.0+lwsync+addr+po.cc,OK
 R0070.cc,OK
 SB0000.cc,OK
-IRRWIW+eieio+addr.cc,Do not know
+IRRWIW+eieio+addr.cc,FileNotFound
 MOREDETOUR0372.cc,OK
 DETOUR0981.cc,OK
 Z6.4+po+lwsync+lwsync.cc,OK
@@ -336,12 +336,12 @@ podww000.cc,OK
 MOREDETOUR0681.cc,OK
 ppc-n6.cc,OK
 R+po+sync.cc,OK
-WRW+WR+po+eieio.cc,Do not know
+WRW+WR+po+eieio.cc,FileNotFound
 DETOUR1010.cc,OK
 W+RWC+sync+lwsync+po.cc,OK
 Z6.4+lwsync+lwsync+po.cc,OK
 MOREDETOUR0389.cc,OK
-Z6.3+lwsync+rfi-data+addr-fri-rfi-addr.cc,Do not know
+Z6.3+lwsync+rfi-data+addr-fri-rfi-addr.cc,FileNotFound
 Z6.0+po+po+eieio.cc,OK
 MOREDETOUR0609.cc,OK
 Z6.5+po+lwsync+eieio.cc,OK
@@ -362,17 +362,17 @@ DETOUR1256.cc,OK
 W+RWC+po+lwsync+po.cc,OK
 3.SB+sync+po+po.cc,OK
 MOREDETOUR0583.cc,OK
-RWC+lwsync+rfi-addr.cc,Do not know
-IRIW+sync+ctrl.cc,Do not know
+RWC+lwsync+rfi-addr.cc,FileNotFound
+IRIW+sync+ctrl.cc,FileNotFound
 DETOUR0551.cc,OK
 DETOUR0605.cc,OK
 DETOUR1288.cc,OK
-IRIW+addr+po.cc,Do not know
+IRIW+addr+po.cc,FileNotFound
 R0066.cc,OK
 DETOUR1282.cc,OK
 MOREDETOUR0374.cc,OK
 DETOUR0516.cc,OK
-W+RWC+po+sync+po.cc,Do not know
+W+RWC+po+sync+po.cc,CDS error
 DETOUR1011.cc,OK
 W+RWC+eieio+eieio+po.cc,OK
 DETOUR1280.cc,OK
