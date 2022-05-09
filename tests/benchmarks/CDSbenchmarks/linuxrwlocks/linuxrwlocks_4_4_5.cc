@@ -5,9 +5,10 @@
 #include "librace.h"
 #include "model-assert.h"
 
-#define LOOP 500
+
 #define writer_LOOP 4
 #define reader_LOOP 4
+#define LOOP 5
 
 #define RW_LOCK_BIAS            0x00100000
 #define WRITE_LOCK_CMP          RW_LOCK_BIAS
