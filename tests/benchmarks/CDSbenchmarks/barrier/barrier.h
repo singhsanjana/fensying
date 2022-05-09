@@ -1,8 +1,5 @@
 #include <atomic>
 
-#define LOOP 6
-#define NUMREADERS 3
-
 class spinning_barrier {
  public:
 	spinning_barrier (unsigned int n) : n_ (n) {
