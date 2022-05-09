@@ -8,12 +8,18 @@ from math import inf
 
 res_dir = 'tests/test_scripts/result'
 test_dirs = [
-    'tests/benchmarks/VBMCbench/configs/lamport',
+    'tests/benchmarks/VBMCbench/configs/dekker'
 ]
 
 N = 5       # no. of runs per tests
 T = [1, inf]  # values to be passed to -t flags. should be in increasing order
 Parallel = False
+
+class timeouts:
+    ## if these values are changed, need to change the corresponding values in constants.py
+	mc   = 900   # model checking  timeout of 15 minutes
+	tool = 900   # tool processing timeout of 15 minutes (excludes time of model checker and SAT solver)
+
 
 def add(val1, val2):
     if val1 == '':
@@ -42,7 +48,7 @@ def read_result(lines):
         if 'ABORT' in lines[i]:
             status = 'ABORT'
         if 'Model Checking time exceeded' in lines[i]:
-            return 'MCTO', synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying
+            status = 'MCTO'
         if 'Tool time exceeded' in lines[i]:
             return 'FTO', synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying
         if 'No buggy traces. Nothing to do.' in lines[i]:
@@ -107,7 +113,7 @@ def compute_total_fences(total_synthesized, min_synthesized, max_synthesized, sy
 def update_status(_aborted, _result_generated, _status, status):
     """Compute the new values of status, abort and result generated based on older runs and current run"""
     aborted = _aborted or _status == 'ABORT'
-    result_generated = _result_generated or status == 'OK' or status == 'ABORT'
+    result_generated = _result_generated or status == 'OK' or status == 'ABORT' or status == 'MCTO'
     # if program has already run once then status is older one
     if _status == 'OK' and (status == 'MCTO' or status == 'FTO'):
         status = 'OK'
@@ -165,28 +171,16 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
         elif status == 'MCTO':
             if t == inf:
                 # print('MCTO. returning')
-                return 'OK', str(total_synthesized) + ',' \
-                    + str(min_synthesized) + ',' \
-                    + str(max_synthesized) + ',' \
-                    + str(total_strengthened) + ',' \
-                    + str(min_strengthened) + ',' \
-                    + str(max_strengthened) + ',' \
-                    + str(total_iterations) + ',' \
-                    + str(min_iterations) + ',' \
-                    + str(max_iterations) + ',' \
-                    +_time_ceg + ',' \
-                    + _time_z3 + ',' \
-                    + _time_fensying + ',' \
-                    + _time_total + ',' \
-                    + str(num_completed_runs) + ','
+                return 'OK', 'CDS TO (15m)' + ',,,,,,,,,,,,,,'
             else:
                 _time_ceg, _time_z3, _time_fensying = compute_total_times(
-                    _time_ceg, 900, 
+                    _time_ceg, timeouts.mc, 
                     _time_z3, time_z3, 
                     _time_fensying, time_fensying)
                 _aborted, _result_generated, _status = update_status(
                     _aborted, _result_generated, 
                     _status, status)
+                num_completed_runs += 1
             # return 'STOP', 'CDS TO (15m)' + ',,,,,,'
         elif status == 'FTO':
             # print('in FTO. num_completed_runs', num_completed_runs)
@@ -197,7 +191,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
                 _time_ceg, _time_z3, _time_fensying = compute_total_times(
                     _time_ceg, time_ceg, 
                     _time_z3, time_z3, 
-                    _time_fensying, 900)
+                    _time_fensying, timeouts.tool)
                 _aborted, _result_generated, _status = update_status(
                     _aborted, _result_generated, 
                     _status, status)
@@ -252,7 +246,7 @@ def execute_test(filepath, t=inf, d=inf, f=inf):
                 +_time_ceg + ',' \
                 + _time_z3 + ',' \
                 + _time_fensying + ',' \
-                + _time_total + ',' \
+                + 'CDS TO' + ',' \
                 + str(num_completed_runs) + ','
         if _status == 'FTO':
             return 'OK', 'Fensying TO (15m)' + ',,,,,,,,,,,,,,'
@@ -304,7 +298,7 @@ def run_all_config(filename):
         #     csv_row += test_cols
         # else: 
         #     csv_row += ',,,,,,' * 2
-    for j in range(len(T)-i-1):
+    for j in range(len(T)-i)-1:
         csv_row += ',,,,,,,,,,,,,,'
     os.chdir(cwd)
     csv_row += '\n'
