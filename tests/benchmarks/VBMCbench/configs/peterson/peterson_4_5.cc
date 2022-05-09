@@ -5,8 +5,8 @@
 #include "librace.h"
 #include "model-assert.h"
 
-#define LOOPt0 1
-#define LOOPt1 1
+#define LOOPt0 4
+#define LOOPt1 5
 
 atomic_int flag1;
 atomic_int flag2;;
