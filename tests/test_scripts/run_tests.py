@@ -298,7 +298,7 @@ def run_all_config(filename):
         #     csv_row += test_cols
         # else: 
         #     csv_row += ',,,,,,' * 2
-    for j in range(len(T)-i)-1:
+    for j in range(len(T)-i-1):
         csv_row += ',,,,,,,,,,,,,,'
     os.chdir(cwd)
     csv_row += '\n'
