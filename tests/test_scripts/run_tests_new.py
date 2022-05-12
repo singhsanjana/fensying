@@ -14,7 +14,7 @@ class Test_Params:
         'tests/benchmarks/VBMCbench/configs/extra'
     ]
 
-    N = 3       # no. of runs per tests
+    N = 5       # no. of runs per tests
     T = [1, inf]  # values to be passed to -t flags. should be in increasing order
     Parallel = False
 
