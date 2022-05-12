@@ -11,7 +11,7 @@ from math import inf
 class Test_Params:
     res_dir = 'tests/test_scripts/result'
     test_dirs = [
-        'tests/benchmarks/VBMCbench/configs/dekker'
+        'tests/benchmarks/VBMCbench/configs/extra'
     ]
 
     N = 3       # no. of runs per tests
@@ -105,8 +105,15 @@ class Test_Stats:
         self._aborted = self._aborted or self._status == Status.CanNotFix
         self._result_generated = self._result_generated or status == Status.OK or status == Status.CanNotFix or status == Status.MCTO
         # if program has already run once then status is older one
-        if (self._status == Status.OK or self._status == Status.Unknown) and (status == Status.MCTO or status == Status.OK):
+        if self._status == Status.Unknown and status == Status.OK:
             self._status = Status.OK
+        elif status == Status.MCTO:
+            self._status = Status.MCTO
+        elif status == Status.FTO:
+            self._status = Status.FTO
+        elif status == Status.CanNotFix or status == Status.NoBug or status == Status.Fail:
+            print('update status should not have been called. _status=', self._status, ' status=', status)
+            sys.exit(0)
         return
 
 
@@ -293,7 +300,7 @@ class Run_Test:
     
 
     def print_results(self):
-        print('RESULTS :', end='')
+        print('RESULTS : ', end='')
         print('status:', self.status.name, 'syn:', self.synthesized, 'str:', self.strengthened, 'itr:', self.iterations, 'ceg', self.time_ceg, 'z3:', self.time_z3, 'fen:', self.time_fensying)
 
     
@@ -312,7 +319,7 @@ def run_all_config(filename):
         t_conf = Test_Params.T[i]
         exec_test = Test_Stats(filename, t=t_conf)
         test_cols = exec_test.get_string()
-        print(test_cols)
+        print('test_cols:', test_cols)
         csv_row += test_cols
     os.chdir(cwd)
     csv_row += '\n'
@@ -323,7 +330,7 @@ def write_csv_header(csv_file_name):
     csv_header = 'Test Name,'
     for t in Test_Params.T:
         # for no fence and depth bounding
-        csv_header_t = 'status, avg_synthesized, min_synthesized, max_synthesized, avg_strengthened, min_strengthened, max_strengthened,avg_itr, min_itr, max_itr, Time-BTG, Time-Z3, Time-fensying, Time-total,#num_succ, #num_mcto, #num_fto'
+        csv_header_t = 'status, avg_synthesized, min_synthesized, max_synthesized, avg_strengthened, min_strengthened, max_strengthened,avg_itr, min_itr, max_itr, Time-BTG, Time-Z3, Time-fensying, Time-total,#num_succ, #num_mcto, #num_fto,'
         csv_header_t = csv_header_t.replace(',', 
                         '(t=' + str(t) + '),')
         csv_header += (csv_header_t)
