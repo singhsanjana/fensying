@@ -167,11 +167,9 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 	return
 
 try:
-	start = time.time()
 	fn_main(obj_filepath)
-	end = time.time()
 except RuntimeError:
 	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
-res.final_result_summary((end-start-mc_make_total), (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, batch_size, total_iter, print_synthesis_summary, fence_tags_final, modified_files, error_string)
+res.final_result_summary(tool_total, (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, batch_size, total_iter, print_synthesis_summary, fence_tags_final, modified_files, error_string)
