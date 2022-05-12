@@ -50,7 +50,7 @@ def synthesis_summary(fences_and_tags_by_files, modified_files):
             
     print(pt)
 
-def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count_modified_fences, 
+def final_result_summary(tool_time, mc_time, z3_time, count_added_fences, count_modified_fences, 
                         batching, total_iterations, print_synthesis_summary, fences_and_tags, modified_files, error):
 
     aborted = False # can fix the input program
@@ -61,9 +61,10 @@ def final_result_summary(total_time, mc_time, z3_time, count_added_fences, count
     if not aborted:
         print(oc.OKGREEN, oc.BOLD, "Total fences synthesized:  \t", count_added_fences, oc.ENDC)
         print(oc.OKGREEN, oc.BOLD, "Total fences strengthened: \t", count_modified_fences, oc.ENDC)
-        total_iterations -= 1
+    
+    if total_iterations > 1:
+        total_iterations -= 1 # last iteration only reports "no more buggy traces" and is not counted
 
-    tool_time = total_time - (mc_time + z3_time)
     print("Time- BTG:\t\t",round(mc_time, 2)) # CDS time + relations cpmputation time
     print("Time- Z3:\t\t",round(z3_time, 2))
     print("Time- Fensying:\t\t",round(tool_time, 2), '\n\n')

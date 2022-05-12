@@ -124,17 +124,16 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 	
 	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(obj_filepath, input_ext, batch_size, total_iter, cds_flags, mc_total, tool_total)
-	
+
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
 		# print('mc_total so far:', mc_total)
-		mc_total = mc_total + TO.mc
+		mc_total = TO.mc
 		return
 
 	elif cnt_buggy_execs: # has buggy traces
 		get_p = Processing(traces, buggy_trace_no, flags, bounds)
 		z3vars, disjunctions, error_string, pre_calc_total, cycles_tags_by_trace = get_p.get()				# runs and returns locations
-		# print('processing done')
 		
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)
@@ -143,7 +142,6 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
 			# print('min-model', req_fences)
-			# print('z3 done')
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
 			# print('solution', fence_tags)
 			(new_obj_filepath, count_modified_fences, iter_modified_files) = insert(fence_tags, obj_filepath, input_ext) # insert fences into the source file at the required locations
@@ -161,8 +159,7 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 	mc_make_total += mc_make_time
 	z3_total      += z3_time
 	tool_total    += tool_time
-	# print('before batch printing. mc:', mc_time, 'pre:', pre_calc_total)
-
+	
 	if batching:
 		if cnt_buggy_execs and not error_string:
 			res.iteration_result_summary(mc_time, z3_time, tool_time, len(req_fences), count_modified_fences)
@@ -173,11 +170,9 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 	return
 
 try:
-	start = time.time()
 	fn_main(obj_filepath)
-	end = time.time()
 except RuntimeError:
 	print(oc.BOLD + oc.FAIL + "\nTool time exceeded 15 minutes.\n" + oc.ENDC)
 	sys.exit(0)
 
-res.final_result_summary((end-start-mc_make_total), mc_total, z3_total, fences_added, fences_modified, batch_size, total_iter, print_synthesis_summary, fence_tags_final, modified_files, error_string)
+res.final_result_summary(tool_total, (mc_total+pre_calc_total), z3_total, fences_added, fences_modified, batch_size, total_iter, print_synthesis_summary, fence_tags_final, modified_files, error_string)
