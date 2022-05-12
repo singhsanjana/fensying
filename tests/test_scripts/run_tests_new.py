@@ -14,7 +14,7 @@ class Test_Params:
         'tests/benchmarks/VBMCbench/configs/dekker'
     ]
 
-    N = 5       # no. of runs per tests
+    N = 3       # no. of runs per tests
     T = [1, inf]  # values to be passed to -t flags. should be in increasing order
     Parallel = False
 
@@ -24,7 +24,7 @@ class Timeouts:
 	tool = 900   # tool processing timeout of 15 minutes (excludes time of model checker and SAT solver)
 
 class Status(enum.Enum):
-    Unkwnon = 'Unknown'
+    Unknown = 'Unknown'
     CanNotFix = 'Abort'
     MCTO = 'MCTO'
     FTO = 'FTO'
@@ -52,7 +52,7 @@ class Test_Stats:
         self.num_mcto = 0
         self.num_fto = 0
 
-        self._status = Status.Unkwnon
+        self._status = Status.Unknown
         self._aborted = False            # could bot fix test (execution successful)
         self._result_generated = False   # execution success
 
@@ -105,12 +105,13 @@ class Test_Stats:
         self._aborted = self._aborted or self._status == Status.CanNotFix
         self._result_generated = self._result_generated or status == Status.OK or status == Status.CanNotFix or status == Status.MCTO
         # if program has already run once then status is older one
-        if self._status == Status.OK and (status == Status.MCTO or status == Status.__format__):
+        if (self._status == Status.OK or self._status == Status.Unknown) and (status == Status.MCTO or status == Status.OK):
             self._status = Status.OK
         return
 
 
     def compute_final_result(self):
+        # self.print_stats()
         if self._result_generated:
             self._time_ceg = self.avg(self._time_ceg)
             self._time_z3  = self.avg(self._time_z3)
@@ -125,9 +126,9 @@ class Test_Stats:
         for i in range(Test_Params.N):
             run_once = Run_Test(filepath, t, d, f)
             further_run, status, synthesized, strengthened, iterations, time_ceg, time_z3, time_fensying = run_once.get()
-            pass
             
             if not further_run:
+                self._status = status
                 return
 
             if status == Status.MCTO:
@@ -144,12 +145,11 @@ class Test_Stats:
                 self.update_status(status)
                 self.compute_total_fences(synthesized, strengthened, iterations)
                 self.num_finished += 1
-        
-        self.compute_final_result()
 
 
     def get_string(self):
-        return self._status.name + str(self.total_synthesized) + ',' \
+        # self.print_stats()
+        return self._status.name + ',' + str(self.total_synthesized) + ',' \
                 + str(self.min_synthesized) + ',' \
                 + str(self.max_synthesized) + ',' \
                 + str(self.total_strengthened) + ',' \
@@ -166,6 +166,25 @@ class Test_Stats:
                 + str(self.num_mcto) + ',' \
                 + str(self.num_fto) + ','
 
+    def print_stats(self):
+        print('STATS :', end='')
+        print('status: ', self._status.name,            \
+            'tot_syn:', str(self.total_synthesized),    \
+            'min_syn:', str(self.min_synthesized),      \
+            'max_syn:', str(self.max_synthesized),      \
+            'tot_str:', str(self.total_strengthened),   \
+            'min_str:', str(self.min_strengthened),     \
+            'max_str:', str(self.max_strengthened),     \
+            'tot_itr:', str(self.total_iterations),     \
+            'min_itr:', str(self.min_iterations),       \
+            'max_itr:', str(self.max_iterations),       \
+            'ceg:'    , self._time_ceg,                 \
+            'z3:'     , self._time_z3,                  \
+            'fen:'    , self._time_fensying,            \
+            'tot:'    , self._time_total,               \
+            '#fin:'   , str(self.num_finished),         \
+            '#mcto:'  , str(self.num_mcto),             \
+            '#fto:'   , str(self.num_fto))
 
 
 
@@ -188,12 +207,19 @@ class Run_Test:
 
         
     def read_result(self, lines):
+        i=0
         for i in range(len(lines)):
             if 'ABORT' in lines[i]:
                 self.status = Status.CanNotFix
             if 'Model Checking time exceeded' in lines[i]:
                 self.status = Status.MCTO
             if 'Tool time exceeded' in lines[i]:
+                self.status = Status.FTO
+                break
+            if 'time_handler' in lines[i]:
+                self.status = Status.FTO
+                break
+            if 'RuntimeError' in lines[i]:
                 self.status = Status.FTO
                 break
             if 'No buggy traces. Nothing to do.' in lines[i]:
@@ -225,7 +251,7 @@ class Run_Test:
                 self.time_z3 = words[2]
                 continue
             if 'Fensying:' in words and 'Avg.' not in words :
-                self.self.time_fensying = words[2]
+                self.time_fensying = words[2]
                 continue   
             if 'Total' in words and 'iterations:' in words:
                 self.iterations = int(words[2])
@@ -248,7 +274,7 @@ class Run_Test:
             process_command.append('-p')
         print('executing: ', process_command)
 
-        process = subprocess.Popen(process_command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True)
+        process = subprocess.Popen(process_command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True, stderr=subprocess.STDOUT)
         lines = process.stdout.readlines()
         self.read_result(lines)
         self.print_results()
@@ -267,12 +293,12 @@ class Run_Test:
     
 
     def print_results(self):
-        print('results:')
+        print('RESULTS :', end='')
         print('status:', self.status.name, 'syn:', self.synthesized, 'str:', self.strengthened, 'itr:', self.iterations, 'ceg', self.time_ceg, 'z3:', self.time_z3, 'fen:', self.time_fensying)
 
     
     def get(self):
-        return self.further_runs, self.status.name, self.synthesized, self.strengthened, self.iterations, self.time_ceg, self.time_z3, self.time_fensying
+        return self.further_runs, self.status, self.synthesized, self.strengthened, self.iterations, self.time_ceg, self.time_z3, self.time_fensying
 
 
 def run_all_config(filename):
