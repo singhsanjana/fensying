@@ -5,9 +5,9 @@
 #include "model-assert.h"
 
 #define RLOOP 1
-#define WLOOP 1
+#define WLOOP 2
 
-#define Nwriters 1
+#define Nwriters 2
 
 #define default_ret -42
 

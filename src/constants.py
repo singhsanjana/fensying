@@ -72,5 +72,6 @@ def time_handler(signum, frame):
 	raise RuntimeError
 
 class timeouts:
+	## if these values are changed, need to change the corresponding values in run_tests.py
 	mc   = 900   # model checking  timeout of 15 minutes
 	tool = 900   # tool processing timeout of 15 minutes (excludes time of model checker and SAT solver)

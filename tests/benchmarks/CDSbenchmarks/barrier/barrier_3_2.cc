@@ -1,11 +1,14 @@
 #include <stdio.h>
-
 #include <threads.h>
+#include "librace.h"
+#include "model-assert.h"
+
+#define LOOP        3
+#define NUMREADERS  2
 
 #include "barrier.h"
 
-#include "librace.h"
-#include "model-assert.h"
+
 
 spinning_barrier *barr;
 // int var = 0;

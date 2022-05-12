@@ -13,9 +13,14 @@ tests/**/*.o
 tests/**/*.o.d
 tests/**/*_fixed.cc
 tests/**/*_fixed.c
+tests/**/*_fixed.h
 tests/test_scripts/result
 tests/**/Makefile
 backup
+src/sanity_check/sanity_test/*
+
+# results
+tests/**/*.csv
 
 # model checker files:
 # cds checker

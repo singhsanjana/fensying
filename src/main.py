@@ -127,11 +127,14 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 	
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
-		sys.exit(0)
+		# print('mc_total so far:', mc_total)
+		mc_total = mc_total + TO.mc
+		return
 
 	elif cnt_buggy_execs: # has buggy traces
 		get_p = Processing(traces, buggy_trace_no, flags, bounds)
 		z3vars, disjunctions, error_string, pre_calc_total, cycles_tags_by_trace = get_p.get()				# runs and returns locations
+		# print('processing done')
 		
 		if error_string:
 			print(oc.WARNING + error_string + oc.ENDC)
@@ -140,6 +143,7 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
 			# print('min-model', req_fences)
+			# print('z3 done')
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
 			# print('solution', fence_tags)
 			(new_obj_filepath, count_modified_fences, iter_modified_files) = insert(fence_tags, obj_filepath, input_ext) # insert fences into the source file at the required locations
@@ -152,14 +156,16 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 	iteration_time_end = time.time()
 	tool_time = (iteration_time_end-iteration_time_start) - mc_make_time - mc_time - z3_time
 
+	mc_time 	  += pre_calc_total
 	mc_total      += mc_time
 	mc_make_total += mc_make_time
 	z3_total      += z3_time
 	tool_total    += tool_time
+	# print('before batch printing. mc:', mc_time, 'pre:', pre_calc_total)
 
 	if batching:
 		if cnt_buggy_execs and not error_string:
-			res.iteration_result_summary((mc_time+pre_calc_total), z3_time, tool_time, len(req_fences), count_modified_fences)
+			res.iteration_result_summary(mc_time, z3_time, tool_time, len(req_fences), count_modified_fences)
 
 	if batching and cnt_buggy_execs and not error_string:
 		fn_main(new_obj_filepath)
