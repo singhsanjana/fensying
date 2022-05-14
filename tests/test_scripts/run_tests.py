@@ -11,7 +11,7 @@ from math import inf
 class Test_Params:
     res_dir = 'tests/test_scripts/result'
     test_dirs = [
-        'tests/benchmarks/VBMCbench/strengthen/dekker'
+        'tests/benchmarks/VBMCbench/can_not_fix/lamport'
     ]
 
     N = 5       # no. of runs per tests
@@ -51,6 +51,7 @@ class Test_Stats:
         self.num_finished = 0
         self.num_mcto = 0
         self.num_fto = 0
+        self.num_cannotfix = 0
 
         self._status = Status.Unknown
         self._aborted = False            # could bot fix test (execution successful)
@@ -111,7 +112,9 @@ class Test_Stats:
             self._status = Status.MCTO
         elif status == Status.FTO:
             self._status = Status.FTO
-        elif status == Status.CanNotFix or status == Status.NoBug or status == Status.Fail:
+        elif status == Status.CanNotFix:
+            self._status = Status.CanNotFix
+        elif status == Status.NoBug or status == Status.Fail:
             print('update status should not have been called. _status=', self._status, ' status=', status)
             sys.exit(0)
         return
@@ -124,9 +127,9 @@ class Test_Stats:
             self._time_z3  = self.avg(self._time_z3)
             self._time_fensying = self.avg(self._time_fensying)
             self._time_total = self.add(self._time_ceg, self.add(self._time_z3, self._time_fensying))
-            self.total_synthesized = self.avg(self.total_synthesized, self.num_finished + self.num_mcto)
-            self.total_strengthened = self.avg(self.total_strengthened, self.num_finished + self.num_mcto)
-            self.total_iterations = self.avg(self.total_iterations, self.num_finished + self.num_mcto)
+            self.total_synthesized = self.avg(self.total_synthesized, self.num_finished + self.num_mcto + self.num_cannotfix)
+            self.total_strengthened = self.avg(self.total_strengthened, self.num_finished + self.num_mcto + self.num_cannotfix)
+            self.total_iterations = self.avg(self.total_iterations, self.num_finished + self.num_mcto + self.num_cannotfix)
 
 
     def execute_test(self, filepath, t, d, f):
@@ -144,9 +147,14 @@ class Test_Stats:
                 self.compute_total_fences(synthesized, strengthened, iterations)
                 self.num_mcto += 1
             elif status == Status.FTO:
-                self.compute_total_times(time_ceg, Timeouts.tool, time_fensying)
+                self.compute_total_times(time_ceg, time_z3, Timeouts.tool)
                 self.update_status(status)
                 self.num_fto +=1
+            elif status == Status.CanNotFix:
+                self.compute_total_times(time_ceg, time_z3, time_fensying)
+                self.update_status(status)
+                self.compute_total_fences(0 if synthesized=='' else synthesized, 0 if strengthened=='' else strengthened, iterations)
+                self.num_cannotfix += 1
             else:
                 self.compute_total_times(time_ceg, time_z3, time_fensying)
                 self.update_status(status)
@@ -291,8 +299,8 @@ class Run_Test:
         elif self.status == Status.Fail:
             self.further_runs = False
             # return 'STOP', 'Failed to run.' + ',,,,,,,,,,,,,,'
-        elif self.status == Status.CanNotFix:
-            self.further_runs = False
+        # elif self.status == Status.CanNotFix:
+        #     self.further_runs = False
             # return 'STOP', 'Cannot fix.' + ',,,,,,,,,,,,,,'
         elif t == inf and (self.status == Status.MCTO or self.status == Status.FTO):
             self.further_runs = False

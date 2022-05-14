@@ -3,8 +3,8 @@
 #include "librace.h"
 #include "model-assert.h"
 
-#define OFLOOP 1 // outer for loop
-#define IFLOOP 2 // inner for loop
+#define OFLOOP 2 // outer for loop
+#define IFLOOP 1 // inner for loop
 #define WLOOP  2 // while loop
 
 atomic_int x, y;
@@ -21,7 +21,7 @@ void t0(void *)
     {
         atomic_store_explicit(__FILE__, __LINE__, &b1, 1, memory_order_relaxed); // memory_order_release);
         atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
-        ry1 = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_relaxed);;
+        ry1 = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_seq_cst);;
         if (ry1 != 0)
         {
             atomic_store_explicit(__FILE__, __LINE__, &b1, 0, memory_order_relaxed); // memory_order_release);
@@ -36,14 +36,14 @@ void t0(void *)
                 return;
             continue;
         }
-        atomic_store_explicit(__FILE__, __LINE__, &y, 1, memory_order_seq_cst); 
+        atomic_store_explicit(__FILE__, __LINE__, &y, 1, memory_order_relaxed); 
         rx = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_seq_cst);;
         if (rx != 1)
         {
             atomic_store_explicit(__FILE__, __LINE__, &b1, 0, memory_order_seq_cst); // memory_order_release);
             rb2 = atomic_load_explicit(__FILE__, __LINE__, &b2, memory_order_seq_cst); // memory_order_acquire);
             int l3 =0 ;
-            while (rb2 >= 1 &&l3<WLOOP)
+            while (rb2 >= 1 && l3<WLOOP)
             {
                 rb2 = atomic_load_explicit(__FILE__, __LINE__, &b2, memory_order_seq_cst); // memory_order_acquire);
                 l3++;
@@ -67,10 +67,10 @@ void t0(void *)
         }
         break;
     }
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_X, 2, memory_order_relaxed); // memory_order_release);
-    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_X, memory_order_relaxed); // memory_order_acquire);;
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_X, 2, memory_order_seq_cst); // memory_order_release);
+    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_X, memory_order_seq_cst); // memory_order_acquire);;
     MODEL_ASSERT(rx == 2);
-    atomic_store_explicit(__FILE__, __LINE__, &y, 0, memory_order_seq_cst); // memory_order_release); 
+    atomic_store_explicit(__FILE__, __LINE__, &y, 0,memory_order_seq_cst ); // memory_order_release); 
     atomic_store_explicit(__FILE__, __LINE__, &b1, 0, memory_order_seq_cst); // memory_order_release);
   }
 }
@@ -84,7 +84,7 @@ for(int l1=0;l1<OFLOOP;l1++) {
     {
         atomic_store_explicit(__FILE__, __LINE__, &b2, 1, memory_order_relaxed); // memory_order_release);
         atomic_store_explicit(__FILE__, __LINE__, &x, 2, memory_order_relaxed);
-        ry1 = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_relaxed);;
+        ry1 = atomic_load_explicit(__FILE__, __LINE__, &y, memory_order_seq_cst);;
         if (ry1 != 0)
         {
             atomic_store_explicit(__FILE__, __LINE__, &b2, 0, memory_order_relaxed); // memory_order_release);
@@ -98,7 +98,7 @@ for(int l1=0;l1<OFLOOP;l1++) {
             if(ry2!=0) return;
             continue;
         }
-        atomic_store_explicit(__FILE__, __LINE__, &y, 2, memory_order_seq_cst); 
+        atomic_store_explicit(__FILE__, __LINE__, &y, 2, memory_order_relaxed); 
         rx = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_seq_cst);
         if (rx != 2)
         {
@@ -127,19 +127,14 @@ for(int l1=0;l1<OFLOOP;l1++) {
         }
         break;
     }
-    atomic_store_explicit(__FILE__, __LINE__, &_cc_X, 1, memory_order_relaxed); // memory_order_release);
-    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_X, memory_order_relaxed); // memory_order_acquire);;
+    atomic_store_explicit(__FILE__, __LINE__, &_cc_X, 1, memory_order_seq_cst); // memory_order_release);
+    rx = atomic_load_explicit(__FILE__, __LINE__, &_cc_X, memory_order_seq_cst); // memory_order_acquire);;
     MODEL_ASSERT(rx >= 1);
     atomic_store_explicit(__FILE__, __LINE__, &y, 0, memory_order_seq_cst); // memory_order_release); 
     atomic_store_explicit(__FILE__, __LINE__, &b2, 0, memory_order_seq_cst); // memory_order_release);
   }
 }
 
-
-int *propertyChecking(void* arg)
-{
-    return 0;
-}
 
 int user_main(int argc, char **argv)
 {
@@ -157,6 +152,3 @@ int user_main(int argc, char **argv)
         thrd_join(_t2);
       return 0;
 }
-
-
-
