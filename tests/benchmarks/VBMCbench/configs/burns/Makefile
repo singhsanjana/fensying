@@ -1,4 +1,4 @@
-BASE := ../../../../model-checker/cds-checker
+BASE := ../../../../../model-checker/cds-checker
 
 SUBDIRS := $(wildcard */.)
 
