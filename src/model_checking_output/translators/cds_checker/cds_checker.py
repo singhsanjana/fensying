@@ -101,18 +101,11 @@ class translate_cds:
 					exit(0)
 				else:
 					print('No more buggy traces.')
-			# print("\n\nBuggy executions:\t",self.cnt_buggy_execs)
-
+			
 			if self.cnt_buggy_execs != 0:
 				self.create_structure()
-				# self.print_traces()
-
+			
 	def get(self):
-		# print('traces:', self.traces)
-		# print('mc_time: ', self.mc_time)
-		# print('cnt_buggy_execs: ', self.cnt_buggy_execs)
-		# print('error_string: ', self.error_string)
-		# print('buggy_trace_no', self.buggy_trace_no)
 		return self.traces, self.mc_time, self.make_time, self.cnt_buggy_execs, self.error_string, self.buggy_trace_no
 
 	def make_cmd(self, filename, obj_filepath, input_ext):
@@ -209,16 +202,12 @@ class translate_cds:
 
 			self.traces.append(execution)
 
-		# for i in self.traces[S_NO]:
-		# 	print(i)
-
 	# Helper functions
 	def print_traces(self):
 		i=1
 		for trace in self.traces:
 			print('Trace', i)
 			for event in trace:
-				# print_event(event)
 				print(*event, sep='\t')
 			i=i+1
 	

@@ -127,7 +127,6 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
-		# print('mc_total so far:', mc_total)
 		mc_total = TO.mc
 		return
 
@@ -141,9 +140,7 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 
 		else:
 			req_fences, z3_time = z3run(z3vars, disjunctions)	# get output from z3 & get required locations
-			# print('min-model', req_fences)
 			fence_tags = allocate_fence_orders(req_fences, cycles_tags_by_trace)
-			# print('solution', fence_tags)
 			(new_obj_filepath, count_modified_fences, iter_modified_files) = insert(fence_tags, obj_filepath, input_ext) # insert fences into the source file at the required locations
 
 			fences_added += len(req_fences)

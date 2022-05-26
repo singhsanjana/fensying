@@ -16,7 +16,5 @@ class z3translate:
 
         self.formula = z3.disjunct(conjunctions)
 
-        # print(self.variables, conjunctions, self.formula)
-
     def get(self):
         return self.variables, self.formula

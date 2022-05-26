@@ -29,71 +29,40 @@ class Processing:
 			candidate_cycles_tags     = []							# list of all cycles in this trace with fence tags
 			
 			trace_no += 1
-			# print("---------Trace",trace_no,"---------")
-			# print(trace)
-
+			
 			pre_calc_start = time.time()
 			# [snj]: hb edges does not include sb, sb would be computed after inserting fences
 			hb_edges, mo_edges, rf_edges, rfinv_edges, so_edges = pre_calculations(trace, buggy_trace_no[trace_no-1])
-			# hb_print = hb_edges
-			# hb_print.sort(key = lambda x:x[1])
-			# hb_print.sort(key = lambda x:x[0])
-			# print("hb-pre-fences=" + str(hb_print))
-			# print ('rf:', rf_edges)
-			# print ('rfinv:', rfinv_edges)
-			# print ('mo:', mo_edges)
-			# print ('so:', so_edges)
-
+			
 			pre_calc_end = time.time()
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
 
 			# ADD FENCES
 			order=self.fence(trace)
-			# print("order =",order)
-			# print("fences_thread =", self.fences_by_thread)
-			# print("all_events_thread", self.all_events_by_thread)
-
+			
 			# transitive SB calc, put into hb edges
 			sb_edges, so_edges_from_sb = self.sb()
 			hb_edges += sb_edges
 			so_edges += so_edges_from_sb
-			# print("hb-post-fences=" + str(hb_edges))
-			# print("so-of-sb-post-fences=" + str(so_edges))
-
+			
 			# pre-process and obtain separately reads, writes with neighbouring fences
 			reads, writes = preprocessing(order)
-			# print ('reads:', reads)
-			# print ('writes:', writes)
-
+			
 			# CALC EDGES
 			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, so_edges)
 			swdob_edges, fr_edges, so_edges = calc_edges.get()
 			hb_edges = hb_edges + swdob_edges
-			# print('done edge computation')
-			# print("swdob = ", swdob_edges)
-			# print("hb = ", hb_edges)
-			# print("mo = ", mo_edges)
-			# print("rf = ", rf_edges)
-			# print("rfinv = ", rfinv_edges)
-			# print("fr = ", fr_edges)
-			# print("so = ", so_edges)
 			
 			# WEAK FENSYING
 			wf = weak_fensying(flags, bounds, hb_edges, mo_edges, rf_edges, fr_edges)
-			# print('done weak fensying')
 			if wf.has_weak_cycles():
 				weak_cycles = wf.get()
 				candidate_cycles_tags = compute_relaxed_tags(weak_cycles, swdob_edges)
-			# print ('done weak fence tagging')
 				
 			# STRONG FENSYING
-			# print('#so_edges', len(so_edges))
 			strong_cycles = cycles(flags, bounds, so_edges)
-			# print('done strong fensying')
 			candidate_cycles_tags += compute_strong_tags(strong_cycles, sb_edges)
-			# print('done strong fence tagging')
-
-			# print('candidate cycles=', candidate_cycles_tags)
+			
 			if (len(candidate_cycles_tags) > 0):
 				self.cycles_tags_by_trace.append(candidate_cycles_tags)
 

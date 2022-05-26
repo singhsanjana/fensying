@@ -32,5 +32,3 @@ def z3convert(consts, disjunctions):
 	contents += z3.minimize(z3.operation("bvadd",consts_fn))
 	contents += "(check-sat)\n(get-model)"
 	file.write(contents)
-
-	# print('z3file: ', contents)
