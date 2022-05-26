@@ -5,12 +5,6 @@ Simple_Stack S;
 void **location;
 int *collision;
 
-void StackOp (ThreadInfo * pInfo) {
-    if (TryPerformStackOp (p) == FALSE)
-	LesOP (p);
-    return;
-}
-
 void LesOP (ThreadInfo * p) {
     while (1) {
 	location[mypid] = p;
@@ -68,6 +62,12 @@ bool TryPerformStackOp (ThreadInfo * p) {
 	    return FALSE;
 	}
     }
+}
+
+void StackOp (ThreadInfo * p) {
+    if (TryPerformStackOp (p) == FALSE)
+	LesOP (p);
+    return;
 }
 
 void FinishCollision (ProcessInfo * p) {

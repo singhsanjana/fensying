@@ -2,9 +2,9 @@ include ../benchmarks.mk
 
 TESTNAME = stack
 
-all: $(TESTNAME)
+all: $(TESTNAME).o
 
-$(TESTNAME): $(TESTNAME).c
+$(TESTNAME).o: $(TESTNAME).cc
 	$(CXX) -o $@ $< $(CXXFLAGS) $(LDFLAGS)
 
 clean:

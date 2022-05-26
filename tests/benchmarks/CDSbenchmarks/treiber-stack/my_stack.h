@@ -3,6 +3,7 @@
 #define release memory_order_release 
 #define acquire memory_order_acquire 
 #define relaxed memory_order_relaxed
+#define seq_cst memory_order_seq_cst
 
 #define MAX_NODES			0xf
 

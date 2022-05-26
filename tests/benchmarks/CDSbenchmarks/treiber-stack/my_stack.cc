@@ -10,6 +10,8 @@
 
 #define POISON_IDX 0x666
 
+#define LOOP 2
+
 static unsigned int (*free_lists)[MAX_FREELIST];
 
 /* Search this thread's free list for a "new" node */
@@ -80,16 +82,16 @@ void push(mystack_t *s, unsigned int val) {
 	node->value = val;
 	pointer oldTop, newTop;
 	bool success;
-	while (true) {
+	for (int loop = 0; loop < LOOP; loop++) {
 		// acquire
-		oldTop = atomic_load_explicit(__FILE__, __LINE__, &s->top, acquire);
+		oldTop = atomic_load_explicit(__FILE__, __LINE__, &s->top, relaxed);
 		newTop = MAKE_POINTER(nodeIdx, get_count(oldTop) + 1);
 		// relaxed
 		atomic_store_explicit(__FILE__, __LINE__, &node->next, oldTop, relaxed);
 
 		// release & relaxed
 		success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__, &s->top, &oldTop,
-			newTop, release, relaxed);
+			newTop, relaxed, relaxed);
 		if (success)
 			break;
 	} 
@@ -101,9 +103,9 @@ unsigned int pop(mystack_t *s)
 	node_t *node;
 	bool success;
 	int val;
-	while (true) {
+	for (int loop = 0; loop < LOOP; loop++) {
 		// acquire
-		oldTop = atomic_load_explicit(__FILE__, __LINE__, &s->top, acquire);
+		oldTop = atomic_load_explicit(__FILE__, __LINE__, &s->top, relaxed);
 		if (get_ptr(oldTop) == 0)
 			return 0;
 		node = &s->nodes[get_ptr(oldTop)];
@@ -111,10 +113,14 @@ unsigned int pop(mystack_t *s)
 		next = atomic_load_explicit(__FILE__, __LINE__, &node->next, relaxed);
 		newTop = MAKE_POINTER(get_ptr(next), get_count(oldTop) + 1);
 		// release & relaxed
-		success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__, &s->top, &oldTop,
-			newTop, release, relaxed);
-		if (success)
+		// success = atomic_compare_exchange_strong_explicit(__FILE__, __LINE__, &s->top, &oldTop,
+		// 	newTop, relaxed, relaxed);
+		pointer kkk = atomic_load_explicit(__FILE__, __LINE__, &s->top, relaxed);
+		success = (kkk == oldTop);
+		if (success) {
+			atomic_store_explicit(__FILE__, __LINE__, &s->top, newTop, relaxed);
 			break;
+		} 
 	}
 	val = node->value;
 	/* Reclaim the used slot */

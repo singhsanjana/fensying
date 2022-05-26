@@ -3,9 +3,9 @@ include ../benchmarks.mk
 TESTNAME = spsc-queue
 RELACYNAME = spsc-relacy
 
-all: $(TESTNAME)
+all: $(TESTNAME).o
 
-$(TESTNAME): $(TESTNAME).cc queue.h eventcount.h
+$(TESTNAME).o: $(TESTNAME).cc queue.h eventcount.h
 	$(CXX) -o $@ $< $(CXXFLAGS) $(LDFLAGS)
 
 relacy: $(RELACYNAME)

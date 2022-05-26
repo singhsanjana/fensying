@@ -1,6 +1,6 @@
 include ../benchmarks.mk
 
-main: my_stack.o main.cc
+main.o: my_stack.o main.cc
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 %.o: %.c
