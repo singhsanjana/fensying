@@ -45,7 +45,7 @@ python3 main.py -f <filename containing main function including path>
 ```
 The ouput file will be generated in the source path with a `_fixed` appended to its name.
 
-Alternatively, you can use `run_` script in `tests/`
+Alternatively, you can use `run_benchmarks.py` or `run_litmus.py` script in `tests/test_scripts`
 
 
 Note: Check sample files in `tests/litmus/` and `tests/benchmarks/` folders for the supported input file formats

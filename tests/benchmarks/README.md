@@ -7,5 +7,5 @@ Run `make`
 Use `run` in base directory to run any of these benchmarks.
 
 ## Execute all benchmarks
-Use `run_tests.py` in `tests/test_script` directory
+Use `run_tests.py` in `tests/test_scripts` directory
 
