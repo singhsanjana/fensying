@@ -15,7 +15,6 @@ tests/**/*_fixed.cc
 tests/**/*_fixed.c
 tests/**/*_fixed.h
 tests/test_scripts/result
-tests/**/Makefile
 backup
 src/sanity_check/sanity_test/*
 
