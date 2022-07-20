@@ -10,6 +10,7 @@
 import argparse
 import time
 import sys
+import os
 
 import publish_result as res
 from constants import output_colours as oc
@@ -73,9 +74,10 @@ bounds = {'batch_size':batch_size, 'max_iter':max_iter, 'max_fences':max_fences,
 
 input_ext      = filepath.split('$')[1]
 obj_filepath   = filepath.split('$')[0]
-# if not os.path.exists(obj_filepath): [snj]: checked in run script
-# 	print(oc.BOLD + oc.FAIL + "\nInput file not found.\n" + oc.ENDC)
-# 	sys.exit(0)
+
+if not os.path.exists(obj_filepath):
+	print(oc.BOLD + oc.FAIL + "\nInput file not found.\n" + oc.ENDC)
+	sys.exit(0)
 if iter_bound and not batching:
 	print(oc.BOLD + oc.FAIL + "\nPlease specify the batch size of traces (-t).\n" + oc.ENDC)
 	sys.exit(0)
