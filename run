@@ -3,34 +3,6 @@
 NOTE='\033[0;36m'
 END_NOTE='\033[0m' # No Color
 
-
-# require a space seperated list in the file
-# EX: test_list file has contents:
-# 'safe466.cc' 'S+PPO430.cc' 'LB0009.cc'
-# strings can also be double quoted. 
-# But no comma or list brackets will work
-# name of the file containing list should not have an extention 
-# Need full path in the list
-run_from_list() {
-    # echo "running tests in list " $1
-    list_name="$1"
-    
-    if [ ! -f $list_name ]; then
-        echo "List file not found."
-        exit 0
-    fi
-    tests=$(<$list_name)
-    # echo $tests
-
-    # echo "running tests"
-    for test in $tests; do
-        # echo "run test" $test
-        IFS=. read -r filename ext <<< "$test"
-        run_single_test $filename $ext
-    done
-}
-
-
 run_single_test() {
     fileext="$3"
     if [[ "$3" != "o" ]]; then
