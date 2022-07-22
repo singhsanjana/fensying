@@ -18,6 +18,9 @@
 * `tests`: litmus tests and benchmarks. This folder also container test scripts to run entire set of benchmarks and litmus tests.
 
 
+## Use FenSying Docker
+Use `docker pull fensying/fensying` to pull and use FenSying docker
+
 ## Installation
 * Install required python libraries:<br/>
 ```
