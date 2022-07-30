@@ -30,7 +30,7 @@ parser.add_argument('file', type=str,
 
 # bounds
 parser.add_argument("--traces", "-t", type=int, required=False, dest="batch_size",
-					help="Batch buggy traces (non-optimal).")
+					help="Batch buggy traces, get BATCH_SIZE number of traces from model checker in an iteration (non-optimal).")
 parser.add_argument("--max-iter", "-m", type=int, required=False, dest="max_iter",
 					help="Max number of batches. Used with -t flag.")
 parser.add_argument("--fence-bound", "-f", type=int, required=False, dest="max_fence",

@@ -7,7 +7,9 @@ run_single_test() {
     fileext="$3"
     if [[ "$3" != "o" ]]; then
         echo -e "${NOTE}Modifying filename: $1/$2.$3 --> $1/$2.o ${END_NOTE}"
-    else
+    fi
+
+    if [ "$3" != "c" ] && [ "$3" != "cc" ]; then
         pattern="$filename.c*"
         filename=$(find $path -maxdepth 1 -mindepth 1 -name $pattern)
         fileext="${filename##*.}"
@@ -33,15 +35,14 @@ if [ $# -eq 0 ]; then
     exit 0
 fi
 
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    python3 src/main.py $1
+    exit 0
+fi
+
 path="${1%\/*}"
 filename="${1##*\/}"
 filename="${filename%.*}"
 ext="${1##*.}"
 
-if [[ "$ext" == "" ]]; then
-    echo "will run list in " $filename "." $ext
-    run_from_list $filename
-    exit 0
-else
-    run_single_test $path $filename $ext ${@:2}
-fi
+run_single_test $path $filename $ext ${@:2}
