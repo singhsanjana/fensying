@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#define LOOP 2
+#define LOOP 10
 
 atomic<int> x;
 atomic<int> y;

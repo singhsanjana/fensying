@@ -3,7 +3,7 @@
 #include <atomic>
 #include <model-assert.h>
 
-#define LOOP_LIMIT 2
+#define LOOP_LIMIT 4
 
 using namespace std;
 
