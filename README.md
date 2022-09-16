@@ -18,6 +18,9 @@
 * `tests`: litmus tests and benchmarks, and additionally test scripts to run entire set of benchmarks and litmus tests.
 
 
+## Use FenSying Docker
+Use `docker pull fensying/fensying` to pull and use FenSying docker
+
 ## Installation
 * Install required python libraries:<br/>
 ```
