@@ -19,7 +19,7 @@
 
 
 ## Use FenSying Docker
-Use `docker pull fensying/fensying` to pull and use FenSying docker
+Use `docker pull fensying/fensying:atva22` to pull and use FenSying docker
 
 ## Installation
 * Install required python libraries:<br/>
