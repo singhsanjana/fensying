@@ -76,7 +76,7 @@ class translate_cds:
 			self.mc_time = cds_end - cds_start
 			self.cds_output = p.decode('utf-8', errors='ignore')	# convert to string
 
-	def translate(self, current_iteration):			
+	def translate(self, current_iteration):
 			self.obtain_traces(self.cds_output.split('\n'))
 			self.cnt_buggy_execs = int(self.cnt_buggy_execs)
 
@@ -111,7 +111,10 @@ class translate_cds:
 	def make_cmd(self, filename, obj_filepath, input_ext):
 		test_name  = filename[:filename.rfind('.')] # filename without extension
 		path_depth = '../' * ( obj_filepath.count('/')-1 ) 
-		cmd  = 'g++ -MMD -MF ./.' + test_name + '.o.d -o ' + test_name + '.o ' + test_name + '.' + input_ext + ' '
+		cmd = 'g++ '
+		if input_ext == 'c':
+			cmd = 'gcc '
+		cmd += '-MMD -MF ./.' + test_name + '.o.d -o ' + test_name + '.o ' + test_name + '.' + input_ext + ' '
 		cmd += '-Wall -g -O3 '
 		cmd += '-I' + path_depth + 'model-checker/cds-checker '
 		cmd += '-I' + path_depth + 'model-checker/cds-checker/include -fpermissive '
