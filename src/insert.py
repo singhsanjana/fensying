@@ -40,6 +40,13 @@ def list_includes(lines, path):
 	
 	return included_files, include_fixes
 
+def fence_instruction(filename, order):
+	ext = filename.split('.')[1]
+	if ext == 'c':
+		return fi.FENCE_INSTRUCTIONS_C[order]
+	
+	return fi.FENCE_INSTRUCTIONS[order]
+
 def add_fences_to_file(filename, lines, fence_tags_by_file):		
 	count_strengthened_fences = 0
 	is_modified = False
@@ -50,12 +57,12 @@ def add_fences_to_file(filename, lines, fence_tags_by_file):
 		# insert the fence
 		if not already_has_fence:
 			# Synthesize fence
-			lines[fen_index] += fi.FENCE_INSTRUCTIONS[order]
+			lines[fen_index] += fence_instruction(filename, order)
 			is_modified = True
 		elif is_strengthened:
 			# Strengthen order of existing fence
 			count_strengthened_fences += 1
-			lines[fen_index] = fi.FENCE_INSTRUCTIONS[order]
+			lines[fen_index] = fence_instruction(filename, order)
 			is_modified = True
 
 	return lines, count_strengthened_fences, is_modified
