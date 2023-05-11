@@ -145,13 +145,16 @@ class Processing:
 		so_edges = []
 		for thread_events in self.all_events_by_thread: # events of one thread at a time
 			last_sc_event = None
+			last_sc_fence = None
 
 			for i in range(1, len(thread_events)): # 1 event at a time, 1st event skipped because it has no sb before
+				is_fence = False
 				is_sc = False
 
 				# event = label (if fence) or S_NO (otherwise)
 				if type(thread_events[i]) is str: # event is a fence
 					event = thread_events[i]
+					is_fence = True
 					is_sc = True
 				else:
 					event = thread_events[i][S_NO]
@@ -162,7 +165,13 @@ class Processing:
 				if is_sc:
 					if last_sc_event != None: # some sc event has been found before this event
 						so_edges.append((last_sc_event, event))
-					last_sc_event = event
+					if last_sc_fence != None:
+						so_edges.append((last_sc_fence, event))
+
+					if is_fence:
+						last_sc_fence = event
+					else:
+						last_sc_event = event
 
 				# add sb edge with each event that occurs before in thread
 				for j in range(i):
