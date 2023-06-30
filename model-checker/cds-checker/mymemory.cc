@@ -237,7 +237,7 @@ void Thread_free(void *ptr)
 }
 
 /** @brief Snapshotting new operator for user programs */
-void * operator new(size_t size) throw(std::bad_alloc)
+void * operator new(size_t size) 
 {
 	return malloc(size);
 }
@@ -249,7 +249,7 @@ void operator delete(void *p) throw()
 }
 
 /** @brief Snapshotting new[] operator for user programs */
-void * operator new[](size_t size) throw(std::bad_alloc)
+void * operator new[](size_t size) 
 {
 	return malloc(size);
 }

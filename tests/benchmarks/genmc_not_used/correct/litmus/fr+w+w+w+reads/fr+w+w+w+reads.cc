@@ -1,0 +1,33 @@
+#include "librace.h" 
+#include "model-assert.h"
+atomic_int x;
+
+void *thread_1(void *unused)
+{
+	atomic_store_explicit(__FILE__, __LINE__, &x, 1, memory_order_relaxed);
+	;
+}
+
+void *thread_2(void *unused)
+{
+	atomic_store_explicit(__FILE__, __LINE__, &x, 2, memory_order_relaxed);
+	;
+}
+
+void *thread_3(void *unused)
+{
+	atomic_store_explicit(__FILE__, __LINE__, &x, 3, memory_order_relaxed);
+	;
+}
+
+void *thread_4(void *unused)
+{
+	int r1 = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
+	int r2 = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
+	int r3 = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
+	int r4 = atomic_load_explicit(__FILE__, __LINE__, &x, memory_order_relaxed);
+	;
+}
+
+/* exists */
+/* (3:r1=0 /\ 3:r2=1 /\ 3:r3=2 /\ 3:r4=3) */

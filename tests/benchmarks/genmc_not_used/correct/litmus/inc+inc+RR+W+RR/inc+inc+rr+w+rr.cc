@@ -1,0 +1,39 @@
+#include "librace.h" 
+#include "model-assert.h"
+#define mo_rlx memory_order_relaxed
+
+atomic_int x;
+
+int a, b, c, d;
+
+void *thread_1(void *unused)
+{
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &x, 1, mo_rlx);
+	;
+}
+
+void *thread_2(void *unused)
+{
+	atomic_fetch_add_explicit(__FILE__, __LINE__, &x, 1, mo_rlx);
+	;
+}
+
+void *thread_3(void *unused)
+{
+	a = atomic_load_explicit(__FILE__, __LINE__, &x, mo_rlx);
+	b = atomic_load_explicit(__FILE__, __LINE__, &x, mo_rlx);
+	;
+}
+
+void *thread_4(void *unused)
+{
+	atomic_store_explicit(__FILE__, __LINE__, &x, 42, mo_rlx);
+	;
+}
+
+void *thread_5(void *unused)
+{
+	c = atomic_load_explicit(__FILE__, __LINE__, &x, mo_rlx);
+	d = atomic_load_explicit(__FILE__, __LINE__, &x, mo_rlx);
+	;
+}

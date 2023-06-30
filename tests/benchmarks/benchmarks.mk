@@ -1,7 +1,7 @@
 # A few common Makefile items
 
 CC = gcc
-CXX = g++
+CXX = g++ -std=c++11
 
 UNAME = $(shell uname)
 

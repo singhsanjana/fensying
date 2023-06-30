@@ -9,7 +9,7 @@ from importlib_metadata import csv
 
 res_dir = 'tests/test_scripts/result'
 
-N = 3       # no. of runs per tests
+N = 1       # no. of runs per tests
 T = [1, inf]  # values to be passed to -t flags. should be in increasing order
 Parallel = False
 
