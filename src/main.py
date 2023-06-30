@@ -37,6 +37,10 @@ parser.add_argument("--fence-bound", "-f", type=int, required=False, dest="max_f
 					help="Max number of fences in cycles.")
 parser.add_argument("--max-depth", "-d", type=int, required=False, dest="max_depth",
 					help="Max depth when lookign for cycles.")
+parser.add_argument("--max-cycles", "-c", type=int, required=False, dest="max_cycles",
+					help="Max number of cycles.")
+parser.add_argument("--num_fences", "-n", type=int, required=False, dest="num_fences",
+					help="Max number of candidate fences tobbe placed.")
 
 # print options
 parser.add_argument("--synthesis-summary", "-s", required=False, action='store_true', dest="print_synthesis_summary",
@@ -57,7 +61,11 @@ filepath   = args.file									# gets the input file name
 batch_size = args.batch_size							# gets the input number of traces to be checked
 max_iter   = args.max_iter								# gets the input maximum number of iterations
 max_fences = args.max_fence								# max number of fences to be passed to cycle detection
-max_depth  = args.max_depth								# max search depth for cycle finding DFS
+max_depth  = args.max_depth	
+max_cycles = args.max_cycles							# max search depth for cycle finding DFS
+num_fences = args.num_fences
+if(num_fences==None):
+	num_fences = 100
 print_synthesis_summary = args.print_synthesis_summary  # print summarya of synthesis if set
 parallel   = args.parallel								# use multi-processing to parallel detect cycles of separate sccs
 cds_y_flag = args.cds_y_flag							# pass -y flag to cds (when input program uses yield())
@@ -67,10 +75,11 @@ batching    = (batch_size is not None)				# true if batch_size is set
 iter_bound  = (max_iter is not None)				# true if max_iter is set
 fence_bound = (max_fences is not None)				# true if max_fences is set
 depth_bound = (max_depth is not None)				# true if max_depth is 
+cycle_bound = (max_cycles is not None)				# true if max_cycles is set
 
 cds_flags = {'y':cds_y_flag, 'm':cds_m_flag}
-flags = {'batching':batching, 'iter_bound':iter_bound, 'fence_bound':fence_bound, 'depth_bound':depth_bound, 'parallel':parallel}
-bounds = {'batch_size':batch_size, 'max_iter':max_iter, 'max_fences':max_fences, 'max_depth':max_depth}
+flags = {'batching':batching, 'iter_bound':iter_bound, 'fence_bound':fence_bound, 'depth_bound':depth_bound, 'parallel':parallel,'cycle_bound':cycle_bound}
+bounds = {'batch_size':batch_size, 'max_iter':max_iter, 'max_fences':max_fences, 'max_depth':max_depth,'max_cycles':max_cycles,'num_fences':num_fences}
 
 input_ext      = filepath.split('$')[1]
 obj_filepath   = filepath.split('$')[0]
@@ -126,7 +135,7 @@ def fn_main(obj_filepath, tool_timeout_value=TO.tool):
 		print(oc.HEADER + oc.BOLD + "\n\n=============== ITERATION",total_iter,"===============" + oc.ENDC)
 	
 	traces, mc_time, mc_make_time, cnt_buggy_execs, mc_error_string, buggy_trace_no = model_checking_output(obj_filepath, input_ext, batch_size, total_iter, cds_flags, mc_total, tool_total)
-
+	# print(len(traces))
 	if mc_error_string is not None:
 		print(oc.BOLD + oc.FAIL + mc_error_string + oc.ENDC)
 		mc_total = TO.mc

@@ -1,6 +1,6 @@
 from collections import defaultdict
 import networkx as nx
-
+from concurrent.futures import ThreadPoolExecutor
 import multiprocessing as mp
 
 essential = None
@@ -53,7 +53,8 @@ def simple_cycles_scc(scc, subG):
     while stack:
         if flags['depth_bound'] and bounds['max_depth'] == len(stack): # Fensying depth bounding
             break
-
+        if flags['cycle_bound'] and bounds['max_cycles'] == len(cycles): # Fensying cycle bounding
+            break
         thisnode, nbrs = stack[-1]
         if nbrs:
             nextnode = nbrs.pop()
@@ -156,11 +157,34 @@ def parallel_cycles_sccs_aux(scc, subG):
 
     return cycles, new_sccs
 
+# def process_scc(args):
+#     global parallel_cycles_sccs_aux
+#     return parallel_cycles_sccs_aux(*args)
+
 def parallel_cycles_sccs(sccs, subG):
     global parallel_cycles_sccs_aux
+
     cycles = []
     new_sccs = []
     
+    if len(sccs)==0:
+        return cycles
+    
+
+
+    # with mp.Pool(processes=min(mp.cpu_count(),len(sccs))) as pool:
+    #     while True:
+    #         results = pool.map(process_scc, [(scc,subG) for scc in sccs])
+    #         for cyc, new_sccs_ in results:
+    #             cycles += cyc
+    #             new_sccs += new_sccs_
+            
+    #         if not new_sccs:
+    #             break
+    #         sccs = new_sccs
+    #         new_sccs = []
+
+
     pool = mp.Pool(mp.cpu_count())
     while True:
         for scc in sccs:
@@ -177,6 +201,29 @@ def parallel_cycles_sccs(sccs, subG):
     pool.join()
 
     return cycles
+
+
+def parallel_cycles_sccs_thread(sccs, subG):
+    global parallel_cycles_sccs_aux
+    cycles = []
+    new_sccs = []
+    if(len(sccs)==0):
+        return cycles
+    with ThreadPoolExecutor(max_workers=min(mp.cpu_count(), len(sccs))) as executor:
+        while True:
+            futures = [executor.submit(parallel_cycles_sccs_aux, scc, subG) for scc in sccs]
+            results = [f.result() for f in futures]
+            for cyc, new_sccs_ in results:
+                cycles += cyc
+                new_sccs += new_sccs_
+
+            if not new_sccs:
+                break
+            sccs = new_sccs
+            new_sccs = []
+
+    return cycles
+
 
 # @not_implemented_for("undirected")
 def simple_cycles(G, F, B, Es=None):

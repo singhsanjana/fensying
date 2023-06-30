@@ -9,7 +9,6 @@ from constants import timeouts as TO
 def model_checking_output(obj_filepath, input_ext, traces_batch_size, total_iter, cds_flags, mc_total_time, tool_total_time):
 	cds_test_file = fi.TEST_FOLDER_PATH_FROM_CDS + '/' + obj_filepath[3:]   # "../obj_filepath"[3:] = "obj_filepath"
 	timeout_value = TO.mc - mc_total_time   # TO value for model checker - time used by model checker in prev iterations
-
 	cds = translate_cds(obj_filepath, input_ext, total_iter)
 	cds.run_cds(cds_test_file, traces_batch_size, cds_flags, timeout_value) # execute cds subprocess and get output
 	

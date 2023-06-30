@@ -45,13 +45,35 @@ class edges_computation:
 					# INIT write's MO = relaxed, hence no sw with INIT
 					# also, INIT write has no fence before and after
 					continue
+				if (len(fences_thread[wr1_thread])==0):
+					continue
 
-				# sw edges
-				f1 = self.writes[wr1_index-1] # fence before the write wr1
-				f1_index = fences_thread[wr1_thread].index(f1)
-				f2 = self.reads[wr2_index+1]  # fence after the read wr2
-				f2_index = fences_thread[wr2_thread].index(f2)
-
+				f1 = ''
+				f1_index = wr1_index
+				while(f1_index>=0):
+					if(self.writes[f1_index][0:1]=='F' and (self.writes[f1_index] in  fences_thread[wr1_thread])):
+						f1 = self.writes[f1_index]
+						break
+					f1_index-=1
+				# f1 = self.writes[wr1_index-1] # fence before the write wr1
+				# f1_index = 0
+				if(f1==''):
+					f1_index = 0
+				else:
+					f1_index = fences_thread[wr1_thread].index(f1)
+				f2 = ''
+				f2_index = wr2_index
+				while(f2_index<len(self.reads)):
+					if(self.reads[f2_index][0:1]=='F' and (self.reads[f2_index] in fences_thread[wr2_thread])):
+						f2 = self.reads[f2_index]
+						break
+					f2_index+=1
+				# f2 = self.reads[wr2_index+1]  # fence after the read wr2
+				# loop after
+				if(f2==''):
+					f2_index = len(fences_thread[wr2_thread])-1
+				else:
+					f2_index = fences_thread[wr2_thread].index(f2)
 				add_ef_edges = True
 				for f1_in_sb_index in range(0, f1_index+1): # fences in thread of f1, po before f1 (including f1)
 
@@ -62,7 +84,8 @@ class edges_computation:
 						self.swdob_edges.append(edge_FE)
 						if wr2[MO] == SEQ_CST:
 							self.so_edges.append(edge_FE)
-
+					if(len(fences_thread[wr2_thread])==0):
+						continue
 					for f2_in_sb_index in range(f2_index, len(fences_thread[wr2_thread])):
 						if add_ef_edges: # true only once to avoid redundant computation
 							if wr1[MO] in strong_write_models: 
@@ -116,6 +139,8 @@ class edges_computation:
 
 			# so from fr
 			for read_index in range(len(self.reads)):
+				if(len(fences_thread[w2_thread])==0):
+					continue
 				read = self.reads[read_index]
 				if type(read) is list and read[RF] == w1[S_NO]:
 					# read --rf_inv--> w1 --mo--> w2 ==> read --fr--> w2
@@ -128,11 +153,38 @@ class edges_computation:
 						self.so_edges.append(edge_EE)
 
 					read_thread = read[T_NO] - 1
-					f1 = self.reads[read_index - 1] # fence before read
-					f1_index = fences_thread[read_thread].index(f1)
-
-					f2 = self.writes[w2_index + 1] # fence after write
-					f2_index = fences_thread[w2_thread].index(f2)
+					if (len(fences_thread[read_thread])==0):
+						continue
+					# loop before
+					f1 = ''
+					f1_index = read_index
+					while(f1_index>=0):
+						if(self.reads[f1_index][0:1]=='F' and (self.reads[f1_index] in  fences_thread[read_thread])):
+							f1 = self.reads[f1_index]
+							break
+						f1_index-=1
+					# f1 = self.reads[read_index - 1] # fence before read
+					# f1_index = fences_thread[read_thread].index(f1)
+					if(f1==''):
+						f1_index = 0
+					else:
+						f1_index = fences_thread[read_thread].index(f1)
+					
+					# loop after
+					f2 = ''
+					f2_index = w2_index
+					while(f2_index<len(self.writes)):
+						if(self.writes[f2_index][0:1]=='F' and (self.writes[f2_index] in fences_thread[w2_thread])):
+							f2 = self.writes[f2_index]
+							break
+						f2_index+=1
+					# f2 = self.writes[w2_index + 1] # fence after write
+					# f2_index = fences_thread[w2_thread].index(f2)
+					if(f2==''):
+						f2_index = len(fences_thread[w2_thread])-1
+					else:
+						f2_index = fences_thread[w2_thread].index(f2)
+					
 
 					add_ef_edges = True
 					for f1_in_sb_index in range(0, f1_index+1):
@@ -157,10 +209,39 @@ class edges_computation:
 
 			if w1_thread == w2_thread:
 				continue
-			f1 = self.writes[w1_index - 1] # fence before w1
-			f1_index = fences_thread[w1_thread].index(f1)
-			f2 = self.writes[w2_index + 1] # fence after w2
-			f2_index = fences_thread[w2_thread].index(f2)
+			# loop before
+			if (len(fences_thread[w1_thread])==0):
+				continue
+			f1 = ''
+			f1_index = w1_index
+			while(f1_index>=0):
+				if(self.writes[f1_index][0:1]=='F' and (self.writes[f1_index] in  fences_thread[w1_thread])):
+					f1 = self.writes[f1_index]
+					break
+				f1_index-=1
+			# f1 = self.writes[w1_index - 1] # fence before w1
+			# f1_index = fences_thread[w1_thread].index(f1)
+			if(f1==''):
+				f1_index = 0
+			else:
+				f1_index = fences_thread[w1_thread].index(f1)
+			
+			# loop after
+			f2 = ''
+			f2_index = w2_index
+			while(f2_index<len(self.writes)):
+				if(self.writes[f2_index][0:1]=='F' and (self.writes[f2_index] in fences_thread[w2_thread])):
+					f2 = self.writes[f2_index]
+					break
+				f2_index+=1
+			
+			# f2 = self.writes[w2_index + 1] # fence after w2
+			# f2_index = fences_thread[w2_thread].index(f2)
+			if(f2==''):
+				f2_index = len(fences_thread[w2_thread])-1
+			else:
+				f2_index = fences_thread[w2_thread].index(f2)
+			
 
 			# so from mo
 			add_ef_edges = True
@@ -168,7 +249,8 @@ class edges_computation:
 				if w2[MO] == SEQ_CST:
 					edge_FE = (fences_thread[w1_thread][f1_in_sb_index], w2[S_NO])
 					self.so_edges.append(edge_FE)
-				
+				if(len(fences_thread[w2_thread])==0):
+					continue
 				for f2_in_sb_index in range(f2_index, len(fences_thread[w2_thread])):
 					if add_ef_edges:
 						if w1[MO] == SEQ_CST:

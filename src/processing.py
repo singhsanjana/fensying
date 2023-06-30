@@ -1,5 +1,6 @@
 from model_checking_output.pre_calculator.pre_calculations import pre_calculations
 from preprocessing import preprocessing
+from preprocessing import preprocessing_new
 from edges_computation import edges_computation
 from cycle import cycles
 from publish_result import print_trace
@@ -7,7 +8,7 @@ from weak_fensying import weak_fensying
 from compute_cycles_tags import compute_relaxed_tags, compute_strong_tags
 from z3translate import z3translate
 from constants import *
-
+import random
 # import sys
 import time
 
@@ -38,16 +39,23 @@ class Processing:
 			self.pre_calc_total += (pre_calc_end-pre_calc_start)
 
 			# ADD FENCES
-			order=self.fence(trace)
-			
+			# order = self.fence(trace)
+			order,fence_list=self.fence_new(trace,bounds)
+			# print(order)
 			# transitive SB calc, put into hb edges
 			sb_edges, so_edges_from_sb = self.sb()
 			hb_edges += sb_edges
 			so_edges += so_edges_from_sb
 			
 			# pre-process and obtain separately reads, writes with neighbouring fences
-			reads, writes = preprocessing(order)
+			# reads, writes = preprocessing(order)
+			reads, writes = preprocessing_new(order,fence_list)
 			
+			# print()
+			# print(reads)
+			# print()
+			# print(writes)
+
 			# CALC EDGES
 			calc_edges = edges_computation(reads, writes, self.all_events_by_thread, self.fences_by_thread, mo_edges, so_edges)
 			swdob_edges, fr_edges, so_edges = calc_edges.get()
@@ -77,6 +85,8 @@ class Processing:
 				self.formula.append(formula) # add to disjuctions
 
 			else:
+				# next iteration
+				# jump to same trace with increase n 
 				self.error_string = '\nABORT: C11 fences cannot stop the buggy trace\n'
 				print_trace(trace)
 				return
@@ -138,6 +148,80 @@ class Processing:
 
 		return order
 
+	def fence_new(self, trace, bounds):
+		def ord(mo):
+			mo_short = {'release':f_tags.r, 'acquire':f_tags.a, 'acq_rel':f_tags.ar, 'seq_cst':f_tags.sc}
+			return mo_short[mo]
+
+		order = []                # trace with fences
+		events_in_thread = []     # list events of a thread
+		fences_in_thread = []     # list of fences of a thread
+		current_thread = 1      
+		fence_list = []
+		for i in range(len(trace)):
+			if trace[i][T_NO] != current_thread: # done with events of a thread
+				# self.all_events_by_thread.append(events_in_thread)
+				# self.fences_by_thread.append(fences_in_thread)
+
+				events_in_thread = []
+				fences_in_thread = []
+				# current_thread = current_thread + 1
+			if trace[i][TYPE] == FENCE:
+				continue
+			if trace[i][LINE_NO] != 'NA': # is a read or a write or an rmw event
+				fence_list.append(trace[i][LINE_NO])
+	
+		percent_fences = (bounds['num_fences'])/100
+		random.shuffle(fence_list)
+		fence_limit = len(fence_list) + len(fence_list)%2
+		del fence_list[:int(len(fence_list)*(1-percent_fences))]
+
+		for i in range(len(trace)):
+			if trace[i][T_NO] != current_thread: # done with events of a thread
+				self.all_events_by_thread.append(events_in_thread)
+				self.fences_by_thread.append(fences_in_thread)
+
+				events_in_thread = []
+				fences_in_thread = []
+				current_thread = current_thread + 1
+				
+			if trace[i][TYPE] == FENCE:
+				# note: no candidate-fences before and after program fences
+				fence_name  = 'F(' + ord(trace[i][MO]) +')_at_'
+				fence_name += str(trace[i][S_NO]) + '-' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				order.append(fence_name)
+				events_in_thread.append(fence_name)
+				fences_in_thread.append(fence_name) 
+				continue
+
+			if ((trace[i][LINE_NO] != 'NA') and (trace[i][LINE_NO] in fence_list) ): # is a read or a write or an rmw event
+				fence_name  = 'F_before_'
+				fence_name += str(trace[i][S_NO]) + '-' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				order.append(fence_name)
+				events_in_thread.append(fence_name)
+				fences_in_thread.append(fence_name)
+			
+				# add event itself
+				order.append(trace[i])
+				events_in_thread.append(trace[i])
+
+				# add fence after the read/write event
+				fence_name  = 'F_after_'
+				fence_name += str(trace[i][S_NO]) + '-' + str(trace[i][LINE_NO]) + '@' + trace[i][FILENAME]
+				order.append(fence_name)
+				events_in_thread.append(fence_name)
+				fences_in_thread.append(fence_name)
+				continue
+
+			# not a fence or read or write
+			order.append(trace[i])
+			events_in_thread.append(trace[i])
+			
+		# add last thread lists
+		self.all_events_by_thread.append(events_in_thread)
+		self.fences_by_thread.append(fences_in_thread)
+		return order, fence_list
+
 	# computes transitive sb
 	# computes non-transitive so between events of a thread
 	def sb(self):
@@ -145,16 +229,13 @@ class Processing:
 		so_edges = []
 		for thread_events in self.all_events_by_thread: # events of one thread at a time
 			last_sc_event = None
-			last_sc_fence = None
 
 			for i in range(1, len(thread_events)): # 1 event at a time, 1st event skipped because it has no sb before
-				is_fence = False
 				is_sc = False
 
 				# event = label (if fence) or S_NO (otherwise)
 				if type(thread_events[i]) is str: # event is a fence
 					event = thread_events[i]
-					is_fence = True
 					is_sc = True
 				else:
 					event = thread_events[i][S_NO]
@@ -165,13 +246,7 @@ class Processing:
 				if is_sc:
 					if last_sc_event != None: # some sc event has been found before this event
 						so_edges.append((last_sc_event, event))
-					if last_sc_fence != None:
-						so_edges.append((last_sc_fence, event))
-
-					if is_fence:
-						last_sc_fence = event
-					else:
-						last_sc_event = event
+					last_sc_event = event
 
 				# add sb edge with each event that occurs before in thread
 				for j in range(i):

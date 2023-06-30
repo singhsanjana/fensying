@@ -42,7 +42,7 @@ class translate_cds:
 		if cds_flags['m']:
 			cds_cmd += ' -m ' + str(cds_flags['m'])
 		cds_cmd = shlex.split(cds_cmd)
-
+		# print(cds_cmd)
 		cds_start = time.time()
 		try:
 			p = subprocess.check_output(cds_cmd,

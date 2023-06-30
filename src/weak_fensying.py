@@ -14,7 +14,7 @@ class weak_fensying:
 		
 		self.hb_source_nodes = set([e for (e,e_) in self.hb_edges])
 		self.weak_cycles = []
-
+  
 		self.weak_cycles.extend(self.hb_cycles())
 		self.weak_cycles.extend(self.rf_hb_cycles())
 		self.weak_cycles.extend(self.mo_rf_hb_cycles())

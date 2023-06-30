@@ -39,7 +39,8 @@ def z3run(z3vars, disjunctions):
 				if val == '1':											# if value is one, the location is a required location
 					req_fences.append(var)
 
-		if line == '(model ':
+		# if line == '(model ':
+		if line == '(':
 			in_model += 1												# model is starting now
 
 	return req_fences, (z3_end-z3_start)
